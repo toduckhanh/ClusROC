@@ -8,9 +8,9 @@ Authors@R:
            role = c("aut", "cre"),
            email = "toduc@stat.unipd.it",
            comment = c(ORCID = "0000-0002-4641-0764"))
-Description: This package implements the approaches to construct the ROC surface in the setting of clustered data. Also, it gives some routines to obtain the optimal pair of cut points based on Generalized Youden Index (GYI), Closest to Perfection and Max Volume.
+Description: This package implements the approaches for ROC analysis in the setting of clustered data. In particular, the following quantitiles are estimated: (i) the ROC curve and the area under ROC curve (AUC) if the disease status has two categories; (ii) the ROC surface and the volume under ROC surface (VUS) if there are three classes of disease. The selection of optimal threshold(s) are also taken into account. The selection methods are: (i) Youden Index (YI), Closest to Perfection (CtP) and Max Area (MA) for two-class setting; (ii) Generalized Youden Index (GYI), Closest to Perfection (CtP) and Max Volume (MV) for three-class setting.
 License: GPL (>= 2)
-Depends: R(>= 2.15.0), rgl, stats, utils, graphics, numDeriv, nlme
+Depends: R (>= 3.5.0), rgl, stats, utils, graphics, numDeriv, nlme, car
 Encoding: UTF-8
 LazyData: true
 LazyLoad: yes
