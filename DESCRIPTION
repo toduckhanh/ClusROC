@@ -1,0 +1,18 @@
+Package: ClusROC
+Type: Package
+Title: ClusROC
+Version: 0.1.0
+Authors@R: 
+    person(given = "Duc-Khanh",
+           family = "To",
+           role = c("aut", "cre"),
+           email = "toduc@stat.unipd.it",
+           comment = c(ORCID = "0000-0002-4641-0764"))
+Description: This package implements the approaches to construct the ROC surface in the setting of clustered data. Also, it gives some routines to obtain the optimal pair of cut points based on Generalized Youden Index (GYI), Closest to Perfection and Max Volume.
+License: GPL (>= 2)
+Depends: R(>= 2.15.0), rgl, stats, utils, graphics, numDeriv, nlme
+Encoding: UTF-8
+LazyData: true
+LazyLoad: yes
+ByteCompile: yes
+RoxygenNote: 7.1.1
