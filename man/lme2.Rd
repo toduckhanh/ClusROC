@@ -10,33 +10,27 @@ lme2(
   name.covars,
   name.clust,
   data,
+  levl.class = NULL,
   apVar = TRUE,
-  residual = FALSE,
-  fitted = FALSE,
-  randf = FALSE,
   ...
 )
 }
 \arguments{
-\item{name.test}{....}
+\item{name.test}{name of variable indicating diagnostic test of biomarker in data. It can be also the transformation, for example, \code{"log(y)"}, where the term \code{log} is for the log-transformation, and \code{y} is the name of test.}
 
-\item{name.class}{....}
+\item{name.class}{name of variable indicating disease classes (diagnostic groups) in data.}
 
-\item{name.covars}{...}
+\item{name.covars}{an vector of names of covariates containing in data. The vector can contain also the transformation, for example, \code{c("x1", "sqrt(x2)", "I(x3^2)")}.}
 
-\item{name.clust}{...}
+\item{name.clust}{name of variable indicating clusters in data.}
 
-\item{data}{...}
+\item{data}{a data frame containing the variables in the model.}
 
-\item{apVar}{a logical value ...}
+\item{levl.class}{an vector of the unique values (as character strings) that (disease) class might have taken, sorted into increasing order of means of test results corresponding to the disease classes (diagnostic groups). If \code{levl.class = NULL}, the levels will be automatically determined based on data, and sorted into increasing order of means of test results corresponding to the disease classes (diagnostic groups).}
 
-\item{residual}{a logical value ...}
+\item{apVar}{a logical value. Default = \code{TRUE}. If set to \code{TRUE}, the covariance matrix for all estimated parameters in model with be obtained by using the sandwich formula.}
 
-\item{fitted}{a logical value. Default = \code{FALSE}. If set to \code{TRUE}, ...}
-
-\item{randf}{a logical value ...}
-
-\item{...}{additional arguments for \code{lme()}.}
+\item{...}{additional arguments for \code{\link{lme}}.}
 }
 \value{
 \code{lme2} returns an object of class inheriting from "lme2" class.
@@ -46,13 +40,13 @@ The function \code{\link{print.lme2}} can be used to print a summary of the resu
 An object of class "lme2" is a list containing at least the following components:
 
 \item{call}{the matched call.}
-\item{est_para}{the estimate of VUS.}
-\item{se_para}{the standard error, obtained by using asymptotic theory or bootstrap resampling method.}
-\item{vcov_sand}{the matched call.}
-\item{residual}{...}
-\item{fitted}{...}
-\item{randf}{...}
-\item{n_coef}{...}
+\item{est_para}{the estimate of all parameters in model.}
+\item{se_para}{the standard error, obtained by using the sandwich formula.}
+\item{vcov_sand}{the estimated covariance matrix for all estimated parameters, obtained by the sandwich formula.}
+\item{residual}{a list of the residuals}
+\item{fitted}{a list of the fitted values.}
+\item{randf}{a vector of the estimated random effects.}
+\item{n_coef}{total numbers of coefficients included in model.}
 }
 \description{
 \code{lme2} the cluster-effect models for two-class or three-class setting based on the \code{lme()} routine from \code{nlme}-package.
@@ -67,6 +61,7 @@ head(data_2class)
 out1 <- lme2(name.test = "Y", name.class = "D", name.covars = c("X1", "X2"), name.clust = "id_Clus",
              data = data_2class, apVar = FALSE)
 print(out1)
+plot(out1)
 out2 <- lme2(name.test = "Y", name.class = "D", name.covars = c("X1", "X2"), name.clust = "id_Clus",
              data = data_2class)
 print(out2, digits = 3)
@@ -80,5 +75,6 @@ print(out3)
 out4 <- lme2(name.test = "Y", name.class = "D", name.covars = c("X1", "X2"), name.clust = "id_Clus",
              data = data_3class)
 print(out4)
+plot(out4)
 
 }
