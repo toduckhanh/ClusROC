@@ -9,6 +9,7 @@
 #' @import stats
 #' @import utils
 
+### ---- reml log-likelihood for normal distribution ----
 reml_loglik_vec <- function(par, D, Y, Z, V, cls, n_p, n_class){
   beta_fit <- par[1:(n_class*n_p)]
   sigma_c <- par[(n_class*n_p + 1)]
@@ -53,6 +54,71 @@ reml_loglik_vec_sum <- function(par, D, Y, Z, V, cls, n_p, n_class){
   return(sum(term_1) + term_2/2)
 }
 
+### ---- reml log-likelihood for Box-Cox transformation ----
+reml_bcx_loglik_vec <- function(par, D, Y, Z, V, cls, n_p, n_class){
+  beta_fit <- par[1:(n_class*n_p)]
+  sigma_c <- par[(n_class*n_p + 1)]
+  sigma_e <- par[(n_class*n_p + 2):(length(par) - 1)]
+  lambda <- par[length(par)]
+  y_boxcox <- lapply(Y, function(x) boxcox_trans(x, lambda))
+  Sigma <- lapply(1:cls, function(i){
+    tem <- tcrossprod(V[[i]])
+    return(sigma_c^2 * tem + diag(as.numeric(D[[i]] %*% sigma_e^2), ncol = ncol(tem), nrow = ncol(tem)))
+  })
+  Sig_chol <- lapply(Sigma, chol)
+  Sig_chol_inv <- lapply(Sig_chol, FUN = function(x) backsolve(x, diag(1, ncol(x))))
+  Sig_chol_inv_Z <- mapply(FUN = function(x,y) crossprod(x, y), x = Sig_chol_inv, y = Z, SIMPLIFY = FALSE)
+  term_1 <- numeric(cls)
+  term_3 <- numeric(cls)
+  for(i in 1:cls){
+    Sig_chol_inv_y <- crossprod(Sig_chol_inv[[i]], y_boxcox[[i]])
+    term_1[i] <- 0.5*crossprod(Sig_chol_inv_y - Sig_chol_inv_Z[[i]] %*% beta_fit) +
+      sum(log(diag(Sig_chol[[i]])))
+    term_3[i] <- sum(log(Y[[i]]))
+  }
+  tem <- Reduce("+", lapply(Sig_chol_inv_Z, FUN = crossprod))
+  term_2 <- sum(log(diag(chol(tem))))/cls
+  return(term_1 + term_2/2 - (lambda - 1)*term_3)
+}
+
+reml_bcx_loglik_vec_sum <- function(par, D, Y, Z, V, cls, n_p, n_class){
+  beta_fit <- par[1:(n_class*n_p)]
+  sigma_c <- par[(n_class*n_p + 1)]
+  sigma_e <- par[(n_class*n_p + 2):(length(par) - 1)]
+  lambda <- par[length(par)]
+  y_boxcox <- lapply(Y, function(x) boxcox_trans(x, lambda))
+  Sigma <- lapply(1:cls, function(i){
+    tem <- tcrossprod(V[[i]])
+    return(sigma_c^2 * tem + diag(as.numeric(D[[i]] %*% sigma_e^2), ncol = ncol(tem), nrow = ncol(tem)))
+  })
+  Sig_chol <- lapply(Sigma, chol)
+  Sig_chol_inv <- lapply(Sig_chol, FUN = function(x) backsolve(x, diag(1, ncol(x))))
+  Sig_chol_inv_Z <- mapply(FUN = function(x,y) crossprod(x, y), x = Sig_chol_inv, y = Z, SIMPLIFY = FALSE)
+  term_1 <- numeric(cls)
+  term_3 <- numeric(cls)
+  for(i in 1:cls){
+    Sig_chol_inv_y <- crossprod(Sig_chol_inv[[i]], y_boxcox[[i]])
+    term_1[i] <- 0.5*crossprod(Sig_chol_inv_y - Sig_chol_inv_Z[[i]] %*% beta_fit) +
+      sum(log(diag(Sig_chol[[i]])))
+    term_3[i] <- sum(log(Y[[i]]))
+  }
+  tem <- Reduce("+", lapply(Sig_chol_inv_Z, FUN = crossprod))
+  term_2 <- sum(log(diag(chol(tem))))
+  return(sum(term_1) + term_2/2 - (lambda - 1)*sum(term_3))
+}
+
+llike_bcx_fun <- function(par, fixed, random, weights, data, y_tit, ...){
+  y <- model.response(model.frame(fixed, data = data))
+  y_boxcox <- boxcox_trans(y, par)
+  W <- y_boxcox/(y_tit^(par - 1))
+  fixed_new <- update(fixed, W  ~ . )
+  data$W <- W
+  out_model <- lme(fixed = fixed_new, random = random, weights = weights, method = "REML", data = data, ...)
+  return(as.numeric(out_model$logLik))
+}
+
+### ---- Fitting cluster-effect models ----
+
 #' @title Fitting the cluster-effect models for two-class of three-class settings.
 #'
 #' @description \code{lme2} the cluster-effect models for two-class or three-class setting based on the \code{lme()} routine from \code{nlme}-package.
@@ -63,8 +129,10 @@ reml_loglik_vec_sum <- function(par, D, Y, Z, V, cls, n_p, n_class){
 #' @param name.clust  name of variable indicating clusters in data.
 #' @param data  a data frame containing the variables in the model.
 #' @param levl.class  an vector of the unique values (as character strings) that (disease) class might have taken, sorted into increasing order of means of test results corresponding to the disease classes (diagnostic groups). If \code{levl.class = NULL}, the levels will be automatically determined based on data, and sorted into increasing order of means of test results corresponding to the disease classes (diagnostic groups).
+#' @param boxcox  a logical value. Default = \code{FALSE}. If set to \code{TRUE}, a Box-Cox transformation will be applied to the model to guarantee the normally assumptions.
 #' @param apVar  a logical value. Default = \code{TRUE}. If set to \code{TRUE}, the covariance matrix for all estimated parameters in model with be obtained by using the sandwich formula.
-#' @param ...  additional arguments for \code{\link{lme}}.
+#' @param interval_lambda  a vector containing the end-points of the interval to be searched for the Box-Cox parameter, \code{lambda}. Default = (-2, 2).
+#' @param ...  additional arguments for \code{\link{lme}}, such as \code{control}, \code{contrasts}.
 #'
 #' @details
 #' .....
@@ -85,6 +153,8 @@ reml_loglik_vec_sum <- function(par, D, Y, Z, V, cls, n_p, n_class){
 #' \item{fitted}{a list of the fitted values.}
 #' \item{randf}{a vector of the estimated random effects.}
 #' \item{n_coef}{total numbers of coefficients included in model.}
+#' \item{icc}{a estimate of intra-class correlation - ICC}
+#' \item{boxcox}{logical value indicating whether the Box-Cox transformation was implemented or not.}
 #'
 #' @examples
 #' ## Example for two-class setting
@@ -110,7 +180,8 @@ reml_loglik_vec_sum <- function(par, D, Y, Z, V, cls, n_p, n_class){
 #' plot(out4)
 #'
 #' @export
-lme2 <- function(name.test, name.class, name.covars, name.clust, data, levl.class = NULL, apVar = TRUE, ...){
+lme2 <- function(name.test, name.class, name.covars, name.clust, data, levl.class = NULL,
+                 boxcox = FALSE, apVar = TRUE, interval_lambda = c(-2, 2), ...){
   form.mean <- as.formula(paste(name.test, "~", name.class))
   mean.temp <- aggregate(form.mean, FUN = mean, data = data)
   temp.levl <- mean.temp[order(mean.temp[,2]), 1]
@@ -133,15 +204,37 @@ lme2 <- function(name.test, name.class, name.covars, name.clust, data, levl.clas
   data[, name.class] <- factor(data[, name.class], levels = levl.class)
   ## define the formulas for fixed, random and weights
   call <- match.call()
-  fixed <- as.formula(paste(name.test, "~", name.class, "+",
-                            paste0(name.covars, ":", name.class, collapse = " + "), "- 1"))
+  fit <- list()
+  fit$call <- call
+  fit$boxcox <- boxcox
+  if(!missing(name.covars)){
+    fixed <- as.formula(paste(name.test, "~", name.class, "+",
+                              paste0(name.covars, ":", name.class, collapse = " + "), "- 1"))
+  } else{
+    fixed <- as.formula(paste(name.test, "~", name.class, "- 1"))
+  }
   random <- as.formula(paste("~", "1|", name.clust))
   form.weights <- as.formula(paste("~", "1|", name.class))
   weights <- varIdent(form = form.weights)
-  ## call lme() with REML
-  out_lme <- lme(fixed = fixed, random = random, weights = weights, method = "REML", data = data)
+  if(isFALSE(boxcox)){
+    out_model <- lme(fixed = fixed, random = random, weights = weights, method = "REML", data = data)
+  } else{
+    n <- nrow(data)
+    all.Y <- model.response(model.frame(fixed, data = data))
+    Clus <- model.frame(getGroupsFormula(random), data = data)[,1]
+    n_c <- table(Clus)
+    cls <- length(unique(Clus))
+    list.Y <- split(all.Y, Clus)
+    y_tit <- prod(sapply(list.Y, function(x) prod(x^(1/n))))
+    lambda_est <- optimize(llike_bcx_fun, interval = interval_lambda, fixed = fixed, random = random,
+                           weights = weights, data = data, y_tit = y_tit, maximum = TRUE, ...)$maximum
+    all.Y_boxcox <- boxcox_trans(all.Y, lambda_est)
+    data$Y_boxcox <- all.Y_boxcox
+    fixed_new <- update(fixed, Y_boxcox  ~ . )
+    out_model <- lme(fixed = fixed_new, random = random, weights = weights, method = "REML", data = data, ...)
+  }
   ## collecting results
-  n_coef <- length(out_lme$coefficients$fixed)
+  n_coef <- length(out_model$coefficients$fixed)
   n_class <- length(table(data[, name.class]))
   n_p <- n_coef/n_class
   if(n_class == 2){
@@ -150,45 +243,62 @@ lme2 <- function(name.test, name.class, name.covars, name.clust, data, levl.clas
   if(n_class == 3){
     id_coef <- c(seq(1, n_coef - 2, by = 3), seq(2, n_coef - 1, by = 3), seq(3, n_coef, by = 3))
   }
-  sigma_e_est <- coef(out_lme$modelStruct$varStruct, unconstrained = FALSE, allCoef = TRUE)*out_lme$sigma
+  sigma_e_est <- coef(out_model$modelStruct$varStruct, unconstrained = FALSE, allCoef = TRUE)*out_model$sigma
   sigma_e_est <- sigma_e_est[levl.class]
-  sigma_c_est <- sqrt(as.numeric(getVarCov(out_lme)))
-  par_lme_est <- c(out_lme$coefficients$fixed[id_coef], sigma_c_est, sigma_e_est)
+  sigma_c_est <- sqrt(as.numeric(getVarCov(out_model)))
+  if(boxcox){
+    par_est <- c(out_model$coefficients$fixed[id_coef], sigma_c_est, sigma_e_est, lambda_est)
+    names(par_est) <- c(names(par_est)[1:n_coef], "sigma_c", paste0("sigma_", c(1:n_class)), "lambda")
+  } else{
+    par_est <- c(out_model$coefficients$fixed[id_coef], sigma_c_est, sigma_e_est)
+    names(par_est) <- c(names(par_est)[1:n_coef], "sigma_c", paste0("sigma_", c(1:n_class)))
+  }
   icc <- sigma_c_est^2/(sigma_c_est^2 + mean(sigma_e_est)^2)
-  fit <- list()
-  fit$call <- call
   fit$n_coef <- n_coef
-  fit$est_para <- par_lme_est
-  names(fit$est_para) <- c(names(par_lme_est)[1:n_coef], "sigma_c", paste0("sigma_", c(1:n_class)))
+  fit$est_para <- par_est
   fit$icc <- icc
   ##
-  resid <- out_lme$residual[,2]
+  resid <- out_model$residual[,2]
   fit$residual <- split(resid, data[, name.class])
-  fitted <- out_lme$fitted[,2]
+  fitted <- out_model$fitted[,2]
   fit$fitted <- split(fitted, data[, name.class])
-  fit$randf <- ranef(out_lme)$`(Intercept)`
+  fit$randf <- ranef(out_model)$`(Intercept)`
   if(apVar){
-    ## preparing input for sandwich covariance matrix
-    Clus <- out_lme$groups[,1]
-    cls <- length(unique(Clus))
-    n_c <- table(Clus)
-    all.Y <- model.response(model.frame(out_lme$terms, data = data))
-    data_matrix <- model.matrix(out_lme$terms, data = data)
-    all.D <- data_matrix[, 1:n_class]
-    all.Z <- data_matrix[, id_coef]
-    Y <- split(all.Y, Clus)
-    D <- lapply(split(as.data.frame(all.D), Clus), as.matrix)
-    Z <- lapply(split(as.data.frame(all.Z), Clus), as.matrix)
-    V <- lapply(n_c, function(x) rep(1, x))
-    jac <- jacobian(reml_loglik_vec, x = par_lme_est, D = D, Y = Y, Z = Z, V = V,
-                    cls = cls, n_p = n_p, n_class = n_class)
-    hes <- hessian(reml_loglik_vec_sum, x = par_lme_est, D = D, Y = Y, Z = Z, V = V,
-                   cls = cls, n_p = n_p, n_class = n_class)
-    vcov_sand <- solve(hes) %*% matrix(rowSums(apply(jac, 1, tcrossprod)), n_coef + 1 + n_class,
-                                       n_coef + 1 + n_class) %*% solve(hes)
-    se_lme_est <- sqrt(diag(vcov_sand))
-    fit$se_para <- se_lme_est
-    names(fit$se_para) <- c(names(par_lme_est)[1:n_coef], "sigma_c", paste0("sigma_", c(1:n_class)))
+    if(isFALSE(boxcox)){
+      Clus <- out_model$groups[,1]
+      cls <- length(unique(Clus))
+      n_c <- table(Clus)
+      all.Y <- model.response(model.frame(out_model$terms, data = data))
+      data_matrix <- model.matrix(out_model$terms, data = data)
+      all.D <- data_matrix[, 1:n_class]
+      all.Z <- data_matrix[, id_coef]
+      Y <- split(all.Y, Clus)
+      D <- lapply(split(as.data.frame(all.D), Clus), as.matrix)
+      Z <- lapply(split(as.data.frame(all.Z), Clus), as.matrix)
+      V <- lapply(n_c, function(x) rep(1, x))
+      jac <- jacobian(reml_loglik_vec, x = par_lme_est, D = D, Y = Y, Z = Z, V = V,
+                      cls = cls, n_p = n_p, n_class = n_class)
+      hes <- hessian(reml_loglik_vec_sum, x = par_lme_est, D = D, Y = Y, Z = Z, V = V,
+                     cls = cls, n_p = n_p, n_class = n_class)
+      vcov_sand <- solve(hes) %*% matrix(rowSums(apply(jac, 1, tcrossprod)), n_coef + n_class + 1,
+                                         n_coef + n_class + 1) %*% solve(hes)
+    } else{
+      data_matrix <- model.matrix(out_model$terms, data = data)
+      all.D <- data_matrix[, 1:n_class]
+      all.Z <- data_matrix[, id_coef]
+      Y <- split(all.Y, Clus)
+      D <- lapply(split(as.data.frame(all.D), Clus), as.matrix)
+      Z <- lapply(split(as.data.frame(all.Z), Clus), as.matrix)
+      V <- lapply(n_c, function(x) rep(1, x))
+      jac <- jacobian(reml_bcx_loglik_vec, x = par_est, D = D, Y = Y, Z = Z, V = V, cls = cls, n_p = n_p,
+                      n_class = n_class)
+      hes <- hessian(reml_bcx_loglik_vec_sum, x = par_est, D = D, Y = Y, Z = Z, V = V, cls = cls,
+                     n_p = n_p, n_class = n_class)
+      vcov_sand <- solve(hes) %*% matrix(rowSums(apply(jac, 1, tcrossprod)), n_coef + n_class + 2,
+                                         n_coef + n_class + 2) %*% solve(hes)
+    }
+    fit$se_para <- sqrt(diag(vcov_sand))
+    names(fit$se_para) <- names(par_est)
     fit$vcov_sand <- vcov_sand
   }
   class(fit) <- "lme2"
