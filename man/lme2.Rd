@@ -11,7 +11,9 @@ lme2(
   name.clust,
   data,
   levl.class = NULL,
+  boxcox = FALSE,
   apVar = TRUE,
+  interval_lambda = c(-2, 2),
   ...
 )
 }
@@ -28,9 +30,13 @@ lme2(
 
 \item{levl.class}{an vector of the unique values (as character strings) that (disease) class might have taken, sorted into increasing order of means of test results corresponding to the disease classes (diagnostic groups). If \code{levl.class = NULL}, the levels will be automatically determined based on data, and sorted into increasing order of means of test results corresponding to the disease classes (diagnostic groups).}
 
+\item{boxcox}{a logical value. Default = \code{FALSE}. If set to \code{TRUE}, a Box-Cox transformation will be applied to the model to guarantee the normally assumptions.}
+
 \item{apVar}{a logical value. Default = \code{TRUE}. If set to \code{TRUE}, the covariance matrix for all estimated parameters in model with be obtained by using the sandwich formula.}
 
-\item{...}{additional arguments for \code{\link{lme}}.}
+\item{interval_lambda}{a vector containing the end-points of the interval to be searched for the Box-Cox parameter, \code{lambda}. Default = (-2, 2).}
+
+\item{...}{additional arguments for \code{\link{lme}}, such as \code{control}, \code{contrasts}.}
 }
 \value{
 \code{lme2} returns an object of class inheriting from "lme2" class.
@@ -47,6 +53,8 @@ An object of class "lme2" is a list containing at least the following components
 \item{fitted}{a list of the fitted values.}
 \item{randf}{a vector of the estimated random effects.}
 \item{n_coef}{total numbers of coefficients included in model.}
+\item{icc}{a estimate of intra-class correlation - ICC}
+\item{boxcox}{logical value indicating whether the Box-Cox transformation was implemented or not.}
 }
 \description{
 \code{lme2} the cluster-effect models for two-class or three-class setting based on the \code{lme()} routine from \code{nlme}-package.
