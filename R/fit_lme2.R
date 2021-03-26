@@ -121,7 +121,7 @@ llike_bcx_fun <- function(par, fixed, random, weights, data, y_tit, ...){
 
 #' @title Fitting the cluster-effect models for two-class of three-class settings.
 #'
-#' @description \code{lme2} the cluster-effect models for two-class or three-class setting based on the \code{lme()} routine from \code{nlme}-package.
+#' @description \code{lme2} fits the cluster-effect models for two-class or three-class setting based on the \code{lme()} routine from \code{nlme}-package.
 #'
 #' @param name.test  name of variable indicating diagnostic test of biomarker in data. It can be also the transformation, for example, \code{"log(y)"}, where the term \code{log} is for the log-transformation, and \code{y} is the name of test.
 #' @param name.class  name of variable indicating disease classes (diagnostic groups) in data.
@@ -152,7 +152,8 @@ llike_bcx_fun <- function(par, fixed, random, weights, data, y_tit, ...){
 #' \item{residual}{a list of the residuals}
 #' \item{fitted}{a list of the fitted values.}
 #' \item{randf}{a vector of the estimated random effects.}
-#' \item{n_coef}{total numbers of coefficients included in model.}
+#' \item{n_coef}{total numbers of coefficients included in the model.}
+#' \item{n_p}{total numbers of regressors in the model.}
 #' \item{icc}{a estimate of intra-class correlation - ICC}
 #' \item{boxcox}{logical value indicating whether the Box-Cox transformation was implemented or not.}
 #'
@@ -216,14 +217,14 @@ lme2 <- function(name.test, name.class, name.covars, name.clust, data, levl.clas
   random <- as.formula(paste("~", "1|", name.clust))
   form.weights <- as.formula(paste("~", "1|", name.class))
   weights <- varIdent(form = form.weights)
+  n <- nrow(data)
+  Clus <- model.frame(getGroupsFormula(random), data = data)[,1]
+  n_c <- table(Clus)
+  cls <- length(unique(Clus))
   if(isFALSE(boxcox)){
     out_model <- lme(fixed = fixed, random = random, weights = weights, method = "REML", data = data)
   } else{
-    n <- nrow(data)
     all.Y <- model.response(model.frame(fixed, data = data))
-    Clus <- model.frame(getGroupsFormula(random), data = data)[,1]
-    n_c <- table(Clus)
-    cls <- length(unique(Clus))
     list.Y <- split(all.Y, Clus)
     y_tit <- prod(sapply(list.Y, function(x) prod(x^(1/n))))
     lambda_est <- optimize(llike_bcx_fun, interval = interval_lambda, fixed = fixed, random = random,
@@ -249,13 +250,18 @@ lme2 <- function(name.test, name.class, name.covars, name.clust, data, levl.clas
   if(boxcox){
     par_est <- c(out_model$coefficients$fixed[id_coef], sigma_c_est, sigma_e_est, lambda_est)
     names(par_est) <- c(names(par_est)[1:n_coef], "sigma_c", paste0("sigma_", c(1:n_class)), "lambda")
+    #fit$lambda <- lambda_est
   } else{
     par_est <- c(out_model$coefficients$fixed[id_coef], sigma_c_est, sigma_e_est)
     names(par_est) <- c(names(par_est)[1:n_coef], "sigma_c", paste0("sigma_", c(1:n_class)))
   }
   icc <- sigma_c_est^2/(sigma_c_est^2 + mean(sigma_e_est)^2)
   fit$n_coef <- n_coef
-  fit$est_para <- par_est
+  fit$n_p <- n_p
+  fit$n <- n
+  fit$cls <- cls
+  fit$n_c <- n_c
+  fit$est_para <- par_est #[1:(n_class*n_p + 4)]
   fit$icc <- icc
   ##
   resid <- out_model$residual[,2]
@@ -265,9 +271,6 @@ lme2 <- function(name.test, name.class, name.covars, name.clust, data, levl.clas
   fit$randf <- ranef(out_model)$`(Intercept)`
   if(apVar){
     if(isFALSE(boxcox)){
-      Clus <- out_model$groups[,1]
-      cls <- length(unique(Clus))
-      n_c <- table(Clus)
       all.Y <- model.response(model.frame(out_model$terms, data = data))
       data_matrix <- model.matrix(out_model$terms, data = data)
       all.D <- data_matrix[, 1:n_class]
@@ -276,9 +279,9 @@ lme2 <- function(name.test, name.class, name.covars, name.clust, data, levl.clas
       D <- lapply(split(as.data.frame(all.D), Clus), as.matrix)
       Z <- lapply(split(as.data.frame(all.Z), Clus), as.matrix)
       V <- lapply(n_c, function(x) rep(1, x))
-      jac <- jacobian(reml_loglik_vec, x = par_lme_est, D = D, Y = Y, Z = Z, V = V,
+      jac <- jacobian(reml_loglik_vec, x = par_est, D = D, Y = Y, Z = Z, V = V,
                       cls = cls, n_p = n_p, n_class = n_class)
-      hes <- hessian(reml_loglik_vec_sum, x = par_lme_est, D = D, Y = Y, Z = Z, V = V,
+      hes <- hessian(reml_loglik_vec_sum, x = par_est, D = D, Y = Y, Z = Z, V = V,
                      cls = cls, n_p = n_p, n_class = n_class)
       vcov_sand <- solve(hes) %*% matrix(rowSums(apply(jac, 1, tcrossprod)), n_coef + n_class + 1,
                                          n_coef + n_class + 1) %*% solve(hes)
@@ -297,9 +300,9 @@ lme2 <- function(name.test, name.class, name.covars, name.clust, data, levl.clas
       vcov_sand <- solve(hes) %*% matrix(rowSums(apply(jac, 1, tcrossprod)), n_coef + n_class + 2,
                                          n_coef + n_class + 2) %*% solve(hes)
     }
-    fit$se_para <- sqrt(diag(vcov_sand))
-    names(fit$se_para) <- names(par_est)
     fit$vcov_sand <- vcov_sand
+    fit$se_para <- sqrt(diag(fit$vcov_sand))
+    names(fit$se_para) <- names(fit$est_para)
   }
   class(fit) <- "lme2"
   return(fit)
@@ -331,14 +334,14 @@ print.lme2 <- function(x, digits = max(3L, getOption("digits") - 3L), ...){
                        c(x$se_para[1:x$n_coef], rep(NA, length(x$est_para) - x$n_coef + 1)),
                        c(z, rep(NA, length(x$est_para) - x$n_coef + 1)),
                        c(p_val, rep(NA, length(x$est_para) - x$n_coef + 1)))
-    colnames(infer_tab) <- c("Est.", "Std.Error", "z-value", "p-value")
     rownames(infer_tab) <- c(names(x$est_para), "ICC")
+    colnames(infer_tab) <- c("Est.", "Std.Error", "z-value", "p-value")
     printCoefmat(infer_tab, has.Pvalue = TRUE, digits = digits, na.print = "--")
   }
   else{
     infer_tab <- cbind(c(x$est_para, x$icc))
-    colnames(infer_tab) <- c("Est.")
     rownames(infer_tab) <- c(names(x$est_para), "ICC")
+    colnames(infer_tab) <- c("Est.")
     printCoefmat(infer_tab, has.Pvalue = FALSE, digits = digits)
   }
   invisible(x)
