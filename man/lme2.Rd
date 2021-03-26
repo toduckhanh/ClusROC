@@ -52,12 +52,13 @@ An object of class "lme2" is a list containing at least the following components
 \item{residual}{a list of the residuals}
 \item{fitted}{a list of the fitted values.}
 \item{randf}{a vector of the estimated random effects.}
-\item{n_coef}{total numbers of coefficients included in model.}
+\item{n_coef}{total numbers of coefficients included in the model.}
+\item{n_p}{total numbers of regressors in the model.}
 \item{icc}{a estimate of intra-class correlation - ICC}
 \item{boxcox}{logical value indicating whether the Box-Cox transformation was implemented or not.}
 }
 \description{
-\code{lme2} the cluster-effect models for two-class or three-class setting based on the \code{lme()} routine from \code{nlme}-package.
+\code{lme2} fits the cluster-effect models for two-class or three-class setting based on the \code{lme()} routine from \code{nlme}-package.
 }
 \details{
 .....
