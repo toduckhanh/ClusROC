@@ -1,6 +1,6 @@
 Package: ClusROC
 Type: Package
-Title: ClusROC
+Title: ROC analysis for clustered data
 Version: 0.1.0
 Authors@R: 
     person(given = "Duc-Khanh",
