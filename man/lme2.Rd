@@ -14,6 +14,7 @@ lme2(
   boxcox = FALSE,
   apVar = TRUE,
   interval_lambda = c(-2, 2),
+  trace = TRUE,
   ...
 )
 }
