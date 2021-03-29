@@ -182,23 +182,29 @@ llike_bcx_fun <- function(par, fixed, random, weights, data, y_tit, ...){
 #'
 #' @export
 lme2 <- function(name.test, name.class, name.covars, name.clust, data, levl.class = NULL,
-                 boxcox = FALSE, apVar = TRUE, interval_lambda = c(-2, 2), ...){
+                 boxcox = FALSE, apVar = TRUE, interval_lambda = c(-2, 2), trace = TRUE, ...){
   form.mean <- as.formula(paste(name.test, "~", name.class))
   mean.temp <- aggregate(form.mean, FUN = mean, data = data)
   temp.levl <- mean.temp[order(mean.temp[,2]), 1]
   if(is.null(levl.class)){
-    cat("The ordered levels of classes were not assigned by user!\n")
-    cat("The ordered levels of classes are now determined by the orders of averages of diagnostic tests:\n")
-    cat(paste(temp.levl, collapse = " < "), "\n")
+    if(trace){
+      cat("The ordered levels of classes were not assigned by user!\n")
+      cat("The ordered levels of classes are now determined by the orders of averages of diagnostic tests:\n")
+      cat(paste(temp.levl, collapse = " < "), "\n")
+    }
     levl.class <- temp.levl
   } else{
     if(all(levl.class == temp.levl)){
-      cat("The orders of inputed levels of classes are the same as the one obtained by the orders of averages of diagnostic tests:\n")
-      cat(paste(levl.class, collapse = " < "),"\n")
+      if(trace){
+        cat("The orders of inputed levels of classes are the same as the one obtained by the orders of averages of diagnostic tests:\n")
+        cat(paste(levl.class, collapse = " < "),"\n")
+      }
     } else{
-      cat("The orders of inputed levels of classes are not the same as the one obtained by the orders of averages of diagnostic tests:\n")
-      cat("The correct one should be:\n")
-      cat(paste(temp.levl, collapse = " < "),"\n")
+      if(trace){
+        cat("The orders of inputed levels of classes are not the same as the one obtained by the orders of averages of diagnostic tests:\n")
+        cat("The correct one should be:\n")
+        cat(paste(temp.levl, collapse = " < "),"\n")
+      }
       levl.class <- temp.levl
     }
   }
