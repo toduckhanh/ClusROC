@@ -214,6 +214,10 @@ lme2 <- function(name.test, name.class, name.covars, name.clust, data, levl.clas
   fit <- list()
   fit$call <- call
   fit$boxcox <- boxcox
+  fit$name.test <- name.test
+  fit$name.class <- name.class
+  fit$name.covars <- name.covars
+  fit$name.clust <- name.clust
   if(!missing(name.covars)){
     fixed <- as.formula(paste(name.test, "~", name.class, "+",
                               paste0(name.covars, ":", name.class, collapse = " + "), "- 1"))
