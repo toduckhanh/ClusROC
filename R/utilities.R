@@ -9,3 +9,4 @@ boxcox_trans_back <- function(x, lambda){
   else y <- exp(x)
   return(y)
 }
+
