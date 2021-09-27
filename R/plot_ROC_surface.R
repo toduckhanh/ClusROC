@@ -64,6 +64,7 @@ ROCsurface <- function(out_lme2, x.val, step.tcf = 0.01, plot = TRUE, main = NUL
                        ellips = FALSE, thresholds = NULL, ci.level = ifelse(ellips, 0.95, NULL)){
   # define parameters
   if(isFALSE(inherits(out_lme2, "lme2"))) stop("out_lme2 was not from lme2()!")
+  if(out_lme2$n_coef/out_lme2$n_p != 3) stop("There is not a case of three-class setting!")
   n_p <- out_lme2$n_p
   par_model <- out_lme2$est_para
   beta_d <- matrix(par_model[1:(3*n_p)], ncol = 3, nrow = n_p, byrow = FALSE)
@@ -93,7 +94,7 @@ ROCsurface <- function(out_lme2, x.val, step.tcf = 0.01, plot = TRUE, main = NUL
     tcf2 <- matrix(rocs, length(p1), length(p1), byrow = FALSE)
     open3d()
     par3d(windowRect = 50 + c(0, 0, 640, 640))
-    if(is.null(main)) main <- "Cov-specific ROC surface"
+    if(is.null(main)) main <- "Covariate-specific ROC surface"
     plot3d(0, 0, 0, type = "n", box = FALSE, xlab = "TCF 1", ylab = "TCF 3", zlab = "TCF 2",
            xlim = c(0,1), ylim = c(0,1), zlim = c(0,1))
     bgplot3d({
