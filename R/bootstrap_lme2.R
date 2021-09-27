@@ -7,16 +7,28 @@
 check_order <- function(par, x.val, n_class, n_p){
   beta_fit <- par[1:(n_class*n_p)]
   Z <- c(1, x.val)
-  if(n_class == 2){
-    flag <- (beta_fit[1:n_p] - beta_fit[(n_p + 1):(2*n_p)]) %*% Z < 0
-  }
+  flag1 <- (beta_fit[1:n_p] - beta_fit[(n_p + 1):(2*n_p)]) %*% Z < 0
+  flag <- flag1
   if(n_class == 3){
-    flag1 <- (beta_fit[1:n_p] - beta_fit[(n_p + 1):(2*n_p)]) %*% Z < 0
     flag2 <- (beta_fit[(n_p + 1):(2*n_p)] - beta_fit[(2*n_p + 1):(3*n_p)]) %*% Z < 0
     flag <- flag1*flag2
   }
   return(flag)
 }
+
+check_sign <- function(par, x.val, n_class, n_p){
+  beta_fit <- par[1:(n_class*n_p)]
+  Z <- c(1, x.val)
+  flag1 <- beta_fit[1:n_p] %*% Z > 0
+  flag2 <- beta_fit[(n_p + 1):(2*n_p)] %*% Z > 0
+  flag <- flag1*flag2
+  if(n_class == 3){
+    flag3 <- beta_fit[(2*n_p + 1):(3*n_p)] %*% Z > 0
+    flag <- flag*flag3
+  }
+  return(flag)
+}
+
 
 #' @import snow
 #' @import doSNOW
@@ -65,11 +77,8 @@ boot_lme2 <- function(name.test, name.class, name.covars, name.clust, data, levl
                       boxcox = boxcox, apVar = FALSE, trace = FALSE),
                  silent = FALSE)
       if(class(out) != "try-error") {
-        print(out$est_para)
-        print(length(levl.class))
-        print(out$n_p)
-        print(x.val)
-        flag <- check_order(out$est_para, x.val = x.val, n_class = length(levl.class), n_p = out$n_p)
+        flag <- check_order(out$est_para, x.val = x.val, n_class = length(levl.class), n_p = out$n_p)*
+          check_sign(out$est_para, x.val = x.val, length(levl.class), n_p = out$n_p)
       }
     }
     return(out$est_para)
