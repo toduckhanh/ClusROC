@@ -11,7 +11,6 @@ TCF_normal <- function(par, x.val, thresholds, n_p, boxcox = FALSE){
   return(res_tcfs)
 }
 
-
 TCF_normal_vcov <- function(par_model, x.val, thresholds, vcov_par_model, n_p, fixed = FALSE, boxcox = FALSE,
                             type_thresholds = c("GYI", "CtP", "MV")){
   type_thresholds <- match.arg(type_thresholds)
@@ -42,3 +41,4 @@ TCF_normal_vcov <- function(par_model, x.val, thresholds, vcov_par_model, n_p, f
   }
   return(vcov.tcfs)
 }
+
