@@ -216,13 +216,19 @@ lme2 <- function(name.test, name.class, name.covars, name.clust, data, levl.clas
   fit$boxcox <- boxcox
   fit$name.test <- name.test
   fit$name.class <- name.class
-  fit$name.covars <- name.covars
   fit$name.clust <- name.clust
   if(!missing(name.covars)){
-    fixed <- as.formula(paste(name.test, "~", name.class, "+",
-                              paste0(name.covars, ":", name.class, collapse = " + "), "- 1"))
+    if(!is.null(name.covars)){
+      fixed <- as.formula(paste(name.test, "~", name.class, "+",
+                                paste0(name.covars, ":", name.class, collapse = " + "), "- 1"))
+      fit$name.covars <- name.covars
+    } else{
+      fixed <- as.formula(paste(name.test, "~", name.class, "- 1"))
+      fit$name.covars <- NULL
+    }
   } else{
     fixed <- as.formula(paste(name.test, "~", name.class, "- 1"))
+    fit$name.covars <- NULL
   }
   random <- as.formula(paste("~", "1|", name.clust))
   form.weights <- as.formula(paste("~", "1|", name.class))
@@ -255,7 +261,7 @@ lme2 <- function(name.test, name.class, name.covars, name.clust, data, levl.clas
     id_coef <- c(seq(1, n_coef - 2, by = 3), seq(2, n_coef - 1, by = 3), seq(3, n_coef, by = 3))
   }
   sigma_e_est <- coef(out_model$modelStruct$varStruct, unconstrained = FALSE, allCoef = TRUE)*out_model$sigma
-  sigma_e_est <- sigma_e_est[levl.class]
+  sigma_e_est <- sigma_e_est[as.character(levl.class)]
   sigma_c_est <- sqrt(as.numeric(getVarCov(out_model)))
   if(boxcox){
     par_est <- c(out_model$coefficients$fixed[id_coef], sigma_c_est, sigma_e_est, lambda_est)
@@ -346,14 +352,22 @@ print.lme2 <- function(x, digits = max(3L, getOption("digits") - 3L), ...){
                        c(p_val, rep(NA, length(x$est_para) - x$n_coef + 1)))
     rownames(infer_tab) <- c(names(x$est_para), "ICC")
     colnames(infer_tab) <- c("Est.", "Std.Error", "z-value", "p-value")
+    cat("Coefficients:\n")
     printCoefmat(infer_tab, has.Pvalue = TRUE, digits = digits, na.print = "--")
   }
   else{
     infer_tab <- cbind(c(x$est_para, x$icc))
     rownames(infer_tab) <- c(names(x$est_para), "ICC")
     colnames(infer_tab) <- c("Est.")
+    cat("Coefficients:\n")
     printCoefmat(infer_tab, has.Pvalue = FALSE, digits = digits)
   }
+  cat("\n")
+  cat("Number of clusters:", x$cls, "\n")
+  cat("Sample size within cluster:\n")
+  print(c(Min = min(x$n_c), Max = max(x$n_c), Average = mean(x$n_c)))
+  cat("Box-Cox transformation:", x$boxcox, "\n")
+  cat("\n")
   invisible(x)
 }
 
