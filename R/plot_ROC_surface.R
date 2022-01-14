@@ -5,6 +5,7 @@
 
 #' @import rgl
 #' @import utils
+#' @import graphics
 
 shade.ellips <- function(orgi, sig, lev){
   t1 <- sig[2, 2]
@@ -19,58 +20,104 @@ shade.ellips <- function(orgi, sig, lev){
 }
 
 ### ---- Plot the ROC surface under normal assumption ----
-#' @title Plot the covariate-specific ROC surface for clustered data after fitting the cluster-effect model.
+#' @title Plot the covariate-specific ROC surface for clustered data.
 #'
-#' @description \code{ROCsurface} estimates and makes a 3D plot of covariate-specific ROC surface for clustered data.
+#' @description \code{ROCsurface} estimates and makes a 3D plot of covariate-specific ROC surface of a continuous diagnostic test in a clustered design when subjects can be diagnosed in three ordinal groups.
 #'
-#' @param name.test  name of variable indicating diagnostic test of biomarker in data. It can be also the transformation, for example, \code{"log(y)"}, where the term \code{log} is for the log-transformation, and \code{y} is the name of test.
-#' @param name.class  name of variable indicating disease classes (diagnostic groups) in data.
-#' @param name.covars  an vector of names of covariates containing in data. The vector can contain also the transformation, for example, \code{c("x1", "sqrt(x2)", "I(x3^2)")}.
-#' @param name.clust  name of variable indicating clusters in data.
-#' @param data  a data frame containing the variables in the model.
-#' @param levl.class  an vector of the unique values (as character strings) that (disease) class might have taken, sorted into increasing order of means of test results corresponding to the disease classes (diagnostic groups). If \code{levl.class = NULL}, the levels will be automatically determined based on data, and sorted into increasing order of means of test results corresponding to the disease classes (diagnostic groups).
-#' @param boxcox  a logical value. Default = \code{FALSE}. If set to \code{TRUE}, a Box-Cox transformation will be applied to the model to guarantee the normally assumptions.
-#' @param apVar  a logical value. Default = \code{TRUE}. If set to \code{TRUE}, the covariance matrix for all estimated parameters in model with be obtained by using the sandwich formula.
-#' @param interval_lambda  a vector containing the end-points of the interval to be searched for the Box-Cox parameter, \code{lambda}. Default = (-2, 2).
-#' @param ...  additional arguments for \code{\link{lme}}, such as \code{control}, \code{contrasts}.
+#' @param out_lme2  an object of class "lme2", a result of a call to \code{\link{lme2}}.
+#' @param x.val  specific value(s) of covariate(s) where the ROC surface are computed. In case non-covariate, no value is needed to specify. In case of one covariate, \code{x.val} should be a number. In case of \eqn{p} covariates (\eqn{p > 1}), \code{x.val} should be a vector containing \eqn{p} values of the covariates.
+#' @param step.tcf  number: increment of the \eqn{p1 = tcf1} and \eqn{p3 = tcf3}.
+#' @param main  the main title (on top) of plot.
+#' @param file.name  	path to file to save the plot.
+#' @param ellips  a logical value. If \code{TRUE}, adds an ellipsoidal confidence region for TCFs (True Class Fractions) at a specified pair of thresholds to current plot of covariate-specific ROC surface.
+#' @param thresholds  a specified pair of thresholds, which used to construct the ellipsoid confidence region for TCFs.
+#' @param ci.level  a confidence level to be used for constructing the confidence interval; default is 0.95.
 #'
 #' @details
-#' .....
+#' This function implements estimation method in To et al. (2021) for estimating covariate-specific ROC surface of a continuous diagnostic test in a clustered design when subjects can be diagnosed in three ordinal groups. The estimator is based on the results of fitting the linear mixed-effect model on the diagnostic tests, which is done by using \code{\link{lme2}} with REML approach.
 #'
+#' Before applying the estimation, a quick check for the monotone ordering assumption will be performed. That is, for given values of covariates, three predicted means of three diagnostic groups will be compared. If the assumption does not meet, the covariate-specific ROC surface at the values of covariates will be not estimated.
 #'
+#' The ellipsoidal confidence region of TCFs at a given pair of thresholds can be constructed by using a normal approximation and plotted in the ROC surface space. The confidence level (default) is 0.95. Notice that, if the Box-Cox transformation was applied for the linear mixed-effect on the diagnostic tests (\code{\link{lme2}}), the thresholds have to input by the original scale. If the constructed confidence region of TCFs is outside the unit cube, a probit transformation will be automatically applied to obtain a appropriate confidence region which is inside the unit cube (see Bantis et. al., 2017).
 #'
-#' @return \code{lme2} returns an object of class inheriting from "lme2" class.
+#' @return \code{ROCsurface} returns a 3D \code{rgl} plot of covariate-specific ROC surface.
 #'
-#' The function \code{\link{print.lme2}} can be used to print a summary of the results.
+#' @references
+#' To, D-K., Adimari, G., Chiogna, M. and Risso, D. (2021)
+#' ``ROC estimation and threshold selection criteria in three-class classification problems for clustered data''. \emph{Submitted}.
 #'
-#' An object of class "lme2" is a list containing at least the following components:
-#'
-#' \item{call}{the matched call.}
-#' \item{est_para}{the estimate of all parameters in model.}
-#' \item{se_para}{the standard error, obtained by using the sandwich formula.}
-#' \item{vcov_sand}{the estimated covariance matrix for all estimated parameters, obtained by the sandwich formula.}
-#' \item{residual}{a list of the residuals}
-#' \item{fitted}{a list of the fitted values.}
-#' \item{randf}{a vector of the estimated random effects.}
-#' \item{n_coef}{total numbers of coefficients included in model.}
-#' \item{icc}{a estimate of intra-class correlation - ICC}
-#' \item{boxcox}{logical value indicating whether the Box-Cox transformation was implemented or not.}
+#' Bantis, L. E., Nakas, C. T., Reiser, B., Myall, D., and Dalrymple-Alford, J. C. (2017).
+#' ``Construction of joint confidence regions for the optimal true class fractions of Receiver Operating Characteristic (ROC) surfaces and manifolds''. \emph{Statistical methods in medical research}, \bold{26}, 3, 1429-1442.
 #'
 #' @examples
+#' \dontrun{
+#' data(data_3class)
+#' ## One covariate
+#' out1 <- lme2(name.test = "Y", name.class = "D", name.covars = c("X1"), name.clust = "id_Clus",
+#'              data = data_3class)
 #'
-
+#' ### plot only covariate-specific ROC surface
+#' ROCsurface(out_lme2 = out1, x.val = 1)
+#'
+#' ### plot covariate-specific ROC surface and a 95% ellipsoidal confidence region for TCFs
+#' ROCsurface(out_lme2 = out1, x.val = 1, ellips = TRUE, thresholds = c(0.9, 3.95))
+#'
+#' ## Two covariates
+#' out2 <- lme2(name.test = "Y", name.class = "D", name.covars = c("X1", "X2"),
+#'              name.clust = "id_Clus", data = data_3class)
+#'
+#' ### plot only covariate-specific ROC surface
+#' ROCsurface(out_lme2 = out2, x.val = c(1, 1))
+#'
+#' ### plot covariate-specific ROC surface and a 95% ellipsoidal confidence region for TCFs
+#' ROCsurface(out_lme2 = out2, x.val = c(1, 1), ellips = TRUE, thresholds = c(0.9, 3.95))
+#' }
+#'
 #' @export
-ROCsurface <- function(out_lme2, x.val, step.tcf = 0.01, plot = TRUE, main = NULL, file.name = NULL,
+ROCsurface <- function(out_lme2, x.val, step.tcf = 0.01, main = NULL, file.name = NULL,
                        ellips = FALSE, thresholds = NULL, ci.level = ifelse(ellips, 0.95, NULL)){
   # define parameters
   if(isFALSE(inherits(out_lme2, "lme2"))) stop("out_lme2 was not from lme2()!")
   if(out_lme2$n_coef/out_lme2$n_p != 3) stop("There is not a case of three-class setting!")
   n_p <- out_lme2$n_p
+  if(n_p == 1) {
+    if(!missing(x.val)) {
+      if(!is.null(x.val)) warning("Sepecified value(s) of covariate(s) are not used!", call. = FALSE)
+    }
+    x.val <- NULL
+  }
+  if(n_p == 2){
+    if(missing(x.val)) stop("Please input specific value of covariate.")
+    if(is.null(x.val)) stop("Please input specific value of covariate.")
+    if(!inherits(x.val, "numeric") | length(x.val) != 1) stop("For case of 1 covariate, please input a number.")
+  }
+  if(n_p > 2){
+    if(missing(x.val)) stop("Please input specific value(s) of covariates.")
+    if(is.null(x.val)) stop("Please input specific value(s) of covariates.")
+    n_vb <- attr(out_lme2$terms, "n_vb")
+    if(!inherits(x.val, "numeric") | length(x.val) != n_vb) stop(paste("For case of", n_vb, "covariates, please input a vector of", n_vb, "values of covariates."))
+    if(any(is.na(x.val))) stop("NA value(s) not allowed!")
+  }
+  if(ellips){
+    if(is.null(thresholds)) stop("Need to assign the pair of thresholds!")
+    else {
+      if(!inherits(thresholds, "numeric") | length(thresholds) != 2) stop("Please input a the pair of thresholds!")
+      else {
+        if(thresholds[1] > thresholds[2]) stop("The 1st threshold needs to less than 2nd threshold!")
+        else {
+          if(is.null(out_lme2$vcov_sand)) stop("The estimated covariance matrix of parameters was missing!")
+          if(any(is.na(out_lme2$vcov_sand))) stop("There are NA values in the estimated covariance matrix of parameters. Unable to estimate standard error of TCFs.")
+        }
+      }
+    }
+  }
+  ## main
   par_model <- out_lme2$est_para
-  beta_d <- matrix(par_model[1:(3*n_p)], ncol = 3, nrow = n_p, byrow = FALSE)
+  beta_d <- par_model[1:(3*n_p)]
   sigma_d <- sqrt(par_model[(3*n_p + 2):(3*n_p + 4)]^2 + par_model[(3*n_p + 1)]^2)
-  Z <- c(1, x.val)
-  mu_d <- Z %*% beta_d
+  Z <- make_data(out_lme2, x.val, n_p)
+  mu_d <- Z[[1]] %*% beta_d
+  if((mu_d[1] < mu_d[2])*(mu_d[2] < mu_d[3]) == 0) stop("The monotone ordering assumption DOES NOT hold for the value(s) of the covariate(s)")
   a12 <- sigma_d[2]/sigma_d[1]
   a32 <- sigma_d[2]/sigma_d[3]
   b12 <- (mu_d[1] - mu_d[2])/sigma_d[1]
@@ -88,43 +135,50 @@ ROCsurface <- function(out_lme2, x.val, step.tcf = 0.01, plot = TRUE, main = NUL
   colnames(fit) <- c("TCF1", "TCF3", "TCF2")
   out <- list()
   out$fit <- fit
-  if(plot){
-    tcf1 <- matrix(p1, length(p1), length(p1), byrow = FALSE)
-    tcf3 <- matrix(p3, length(p1), length(p1), byrow = TRUE)
-    tcf2 <- matrix(rocs, length(p1), length(p1), byrow = FALSE)
-    open3d()
-    par3d(windowRect = 50 + c(0, 0, 640, 640))
-    if(is.null(main)) main <- "Covariate-specific ROC surface"
-    plot3d(0, 0, 0, type = "n", box = FALSE, xlab = "TCF 1", ylab = "TCF 3", zlab = "TCF 2",
-           xlim = c(0,1), ylim = c(0,1), zlim = c(0,1))
-    bgplot3d({
-      plot.new()
-      title(main = main, line = 1)
-    })
-    surface3d(tcf1, tcf3, tcf2, col = "gray40", alpha = 0.5)
-    if(ellips){
-      if(is.null(thresholds)) stop("Need to assign the pair of thresholds!")
-      if(inherits(thresholds, "numeric")){
-        if(thresholds[1] >= thresholds[2]) stop("The 1st threshold need to less than 2nd threshold!")
-        tcfs_ellips <- TCF_normal(par = par_model, x.val = x.val, thresholds = thresholds, n_p = n_p,
-                                  boxcox = out_lme2$boxcox)
-        vcov_tcfs <- TCF_normal_vcov(par_model = par_model, x.val = x.val, thresholds = thresholds,
-                                     vcov_par_model = out_lme2$vcov_sand, n_p = n_p, fixed = TRUE,
-                                     boxcox = out_lme2$boxcox)
-      }
-      ellip.tcf <- shade.ellips(orgi = tcfs_ellips, sig = vcov_tcfs, lev = ci.level)
-      plot3d(ellip.tcf, box = FALSE, col = "green", alpha = 0.5, xlim = c(0,1),
-             ylim = c(0, 1), zlim = c(0, 1), xlab = " ", ylab = " ", zlab = " ",
-             add = TRUE)
-      plot3d(tcfs_ellips[1], tcfs_ellips[3], tcfs_ellips[2], type = "s", col = "red",
-             radius = 0.01, add = TRUE)
+  tcf1 <- matrix(p1, length(p1), length(p1), byrow = FALSE)
+  tcf3 <- matrix(p3, length(p1), length(p1), byrow = TRUE)
+  tcf2 <- matrix(rocs, length(p1), length(p1), byrow = FALSE)
+  open3d()
+  par3d(windowRect = 50 + c(0, 0, 640, 640))
+  if(is.null(main)) main <- "Covariate-specific ROC surface"
+  plot3d(0, 0, 0, type = "n", box = FALSE, xlab = "TCF 1", ylab = "TCF 3", zlab = "TCF 2",
+         xlim = c(0,1), ylim = c(0,1), zlim = c(0,1))
+  bgplot3d({
+    plot.new()
+    title(main = main, line = 1)
+  })
+  surface3d(tcf1, tcf3, tcf2, col = "gray40", alpha = 0.5)
+  if(ellips){
+    if(inherits(thresholds, "numeric")){
+      tcfs_ellips <- TCF_normal(par = par_model, z = Z[[1]], thresholds = thresholds, n_p = n_p,
+                                boxcox = out_lme2$boxcox)
+      vcov_tcfs <- TCF_normal_vcov(par_model = par_model, z = Z[[1]], thresholds = thresholds,
+                                   vcov_par_model = out_lme2$vcov_sand, n_p = n_p, fixed = TRUE,
+                                   boxcox = out_lme2$boxcox)
     }
-    play3d(spin3d(axis = c(0, 0, 1), rpm = 12.25), duration = 2)
-    play3d(spin3d(axis = c(0, 1, 0), rpm = 0.3), duration = 2)
-    if(!is.null(file.name)){
-      if(!grepl(".png", file.name)) file.name <- paste0(file.name, ".png")
-      rgl.snapshot(file.name)
+    ellip.tcf <- shade.ellips(orgi = tcfs_ellips, sig = vcov_tcfs, lev = ci.level)
+    if(max(c(ellip.tcf$vb[1,], ellip.tcf$vb[2,], ellip.tcf$vb[3,])) > 1 |
+       min(c(ellip.tcf$vb[1,], ellip.tcf$vb[2,], ellip.tcf$vb[3,])) < 0){
+      tcfs_ellips_prob <- probit(tcfs_ellips)
+      jac_prob <- jacobian(func = probit, x = tcfs_ellips)
+      vcov_tcfs_prob <- jac_prob %*% vcov_tcfs %*% jac_prob
+      ellip.tcf_prob <- shade.ellips(orgi = tcfs_ellips_prob, sig = vcov_tcfs_prob, lev = ci.level)
+      ellip.tcf <- ellip.tcf_prob
+      ellip.tcf$vb[1:3,] <- pnorm(ellip.tcf_prob$vb[1:3,])
+      cat("A probit transformation was applied to guarantee the confidence region inside the unit cube.")
     }
-    invisible(out)
-  } else return(out)
+    plot3d(ellip.tcf, box = FALSE, col = "green", alpha = 0.5, xlim = c(0,1),
+           ylim = c(0, 1), zlim = c(0, 1), xlab = " ", ylab = " ", zlab = " ",
+           add = TRUE)
+    plot3d(tcfs_ellips[1], tcfs_ellips[3], tcfs_ellips[2], type = "s", col = "red",
+           radius = 0.01, add = TRUE)
+  }
+  play3d(spin3d(axis = c(0, 0, 1), rpm = 12.25), duration = 2)
+  play3d(spin3d(axis = c(0, 1, 0), rpm = 0.3), duration = 2)
+  if(!is.null(file.name)){
+    if(!grepl(".png", file.name)) file.name <- paste0(file.name, ".png")
+    rgl.snapshot(file.name)
+  }
+  invisible(out)
 }
+
