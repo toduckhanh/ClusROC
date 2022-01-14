@@ -2,13 +2,12 @@
 % Please edit documentation in R/plot_ROC_surface.R
 \name{ROCsurface}
 \alias{ROCsurface}
-\title{Plot the covariate-specific ROC surface for clustered data after fitting the cluster-effect model.}
+\title{Plot the covariate-specific ROC surface for clustered data.}
 \usage{
 ROCsurface(
   out_lme2,
   x.val,
   step.tcf = 0.01,
-  plot = TRUE,
   main = NULL,
   file.name = NULL,
   ellips = FALSE,
@@ -17,50 +16,64 @@ ROCsurface(
 )
 }
 \arguments{
-\item{name.test}{name of variable indicating diagnostic test of biomarker in data. It can be also the transformation, for example, \code{"log(y)"}, where the term \code{log} is for the log-transformation, and \code{y} is the name of test.}
+\item{out_lme2}{an object of class "lme2", a result of a call to \code{\link{lme2}}.}
 
-\item{name.class}{name of variable indicating disease classes (diagnostic groups) in data.}
+\item{x.val}{specific value(s) of covariate(s) where the ROC surface are computed. In case non-covariate, no value is needed to specify. In case of one covariate, \code{x.val} should be a number. In case of \eqn{p} covariates (\eqn{p > 1}), \code{x.val} should be a vector containing \eqn{p} values of the covariates.}
 
-\item{name.covars}{an vector of names of covariates containing in data. The vector can contain also the transformation, for example, \code{c("x1", "sqrt(x2)", "I(x3^2)")}.}
+\item{step.tcf}{number: increment of the \eqn{p1 = tcf1} and \eqn{p3 = tcf3}.}
 
-\item{name.clust}{name of variable indicating clusters in data.}
+\item{main}{the main title (on top) of plot.}
 
-\item{data}{a data frame containing the variables in the model.}
+\item{file.name}{path to file to save the plot.}
 
-\item{levl.class}{an vector of the unique values (as character strings) that (disease) class might have taken, sorted into increasing order of means of test results corresponding to the disease classes (diagnostic groups). If \code{levl.class = NULL}, the levels will be automatically determined based on data, and sorted into increasing order of means of test results corresponding to the disease classes (diagnostic groups).}
+\item{ellips}{a logical value. If \code{TRUE}, adds an ellipsoidal confidence region for TCFs (True Class Fractions) at a specified pair of thresholds to current plot of covariate-specific ROC surface.}
 
-\item{boxcox}{a logical value. Default = \code{FALSE}. If set to \code{TRUE}, a Box-Cox transformation will be applied to the model to guarantee the normally assumptions.}
+\item{thresholds}{a specified pair of thresholds, which used to construct the ellipsoid confidence region for TCFs.}
 
-\item{apVar}{a logical value. Default = \code{TRUE}. If set to \code{TRUE}, the covariance matrix for all estimated parameters in model with be obtained by using the sandwich formula.}
-
-\item{interval_lambda}{a vector containing the end-points of the interval to be searched for the Box-Cox parameter, \code{lambda}. Default = (-2, 2).}
-
-\item{...}{additional arguments for \code{\link{lme}}, such as \code{control}, \code{contrasts}.}
+\item{ci.level}{a confidence level to be used for constructing the confidence interval; default is 0.95.}
 }
 \value{
-\code{lme2} returns an object of class inheriting from "lme2" class.
-
-The function \code{\link{print.lme2}} can be used to print a summary of the results.
-
-An object of class "lme2" is a list containing at least the following components:
-
-\item{call}{the matched call.}
-\item{est_para}{the estimate of all parameters in model.}
-\item{se_para}{the standard error, obtained by using the sandwich formula.}
-\item{vcov_sand}{the estimated covariance matrix for all estimated parameters, obtained by the sandwich formula.}
-\item{residual}{a list of the residuals}
-\item{fitted}{a list of the fitted values.}
-\item{randf}{a vector of the estimated random effects.}
-\item{n_coef}{total numbers of coefficients included in model.}
-\item{icc}{a estimate of intra-class correlation - ICC}
-\item{boxcox}{logical value indicating whether the Box-Cox transformation was implemented or not.}
+\code{ROCsurface} returns a 3D \code{rgl} plot of covariate-specific ROC surface.
 }
 \description{
-\code{ROCsurface} estimates and makes a 3D plot of covariate-specific ROC surface for clustered data.
+\code{ROCsurface} estimates and makes a 3D plot of covariate-specific ROC surface of a continuous diagnostic test in a clustered design when subjects can be diagnosed in three ordinal groups.
 }
 \details{
-.....
+This function implements estimation method in To et al. (2021) for estimating covariate-specific ROC surface of a continuous diagnostic test in a clustered design when subjects can be diagnosed in three ordinal groups. The estimator is based on the results of fitting the linear mixed-effect model on the diagnostic tests, which is done by using \code{\link{lme2}} with REML approach.
+
+Before applying the estimation, a quick check for the monotone ordering assumption will be performed. That is, for given values of covariates, three predicted means of three diagnostic groups will be compared. If the assumption does not meet, the covariate-specific ROC surface at the values of covariates will be not estimated.
+
+The ellipsoidal confidence region of TCFs at a given pair of thresholds can be constructed by using a normal approximation and plotted in the ROC surface space. The confidence level (default) is 0.95. Notice that, if the Box-Cox transformation was applied for the linear mixed-effect on the diagnostic tests (\code{\link{lme2}}), the thresholds have to input by the original scale. If the constructed confidence region of TCFs is outside the unit cube, a probit transformation will be automatically applied to obtain a appropriate confidence region which is inside the unit cube (see Bantis et. al., 2017).
 }
 \examples{
+\dontrun{
+data(data_3class)
+## One covariate
+out1 <- lme2(name.test = "Y", name.class = "D", name.covars = c("X1"), name.clust = "id_Clus",
+             data = data_3class)
 
+### plot only covariate-specific ROC surface
+ROCsurface(out_lme2 = out1, x.val = 1)
+
+### plot covariate-specific ROC surface and a 95\% ellipsoidal confidence region for TCFs
+ROCsurface(out_lme2 = out1, x.val = 1, ellips = TRUE, thresholds = c(0.9, 3.95))
+
+## Two covariates
+out2 <- lme2(name.test = "Y", name.class = "D", name.covars = c("X1", "X2"),
+             name.clust = "id_Clus", data = data_3class)
+
+### plot only covariate-specific ROC surface
+ROCsurface(out_lme2 = out2, x.val = c(1, 1))
+
+### plot covariate-specific ROC surface and a 95\% ellipsoidal confidence region for TCFs
+ROCsurface(out_lme2 = out2, x.val = c(1, 1), ellips = TRUE, thresholds = c(0.9, 3.95))
+}
+
+}
+\references{
+To, D-K., Adimari, G., Chiogna, M. and Risso, D. (2021)
+``ROC estimation and threshold selection criteria in three-class classification problems for clustered data''. \emph{Submitted}.
+
+Bantis, L. E., Nakas, C. T., Reiser, B., Myall, D., and Dalrymple-Alford, J. C. (2017).
+``Construction of joint confidence regions for the optimal true class fractions of Receiver Operating Characteristic (ROC) surfaces and manifolds''. \emph{Statistical methods in medical research}, \bold{26}, 3, 1429-1442.
 }
