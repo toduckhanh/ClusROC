@@ -4,12 +4,7 @@
 \alias{print.VUS}
 \title{Print summary results of VUS}
 \usage{
-\method{print}{VUS}(
-  x,
-  digits = max(3, getOption("digits") - 2),
-  dig.tst = max(1, min(5, digits - 1)),
-  ...
-)
+\method{print}{VUS}(x, digits = max(3, getOption("digits") - 2), ...)
 }
 \arguments{
 \item{x}{an object of class "VUS", a result of a call to \code{\link{VUS}}.}
@@ -22,7 +17,7 @@
 \code{print.VUS} prints the results for the output of function \code{\link{VUS}}.
 }
 \details{
-\code{print.vus} shows a nice format of the summary table for covariate-specific VUS estimates.
+\code{print.VUS} shows a nice format of the summary table for covariate-specific VUS estimates.
 }
 \seealso{
 \code{\link{VUS}}
