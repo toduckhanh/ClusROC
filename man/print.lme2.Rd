@@ -2,7 +2,7 @@
 % Please edit documentation in R/fit_lme2.R
 \name{print.lme2}
 \alias{print.lme2}
-\title{Print summary results of lme2}
+\title{Print summary results of an lme2 object}
 \usage{
 \method{print}{lme2}(x, digits = max(3L, getOption("digits") - 3L), ...)
 }
@@ -17,7 +17,7 @@
 \code{print.lme2} prints the results for the output of function \code{\link{lme2}}.
 }
 \details{
-\code{print.lme2} shows a nice format of the summary table for fitting the cluster-effect models.
+\code{print.lme2} shows a nice format of the summary table for fitting the cluster-effect model for a continuous diagnostic test in three-class setting.
 }
 \seealso{
 \code{\link{lme2}}
