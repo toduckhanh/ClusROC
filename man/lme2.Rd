@@ -2,7 +2,7 @@
 % Please edit documentation in R/fit_lme2.R
 \name{lme2}
 \alias{lme2}
-\title{Fitting the cluster-effect models for two-class of three-class settings.}
+\title{Linear Mixed-Effects Models for a continuous diagnostic test.}
 \usage{
 lme2(
   name.test,
@@ -11,8 +11,8 @@ lme2(
   name.clust,
   data,
   levl.class = NULL,
-  boxcox = FALSE,
   apVar = TRUE,
+  boxcox = FALSE,
   interval_lambda = c(-2, 2),
   trace = TRUE,
   ...
@@ -21,7 +21,7 @@ lme2(
 \arguments{
 \item{name.test}{name of variable indicating diagnostic test of biomarker in data. It can be also the transformation, for example, \code{"log(y)"}, where the term \code{log} is for the log-transformation, and \code{y} is the name of test.}
 
-\item{name.class}{name of variable indicating disease classes (diagnostic groups) in data.}
+\item{name.class}{name of variable indicating disease classes (or diagnostic groups) in data.}
 
 \item{name.covars}{an vector of names of covariates containing in data. The vector can contain also the transformation, for example, \code{c("x1", "sqrt(x2)", "I(x3^2)")}.}
 
@@ -29,62 +29,77 @@ lme2(
 
 \item{data}{a data frame containing the variables in the model.}
 
-\item{levl.class}{an vector of the unique values (as character strings) that (disease) class might have taken, sorted into increasing order of means of test results corresponding to the disease classes (diagnostic groups). If \code{levl.class = NULL}, the levels will be automatically determined based on data, and sorted into increasing order of means of test results corresponding to the disease classes (diagnostic groups).}
-
-\item{boxcox}{a logical value. Default = \code{FALSE}. If set to \code{TRUE}, a Box-Cox transformation will be applied to the model to guarantee the normally assumptions.}
+\item{levl.class}{an vector of the unique values (as character strings) that (disease) class might have taken, sorted into increasing order of means of test results corresponding to the disease classes (diagnostic groups). If \code{levl.class = NULL} (default), the levels will be automatically determined based on data, and sorted into increasing order of means of test results corresponding to the disease classes (diagnostic groups).}
 
 \item{apVar}{a logical value. Default = \code{TRUE}. If set to \code{TRUE}, the covariance matrix for all estimated parameters in model with be obtained by using the sandwich formula.}
 
+\item{boxcox}{a logical value. Default = \code{FALSE}. If set to \code{TRUE}, a Box-Cox transformation will be applied to the model to guarantee the normally assumptions.}
+
 \item{interval_lambda}{a vector containing the end-points of the interval to be searched for the Box-Cox parameter, \code{lambda}. Default = (-2, 2).}
 
-\item{...}{additional arguments for \code{\link{lme}}, such as \code{control}, \code{contrasts}.}
+\item{trace}{a logical value. Default = \code{TRUE}. If set to \code{TRUE}, the information of verifying the monotonic ordering of ....}
+
+\item{...}{additional arguments for \code{\link[nlme]{lme}}, such as \code{control}, \code{contrasts}.}
 }
 \value{
-\code{lme2} returns an object of class inheriting from "lme2" class.
-
-The function \code{\link{print.lme2}} can be used to print a summary of the results.
-
-An object of class "lme2" is a list containing at least the following components:
+\code{lme2} returns an object of class inheriting from "lme2" class. An object of class "lme2" is a list containing at least the following components:
 
 \item{call}{the matched call.}
-\item{est_para}{the estimate of all parameters in model.}
-\item{se_para}{the standard error, obtained by using the sandwich formula.}
+\item{est_para}{a vector containing the estimated parameters.}
+\item{se_para}{a vector containing the standard errors, obtained by using the sandwich formula.}
 \item{vcov_sand}{the estimated covariance matrix for all estimated parameters, obtained by the sandwich formula.}
-\item{residual}{a list of the residuals}
+\item{residual}{a list of the residuals.}
 \item{fitted}{a list of the fitted values.}
-\item{randf}{a vector of the estimated random effects.}
-\item{n_coef}{total numbers of coefficients included in the model.}
-\item{n_p}{total numbers of regressors in the model.}
+\item{randf}{a vector of the estimated random effects for each level of cluster.}
+\item{n_coef}{total numbers of the coefficients included in the model.}
+\item{n_p}{total numbers of the regressors in the model.}
 \item{icc}{a estimate of intra-class correlation - ICC}
+\item{terms}{the \code{\link[stats]{terms}} object used.}
 \item{boxcox}{logical value indicating whether the Box-Cox transformation was implemented or not.}
+
+Generic functions such as \code{print} and \code{plot} have methods to show the results of the fit.
 }
 \description{
-\code{lme2} fits the cluster-effect models for two-class or three-class setting based on the \code{lme()} routine from \code{nlme}-package.
+\code{lme2} is generic function to fit the cluster-effect models for a continuous diagnostic test in three-class setting as described in Xiong et al. (2018) and To et al. (2021).
 }
 \details{
-.....
+This function fits a linear mixed-effect model for a continuous diagnostic test in three-class setting in order to account for the clustering effect on the test result, as well as for covariates' effects. See Xiong et al. (2018) and To et al. (2021) for more details.
+\itemize{
+\item The estimation is done by using \code{\link[nlme]{lme}} with the restricted log-likelihood (REML) method.
+\item The Box-Cox transformation for linear mixed-effect models can be used when the distributions of test results are skewed (Gurka et al. 2006). The estimation procedure is described in To et al. (2021), where the Box-Cox parameter \eqn{\lambda} is estimated by a grid search on the interval [-2, 2] as discussed in Gurka and Edwards (2011).
+\item The variance-covariance matrix of the estimated parameters are obtained by sandwich formula (see, Liang and Zeger, 1986; Kauermann and Carroll, 2001; Mancl and DeRouen, 2001) as discussed in To et al. (2021).
+}
 }
 \examples{
-## Example for two-class setting
-data(data_2class)
-head(data_2class)
-out1 <- lme2(name.test = "Y", name.class = "D", name.covars = c("X1", "X2"), name.clust = "id_Clus",
-             data = data_2class, apVar = FALSE)
-print(out1)
-plot(out1)
-out2 <- lme2(name.test = "Y", name.class = "D", name.covars = c("X1", "X2"), name.clust = "id_Clus",
-             data = data_2class)
-print(out2, digits = 3)
-
 ## Example for three-class setting
 data(data_3class)
 head(data_3class)
-out3 <- lme2(name.test = "Y", name.class = "D", name.covars = c("X1", "X2"), name.clust = "id_Clus",
-             data = data_3class, apVar = FALSE)
-print(out3)
-out4 <- lme2(name.test = "Y", name.class = "D", name.covars = c("X1", "X2"), name.clust = "id_Clus",
+## A model with two covariate: X1 + X2
+out1 <- lme2(name.test = "Y", name.class = "D", name.covars = c("X1", "X2"), name.clust = "id_Clus",
              data = data_3class)
-print(out4)
-plot(out4)
+print(out1)
+plot(out1)
 
+}
+\references{
+Xiong, C., Luo, J., Chen L., Gao, F., Liu, J., Wang, G., Bateman, R. and Morris, J. C. (2018)
+``Estimating diagnostic accuracy for clustered ordinal diagnostic groups in the three-class case -- Application to the early diagnosis of Alzheimer disease''.
+\emph{Statistical Methods in Medical Research}, \bold{27}, 3, 701-714.
+
+To, D-K., Adimari, G., Chiogna, M. and Risso, D. (2021)
+``ROC estimation and threshold selection criteria in three-class classification problems for clustered data''. \emph{Submitted}.
+
+Liang, K. Y. and Zeger, S. L. (1986)
+``Longitudinal data analysis using generalized linear models''. \emph{Biometrika}, \bold{73}, 1, 13-22.
+
+Kauermann, G. and Carroll, R. J. (2001)
+``A note on the efficiency of sandwich covariance matrix estimation''.
+\emph{Journal of the American Statistical Association}, \bold{96}, 456, 1387-1396.
+
+Mancl, L. A. and DeRouen, T. A. (2001) ``A covariance estimator for GEE with improved small-sample properties''.
+ \emph{Biometrics}, \bold{57}, 1, 126-134.
+
+Gurka, M. J., Edwards, L. J. , Muller, K. E., and Kupper, L. L. (2006) ``Extending the Box-Cox transformation to the linear mixed model''. \emph{Journal of the Royal Statistical Society: Series A (Statistics in Society)}, \bold{169}, 2, 273-288.
+
+Gurka, M. J. and Edwards, L. J. (2011) ``Estimating variance components and random effects using the box-cox transformation in the linear mixed model''. \emph{Communications in Statistics - Theory and Methods}, \bold{40}, 3, 515-531.
 }
