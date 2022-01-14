@@ -3,7 +3,6 @@
 ## REML approach, based on the lme() routine                                    ##
 ## Date: 23/03/2021																															##
 ####==========================================================================####
-
 #' @import numDeriv
 #' @import nlme
 #' @import stats
@@ -119,89 +118,109 @@ llike_bcx_fun <- function(par, fixed, random, weights, data, y_tit, ...){
 
 ### ---- Fitting cluster-effect models ----
 
-#' @title Fitting the cluster-effect models for two-class of three-class settings.
+#' @title Linear Mixed-Effects Models for a continuous diagnostic test.
 #'
-#' @description \code{lme2} fits the cluster-effect models for two-class or three-class setting based on the \code{lme()} routine from \code{nlme}-package.
+#' @description \code{lme2} is generic function to fit the cluster-effect models for a continuous diagnostic test in three-class setting as described in Xiong et al. (2018) and To et al. (2021).
 #'
 #' @param name.test  name of variable indicating diagnostic test of biomarker in data. It can be also the transformation, for example, \code{"log(y)"}, where the term \code{log} is for the log-transformation, and \code{y} is the name of test.
-#' @param name.class  name of variable indicating disease classes (diagnostic groups) in data.
+#' @param name.class  name of variable indicating disease classes (or diagnostic groups) in data.
 #' @param name.covars  an vector of names of covariates containing in data. The vector can contain also the transformation, for example, \code{c("x1", "sqrt(x2)", "I(x3^2)")}.
 #' @param name.clust  name of variable indicating clusters in data.
 #' @param data  a data frame containing the variables in the model.
-#' @param levl.class  an vector of the unique values (as character strings) that (disease) class might have taken, sorted into increasing order of means of test results corresponding to the disease classes (diagnostic groups). If \code{levl.class = NULL}, the levels will be automatically determined based on data, and sorted into increasing order of means of test results corresponding to the disease classes (diagnostic groups).
-#' @param boxcox  a logical value. Default = \code{FALSE}. If set to \code{TRUE}, a Box-Cox transformation will be applied to the model to guarantee the normally assumptions.
+#' @param levl.class  an vector of the unique values (as character strings) that (disease) class might have taken, sorted into increasing order of means of test results corresponding to the disease classes (diagnostic groups). If \code{levl.class = NULL} (default), the levels will be automatically determined based on data, and sorted into increasing order of means of test results corresponding to the disease classes (diagnostic groups).
 #' @param apVar  a logical value. Default = \code{TRUE}. If set to \code{TRUE}, the covariance matrix for all estimated parameters in model with be obtained by using the sandwich formula.
+#' @param boxcox  a logical value. Default = \code{FALSE}. If set to \code{TRUE}, a Box-Cox transformation will be applied to the model to guarantee the normally assumptions.
 #' @param interval_lambda  a vector containing the end-points of the interval to be searched for the Box-Cox parameter, \code{lambda}. Default = (-2, 2).
-#' @param ...  additional arguments for \code{\link{lme}}, such as \code{control}, \code{contrasts}.
+#' @param trace  a logical value. Default = \code{TRUE}. If set to \code{TRUE}, the information of verifying the monotonic ordering of ....
+#' @param ...  additional arguments for \code{\link[nlme]{lme}}, such as \code{control}, \code{contrasts}.
 #'
 #' @details
-#' .....
+#' This function fits a linear mixed-effect model for a continuous diagnostic test in three-class setting in order to account for the clustering effect on the test result, as well as for covariates' effects. See Xiong et al. (2018) and To et al. (2021) for more details.
+#' \itemize{
+#' \item The estimation is done by using \code{\link[nlme]{lme}} with the restricted log-likelihood (REML) method.
+#' \item The Box-Cox transformation for linear mixed-effect models can be used when the distributions of test results are skewed (Gurka et al. 2006). The estimation procedure is described in To et al. (2021), where the Box-Cox parameter \eqn{\lambda} is estimated by a grid search on the interval [-2, 2] as discussed in Gurka and Edwards (2011).
+#' \item The variance-covariance matrix of the estimated parameters are obtained by sandwich formula (see, Liang and Zeger, 1986; Kauermann and Carroll, 2001; Mancl and DeRouen, 2001) as discussed in To et al. (2021).
+#' }
 #'
 #'
-#'
-#' @return \code{lme2} returns an object of class inheriting from "lme2" class.
-#'
-#' The function \code{\link{print.lme2}} can be used to print a summary of the results.
-#'
-#' An object of class "lme2" is a list containing at least the following components:
+#' @return \code{lme2} returns an object of class inheriting from "lme2" class. An object of class "lme2" is a list containing at least the following components:
 #'
 #' \item{call}{the matched call.}
-#' \item{est_para}{the estimate of all parameters in model.}
-#' \item{se_para}{the standard error, obtained by using the sandwich formula.}
+#' \item{est_para}{a vector containing the estimated parameters.}
+#' \item{se_para}{a vector containing the standard errors, obtained by using the sandwich formula.}
 #' \item{vcov_sand}{the estimated covariance matrix for all estimated parameters, obtained by the sandwich formula.}
-#' \item{residual}{a list of the residuals}
+#' \item{residual}{a list of the residuals.}
 #' \item{fitted}{a list of the fitted values.}
-#' \item{randf}{a vector of the estimated random effects.}
-#' \item{n_coef}{total numbers of coefficients included in the model.}
-#' \item{n_p}{total numbers of regressors in the model.}
+#' \item{randf}{a vector of the estimated random effects for each level of cluster.}
+#' \item{n_coef}{total numbers of the coefficients included in the model.}
+#' \item{n_p}{total numbers of the regressors in the model.}
 #' \item{icc}{a estimate of intra-class correlation - ICC}
+#' \item{terms}{the \code{\link[stats]{terms}} object used.}
 #' \item{boxcox}{logical value indicating whether the Box-Cox transformation was implemented or not.}
 #'
-#' @examples
-#' ## Example for two-class setting
-#' data(data_2class)
-#' head(data_2class)
-#' out1 <- lme2(name.test = "Y", name.class = "D", name.covars = c("X1", "X2"), name.clust = "id_Clus",
-#'              data = data_2class, apVar = FALSE)
-#' print(out1)
-#' plot(out1)
-#' out2 <- lme2(name.test = "Y", name.class = "D", name.covars = c("X1", "X2"), name.clust = "id_Clus",
-#'              data = data_2class)
-#' print(out2, digits = 3)
+#' Generic functions such as \code{print} and \code{plot} have methods to show the results of the fit.
 #'
+#' @references
+#'
+#' Xiong, C., Luo, J., Chen L., Gao, F., Liu, J., Wang, G., Bateman, R. and Morris, J. C. (2018)
+#' ``Estimating diagnostic accuracy for clustered ordinal diagnostic groups in the three-class case -- Application to the early diagnosis of Alzheimer disease''.
+#' \emph{Statistical Methods in Medical Research}, \bold{27}, 3, 701-714.
+#'
+#' To, D-K., Adimari, G., Chiogna, M. and Risso, D. (2021)
+#' ``ROC estimation and threshold selection criteria in three-class classification problems for clustered data''. \emph{Submitted}.
+#'
+#' Liang, K. Y. and Zeger, S. L. (1986)
+#' ``Longitudinal data analysis using generalized linear models''. \emph{Biometrika}, \bold{73}, 1, 13-22.
+#'
+#' Kauermann, G. and Carroll, R. J. (2001)
+#' ``A note on the efficiency of sandwich covariance matrix estimation''.
+#' \emph{Journal of the American Statistical Association}, \bold{96}, 456, 1387-1396.
+#'
+#' Mancl, L. A. and DeRouen, T. A. (2001) ``A covariance estimator for GEE with improved small-sample properties''.
+#'  \emph{Biometrics}, \bold{57}, 1, 126-134.
+#'
+#' Gurka, M. J., Edwards, L. J. , Muller, K. E., and Kupper, L. L. (2006) ``Extending the Box-Cox transformation to the linear mixed model''. \emph{Journal of the Royal Statistical Society: Series A (Statistics in Society)}, \bold{169}, 2, 273-288.
+#'
+#' Gurka, M. J. and Edwards, L. J. (2011) ``Estimating variance components and random effects using the box-cox transformation in the linear mixed model''. \emph{Communications in Statistics - Theory and Methods}, \bold{40}, 3, 515-531.
+#'
+#' @examples
 #' ## Example for three-class setting
 #' data(data_3class)
 #' head(data_3class)
-#' out3 <- lme2(name.test = "Y", name.class = "D", name.covars = c("X1", "X2"), name.clust = "id_Clus",
-#'              data = data_3class, apVar = FALSE)
-#' print(out3)
-#' out4 <- lme2(name.test = "Y", name.class = "D", name.covars = c("X1", "X2"), name.clust = "id_Clus",
+#' ## A model with two covariate: X1 + X2
+#' out1 <- lme2(name.test = "Y", name.class = "D", name.covars = c("X1", "X2"), name.clust = "id_Clus",
 #'              data = data_3class)
-#' print(out4)
-#' plot(out4)
+#' print(out1)
+#' plot(out1)
 #'
 #' @export
-lme2 <- function(name.test, name.class, name.covars, name.clust, data, levl.class = NULL,
-                 boxcox = FALSE, apVar = TRUE, interval_lambda = c(-2, 2), trace = TRUE, ...){
+lme2 <- function(name.test, name.class, name.covars, name.clust, data, levl.class = NULL, apVar = TRUE,
+                 boxcox = FALSE, interval_lambda = c(-2, 2), trace = TRUE, ...){
+  if(missing(data)){
+    data <- .GlobalEnv
+    cat("Warning: the data is missing, the global environment is used!\n")
+  }
+  n_class <- length(table(data[, name.class]))
+  if(n_class != 3) stop("There is not a case of three-class setting!")
   form.mean <- as.formula(paste(name.test, "~", name.class))
   mean.temp <- aggregate(form.mean, FUN = mean, data = data)
   temp.levl <- mean.temp[order(mean.temp[,2]), 1]
   if(is.null(levl.class)){
     if(trace){
       cat("The ordered levels of classes were not assigned by user!\n")
-      cat("The ordered levels of classes are now determined by the orders of averages of diagnostic tests:\n")
+      cat("The ordered levels of classes are now determined by the orders of averages of tests results:\n")
       cat(paste(temp.levl, collapse = " < "), "\n")
     }
     levl.class <- temp.levl
   } else{
     if(all(levl.class == temp.levl)){
       if(trace){
-        cat("The orders of inputed levels of classes are the same as the one obtained by the orders of averages of diagnostic tests:\n")
+        cat("The orders of inputed levels of classes are the same as the one obtained by the orders of averages of tests results:\n")
         cat(paste(levl.class, collapse = " < "),"\n")
       }
     } else{
       if(trace){
-        cat("The orders of inputed levels of classes are not the same as the one obtained by the orders of averages of diagnostic tests:\n")
+        cat("The orders of inputed levels of classes are not the same as the one obtained by the orders of averages of tests results:\n")
         cat("The correct one should be:\n")
         cat(paste(temp.levl, collapse = " < "),"\n")
       }
@@ -233,6 +252,9 @@ lme2 <- function(name.test, name.class, name.covars, name.clust, data, levl.clas
   random <- as.formula(paste("~", "1|", name.clust))
   form.weights <- as.formula(paste("~", "1|", name.class))
   weights <- varIdent(form = form.weights)
+  fit$terms <- terms(fixed)
+  attr(fit$terms, "levl.class") <- levl.class
+  attr(fit$terms, "n_vb") <- length(as.character(attr(fit$terms, "variables"))[-c(1:3)])
   n <- nrow(data)
   Clus <- model.frame(getGroupsFormula(random), data = data)[,1]
   n_c <- table(Clus)
@@ -252,7 +274,6 @@ lme2 <- function(name.test, name.class, name.covars, name.clust, data, levl.clas
   }
   ## collecting results
   n_coef <- length(out_model$coefficients$fixed)
-  n_class <- length(table(data[, name.class]))
   n_p <- n_coef/n_class
   if(n_class == 2){
     id_coef <- c(seq(1, n_coef - 1, by = 2), seq(2, n_coef, by = 2))
@@ -325,7 +346,7 @@ lme2 <- function(name.test, name.class, name.covars, name.clust, data, levl.clas
 }
 
 ## ---- The function print.lme2 ----
-#' @title Print summary results of lme2
+#' @title Print summary results of an lme2 object
 #'
 #' @description \code{print.lme2} prints the results for the output of function \code{\link{lme2}}.
 #'
@@ -334,7 +355,7 @@ lme2 <- function(name.test, name.class, name.covars, name.clust, data, levl.clas
 #' @param digits minimal number of significant digits, see \code{\link{print.default}}.
 #' @param ... further arguments passed to \code{\link{print}} method.
 #'
-#' @details \code{print.lme2} shows a nice format of the summary table for fitting the cluster-effect models.
+#' @details \code{print.lme2} shows a nice format of the summary table for fitting the cluster-effect model for a continuous diagnostic test in three-class setting.
 #'
 #' @seealso \code{\link{lme2}}
 #'
@@ -372,22 +393,24 @@ print.lme2 <- function(x, digits = max(3L, getOption("digits") - 3L), ...){
 }
 
 ## ---- The function plot.lme2 ----
-#' @title Diagnostic plots for model fitted by lme2
+#' @title Plot an lme2 object.
 #'
-#' @description \code{plot.lme2} provides diagnostic plots (based on \code{ggplot()}) for the residuals and cluster effects.
+#' @description Diagnostic plots for the linear mixed-effects fit are obtained by lme2.
 #'
 #' @method plot lme2
+#'
 #' @param x an object of class "lme2", a result of a call to \code{\link{lme2}}.
 #' @param file.name File name to create on disk.
+#' @param ... further arguments passed to \code{\link{ggexport}} method, for example, \code{width}, \code{height}.
 #'
-#' @details \code{plot.lme2} shows three diagnostic plots: Q-Q plots of residuals, Fitted vs. Residuals, and Q-Q plot of cluster effects.
+#' @details \code{plot.lme2} provides three diagnostic plots: Q-Q plots of residuals, Fitted vs. Residuals, and Q-Q plot of cluster effects, based on \code{ggplot()}.
 #'
 #' @seealso \code{\link{lme2}}
 #'
 #' @import ggplot2
 #' @import ggpubr
 #' @export
-plot.lme2 <- function(x, file.name = NULL){
+plot.lme2 <- function(x, file.name = NULL, ...){
   levl <- paste("Class:", names(x$residual))
   df_fitted_resid <- data.frame(fitted = unlist(x$fitted, use.names = FALSE),
                                 resid = unlist(x$residual, use.names = FALSE),
@@ -399,17 +422,15 @@ plot.lme2 <- function(x, file.name = NULL){
     geom_point() + geom_hline(yintercept = 0, colour = "red", linetype = "dashed") +
     facet_grid( ~ Groups) + xlab("Fitted") + ylab("Residuals") +
     labs(subtitle = "Fitted vs. Residuals")
-  p3 <- ggplot(data = data.frame(randf = x$randf, name = rep("Cluster effects", length(x$randf))),
-               aes(sample = randf)) +
+  data_plot <- data.frame(randf = x$randf, name = rep("Cluster effects", length(x$randf)))
+  p3 <- ggplot(data_plot, aes_string(sample = "randf")) +
     stat_qq() + stat_qq_line() +
     facet_grid(~ name) +
     xlab("Theoretical Quantiles") + ylab("Sample Quantiles") +
     labs(subtitle = "Q-Q plot of Cluster effects")
   res <- ggarrange(ggarrange(p1, p2, ncol = 2, nrow = 1), p3, nrow = 2)
   if(!is.null(file.name)){
-    ggexport(res, filename = file.name)
+    ggexport(res, filename = file.name, ...)
   }
   res
 }
-
-
