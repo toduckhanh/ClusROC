@@ -1,16 +1,22 @@
 Package: ClusROC
 Type: Package
 Title: ROC analysis for clustered data
+Date: 2022-01-13
 Version: 0.1.0
 Authors@R: 
-    person(given = "Duc-Khanh",
-           family = "To",
-           role = c("aut", "cre"),
-           email = "toduc@stat.unipd.it",
-           comment = c(ORCID = "0000-0002-4641-0764"))
-Description: This package implements the approaches for ROC analysis in the setting of clustered data. In particular, the following quantitiles are estimated: (i) the ROC curve and the area under ROC curve (AUC) if the disease status has two categories; (ii) the ROC surface and the volume under ROC surface (VUS) if there are three classes of disease. The selection of optimal threshold(s) are also taken into account. The selection methods are: (i) Youden Index (YI), Closest to Perfection (CtP) and Max Area (MA) for two-class setting; (ii) Generalized Youden Index (GYI), Closest to Perfection (CtP) and Max Volume (MV) for three-class setting.
+    c(person(given = "Duc-Khanh", family = "To", role = c("aut", "cre"), email = "toduc@stat.unipd.it", 
+    comment = c(ORCID = "0000-0002-4641-0764")),
+    person(given = "Gianfranco", family = "Adimari", role = c("ctb"), email = "gianfranco.adimari@unipd.it"),
+    person(given = "Monica", family = "Chiogna", role = c("ctb"), email = "monica.chiogna2@unibo.it"))
+Description: This package implements the approaches for ROC surface analysis in the setting of clustered data. 
+  In particular, the following quantities are estimated: 
+  (i) the covariate-specific ROC surface; 
+  (ii) the covariate-specific volume under ROC surface (VUS); 
+  (iii) the covariate-specific optimal pairs of thresholds. 
+  The selection methods are: Generalized Youden Index (GYI), Closest to Perfection (CtP) and Max Volume (MV).
 License: GPL (>= 2)
-Depends: R (>= 3.5.0), stats, utils, graphics, numDeriv, nlme, ggplot2, ggpubr, rgl, snow, doSNOW, foreach, car
+Depends: R (>= 3.5.0)
+Imports: stats, utils, graphics, car, numDeriv, nlme, ggplot2, ggpubr, rgl, snow, doSNOW, foreach, shinyRGL, shiny 
 Encoding: UTF-8
 LazyData: true
 LazyLoad: yes
@@ -18,3 +24,5 @@ ByteCompile: yes
 RoxygenNote: 7.1.2
 Suggests: webshot2, knitr, rmarkdown, markdown
 Additional_repositories: https://dmurdoch.github.io/drat
+URL: https://github.com/toduckhanh/ClusROC
+BugReports: https://github.com/toduckhanh/ClusROC/issues
