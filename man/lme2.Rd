@@ -23,7 +23,7 @@ lme2(
 
 \item{name.class}{name of variable indicating disease classes (or diagnostic groups) in data.}
 
-\item{name.covars}{an vector of names of covariates containing in data. The vector can contain also the transformation, for example, \code{c("x1", "sqrt(x2)", "I(x3^2)")}.}
+\item{name.covars}{an vector of names of covariates containing in data. The vector can contain also the transformation, interaction terms, for example, \code{c("x1", "sqrt(x2)", "I(x3^2)", "x1:x2")}.}
 
 \item{name.clust}{name of variable indicating clusters in data.}
 
