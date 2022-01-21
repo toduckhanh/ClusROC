@@ -124,7 +124,7 @@ llike_bcx_fun <- function(par, fixed, random, weights, data, y_tit, ...){
 #'
 #' @param name.test  name of variable indicating diagnostic test of biomarker in data. It can be also the transformation, for example, \code{"log(y)"}, where the term \code{log} is for the log-transformation, and \code{y} is the name of test.
 #' @param name.class  name of variable indicating disease classes (or diagnostic groups) in data.
-#' @param name.covars  an vector of names of covariates containing in data. The vector can contain also the transformation, for example, \code{c("x1", "sqrt(x2)", "I(x3^2)")}.
+#' @param name.covars  an vector of names of covariates containing in data. The vector can contain also the transformation, interaction terms, for example, \code{c("x1", "sqrt(x2)", "I(x3^2)", "x1:x2")}.
 #' @param name.clust  name of variable indicating clusters in data.
 #' @param data  a data frame containing the variables in the model.
 #' @param levl.class  an vector of the unique values (as character strings) that (disease) class might have taken, sorted into increasing order of means of test results corresponding to the disease classes (diagnostic groups). If \code{levl.class = NULL} (default), the levels will be automatically determined based on data, and sorted into increasing order of means of test results corresponding to the disease classes (diagnostic groups).
@@ -200,8 +200,14 @@ lme2 <- function(name.test, name.class, name.covars, name.clust, data, levl.clas
     data <- .GlobalEnv
     cat("Warning: the data is missing, the global environment is used!\n")
   }
+  if(missing(name.test)) stop("argument name.test is missing with no default")
+  if(missing(name.class)) stop("argument name.class is missing with no default")
+  if(missing(name.clust)) stop("argument name.clust is missing with no default")
   n_class <- length(table(data[, name.class]))
   if(n_class != 3) stop("There is not a case of three-class setting!")
+  if(boxcox){
+    if(any(data[, name.test] < 0)) stop("Cannot apply Box-Cox transform for negative values.")
+  }
   form.mean <- as.formula(paste(name.test, "~", name.class))
   mean.temp <- aggregate(form.mean, FUN = mean, data = data)
   temp.levl <- mean.temp[order(mean.temp[,2]), 1]
@@ -263,6 +269,7 @@ lme2 <- function(name.test, name.class, name.covars, name.clust, data, levl.clas
     out_model <- lme(fixed = fixed, random = random, weights = weights, method = "REML", data = data)
   } else{
     all.Y <- model.response(model.frame(fixed, data = data))
+    ## check ok!
     list.Y <- split(all.Y, Clus)
     y_tit <- prod(sapply(list.Y, function(x) prod(x^(1/n))))
     lambda_est <- optimize(llike_bcx_fun, interval = interval_lambda, fixed = fixed, random = random,
