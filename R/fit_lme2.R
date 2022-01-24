@@ -122,9 +122,8 @@ llike_bcx_fun <- function(par, fixed, random, weights, data, y_tit, ...){
 #'
 #' @description \code{lme2} is generic function to fit the cluster-effect models for a continuous diagnostic test in three-class setting as described in Xiong et al. (2018) and To et al. (2021).
 #'
-#' @param name.test  name of variable indicating diagnostic test of biomarker in data. It can be also the transformation, for example, \code{"log(y)"}, where the term \code{log} is for the log-transformation, and \code{y} is the name of test.
+#' @param fixed.formula  a two-sided linear formula object describing the fixed-effects part of the model for three classes, with the response on the left of a ~ operator and the terms, separated by + operators, on the right. For example, \code{Y ~ X1 + X2}, \code{Y ~ X1 + X2 + X1:X2} or \code{log(Y) ~ X1 + X2 + I(X1^2)}.
 #' @param name.class  name of variable indicating disease classes (or diagnostic groups) in data.
-#' @param name.covars  an vector of names of covariates containing in data. The vector can contain also the transformation, interaction terms, for example, \code{c("x1", "sqrt(x2)", "I(x3^2)", "x1:x2")}.
 #' @param name.clust  name of variable indicating clusters in data.
 #' @param data  a data frame containing the variables in the model.
 #' @param levl.class  an vector of the unique values (as character strings) that (disease) class might have taken, sorted into increasing order of means of test results corresponding to the disease classes (diagnostic groups). If \code{levl.class = NULL} (default), the levels will be automatically determined based on data, and sorted into increasing order of means of test results corresponding to the disease classes (diagnostic groups).
@@ -188,23 +187,32 @@ llike_bcx_fun <- function(par, fixed, random, weights, data, y_tit, ...){
 #' data(data_3class)
 #' head(data_3class)
 #' ## A model with two covariate: X1 + X2
-#' out1 <- lme2(name.test = "Y", name.class = "D", name.covars = c("X1", "X2"), name.clust = "id_Clus",
+#' out1 <- lme2(fixed.formula = Y ~ X1 + X2, name.class = "D", name.clust = "id_Clus",
 #'              data = data_3class)
 #' print(out1)
 #' plot(out1)
 #'
 #' @export
-lme2 <- function(name.test, name.class, name.covars, name.clust, data, levl.class = NULL, apVar = TRUE,
+lme2 <- function(fixed.formula, name.class, name.clust, data, levl.class = NULL, apVar = TRUE,
                  boxcox = FALSE, interval_lambda = c(-2, 2), trace = TRUE, ...){
   if(missing(data)){
     data <- .GlobalEnv
     cat("Warning: the data is missing, the global environment is used!\n")
   }
-  if(missing(name.test)) stop("argument name.test is missing with no default")
+  if(missing(fixed.formula)) stop("argument fixed.formula is missing with no default")
+  if(!inherits(fixed.formula, "formula") || length(fixed.formula) != 3) {
+    stop("\nfixed-effects model must be a formula of the form \"resp ~ pred\"")
+  }
   if(missing(name.class)) stop("argument name.class is missing with no default")
+  if(!inherits(name.class, "character") || length(name.class) != 1)
+    stop("agrument name.class must be a character vector with length 1.")
   if(missing(name.clust)) stop("argument name.clust is missing with no default")
+  if(!inherits(name.clust, "character") || length(name.clust) != 1)
+    stop("agrument name.clust must be a character vector with length 1.")
   n_class <- length(table(data[, name.class]))
   if(n_class != 3) stop("There is not a case of three-class setting!")
+  mf <- unlist(strsplit(as.character(fixed.formula), "~"))[-1]
+  name.test <- mf[1]
   if(boxcox){
     if(any(data[, name.test] < 0)) stop("Cannot apply Box-Cox transform for negative values.")
   }
@@ -219,6 +227,8 @@ lme2 <- function(name.test, name.class, name.covars, name.clust, data, levl.clas
     }
     levl.class <- temp.levl
   } else{
+    if(!inherits(levl.class, "character") || length(levl.class) != 3)
+      stop("agrument levl.class must be a character vector with length 3.")
     if(all(levl.class == temp.levl)){
       if(trace){
         cat("The orders of inputed levels of classes are the same as the one obtained by the orders of averages of tests results:\n")
@@ -234,6 +244,7 @@ lme2 <- function(name.test, name.class, name.covars, name.clust, data, levl.clas
     }
   }
   data[, name.class] <- factor(data[, name.class], levels = levl.class)
+  name.covars <- mf[2]
   ## define the formulas for fixed, random and weights
   call <- match.call()
   fit <- list()
@@ -242,19 +253,9 @@ lme2 <- function(name.test, name.class, name.covars, name.clust, data, levl.clas
   fit$name.test <- name.test
   fit$name.class <- name.class
   fit$name.clust <- name.clust
-  if(!missing(name.covars)){
-    if(!is.null(name.covars)){
-      fixed <- as.formula(paste(name.test, "~", name.class, "+",
-                                paste0(name.covars, ":", name.class, collapse = " + "), "- 1"))
-      fit$name.covars <- name.covars
-    } else{
-      fixed <- as.formula(paste(name.test, "~", name.class, "- 1"))
-      fit$name.covars <- NULL
-    }
-  } else{
-    fixed <- as.formula(paste(name.test, "~", name.class, "- 1"))
-    fit$name.covars <- NULL
-  }
+  fixed <- as.formula(paste(name.test, "~", name.class, "+", "(", name.covars, ")", ":", name.class, "-1"))
+                            # paste0(name.covars, ":", name.class, collapse = " + "), "- 1"))
+  fit$name.covars <- name.covars
   random <- as.formula(paste("~", "1|", name.clust))
   form.weights <- as.formula(paste("~", "1|", name.class))
   weights <- varIdent(form = form.weights)
