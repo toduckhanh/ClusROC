@@ -38,7 +38,7 @@ Before applying the estimation, a quick check for the monotone ordering assumpti
 \examples{
 data(data_3class)
 ## One covariate
-out1 <- lme2(name.test = "Y", name.class = "D", name.covars = c("X1"), name.clust = "id_Clus",
+out1 <- lme2(fixed.formula = Y ~ X1, name.class = "D", name.clust = "id_Clus",
              data = data_3class)
 
 ### Estimate TCFs at one single value of X1, (t1, t2) = (1, 4)
@@ -46,8 +46,8 @@ out_tcfs_1 <- TCFs(out_lme2 = out1, x.val = 1, thresholds = c(1, 4), apVar = TRU
 print(out_tcfs_1)
 
 ## Two covariates
-out2 <- lme2(name.test = "Y", name.class = "D", name.covars = c("X1", "X2"),
-             name.clust = "id_Clus", data = data_3class)
+out2 <- lme2(fixed.formula = Y ~ X1 + X2, name.class = "D", name.clust = "id_Clus",
+             data = data_3class)
 
 ### Estimate covariate-specific TCFs at point (X1, X2) = (1, 0), and (t1, t2) = (1, 4)
 out_tcfs_2 <- TCFs(out_lme2 = out2, x.val = c(1, 0), thresholds = c(1, 4), apVar = TRUE)
