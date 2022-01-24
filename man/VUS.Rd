@@ -57,7 +57,7 @@ A confidence interval of covariate-specific VUS also is given based on Normal-ap
 \examples{
 data(data_3class)
 ## One covariate
-out1 <- lme2(name.test = "Y", name.class = "D", name.covars = c("X1"), name.clust = "id_Clus",
+out1 <- lme2(fixed.formula = Y ~ X1, name.class = "D", name.clust = "id_Clus",
              data = data_3class)
 
 ### Estimate covariate-specific VUS at one value of one covariate
@@ -67,8 +67,8 @@ VUS(out1, x.val = 0.5, apVar = TRUE, ci = TRUE)
 VUS(out1, x.val = c(-0.5, 0, 0.5), apVar = TRUE, ci = TRUE)
 
 ## Two covariates
-out2 <- lme2(name.test = "Y", name.class = "D", name.covars = c("X1", "X2"),
-             name.clust = "id_Clus", data = data_3class)
+out2 <- lme2(fixed.formula = Y ~ X1 + X2, name.class = "D", name.clust = "id_Clus",
+             data = data_3class)
 
 ### Estimate covariate-specific VUS at one point
 VUS(out2, x.val = c(1.5, 1), apVar = TRUE, ci = TRUE)
