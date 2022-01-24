@@ -5,9 +5,8 @@
 \title{Linear Mixed-Effects Models for a continuous diagnostic test.}
 \usage{
 lme2(
-  name.test,
+  fixed.formula,
   name.class,
-  name.covars,
   name.clust,
   data,
   levl.class = NULL,
@@ -19,11 +18,9 @@ lme2(
 )
 }
 \arguments{
-\item{name.test}{name of variable indicating diagnostic test of biomarker in data. It can be also the transformation, for example, \code{"log(y)"}, where the term \code{log} is for the log-transformation, and \code{y} is the name of test.}
+\item{fixed.formula}{a two-sided linear formula object describing the fixed-effects part of the model for three classes, with the response on the left of a ~ operator and the terms, separated by + operators, on the right. For example, \code{Y ~ X1 + X2}, \code{Y ~ X1 + X2 + X1:X2} or \code{log(Y) ~ X1 + X2 + I(X1^2)}.}
 
 \item{name.class}{name of variable indicating disease classes (or diagnostic groups) in data.}
-
-\item{name.covars}{an vector of names of covariates containing in data. The vector can contain also the transformation, interaction terms, for example, \code{c("x1", "sqrt(x2)", "I(x3^2)", "x1:x2")}.}
 
 \item{name.clust}{name of variable indicating clusters in data.}
 
@@ -75,7 +72,7 @@ This function fits a linear mixed-effect model for a continuous diagnostic test 
 data(data_3class)
 head(data_3class)
 ## A model with two covariate: X1 + X2
-out1 <- lme2(name.test = "Y", name.class = "D", name.covars = c("X1", "X2"), name.clust = "id_Clus",
+out1 <- lme2(fixed.formula = Y ~ X1 + X2, name.class = "D", name.clust = "id_Clus",
              data = data_3class)
 print(out1)
 plot(out1)
