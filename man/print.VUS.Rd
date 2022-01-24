@@ -4,7 +4,7 @@
 \alias{print.VUS}
 \title{Print summary results of VUS}
 \usage{
-\method{print}{VUS}(x, digits = max(3, getOption("digits") - 2), ...)
+\method{print}{VUS}(x, digits = 3, ...)
 }
 \arguments{
 \item{x}{an object of class "VUS", a result of a call to \code{\link{VUS}}.}
