@@ -49,7 +49,7 @@ The ellipsoidal confidence region of TCFs at a given pair of thresholds can be c
 \dontrun{
 data(data_3class)
 ## One covariate
-out1 <- lme2(name.test = "Y", name.class = "D", name.covars = c("X1"), name.clust = "id_Clus",
+out1 <- lme2(fixed.formula = Y ~ X1, name.class = "D", name.clust = "id_Clus",
              data = data_3class)
 
 ### plot only covariate-specific ROC surface
@@ -59,8 +59,8 @@ ROCsurface(out_lme2 = out1, x.val = 1)
 ROCsurface(out_lme2 = out1, x.val = 1, ellips = TRUE, thresholds = c(0.9, 3.95))
 
 ## Two covariates
-out2 <- lme2(name.test = "Y", name.class = "D", name.covars = c("X1", "X2"),
-             name.clust = "id_Clus", data = data_3class)
+out2 <- lme2(fixed.formula = Y ~ X1 + X2, name.class = "D", name.clust = "id_Clus",
+             data = data_3class)
 
 ### plot only covariate-specific ROC surface
 ROCsurface(out_lme2 = out2, x.val = c(1, 1))
