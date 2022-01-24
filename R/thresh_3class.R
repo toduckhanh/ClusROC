@@ -159,19 +159,18 @@ optThres3control <- function(method.optim = c("L-BFGS-B", "BFGS", "Nelder-Mead")
 #'
 #' data(data_3class)
 #' ## One covariate
-#' out1 <- lme2(name.test = "Y", name.class = "D", name.covars = c("X1"), name.clust = "id_Clus",
+#' out1 <- lme2(fixed.formula = Y ~ X1, name.class = "D", name.clust = "id_Clus",
 #'              data = data_3class)
 #'
 #' ### Estimate covariate-specific optimal thresholds at multiple values of one covariate,
 #' ### with 3 methods
-#' out_thres_1 <- optThres3(method = c("GYI", "MV", "CtP"), out_lme2 = out1, x.val = 1,
-#'                          apVar = TRUE)
+#' out_thres_1 <- optThres3(method = c("GYI", "MV", "CtP"), out_lme2 = out1, x.val = 1, apVar = TRUE)
 #' print(out_thres_1)
 #' plot(out_thres_1)
 #'
 #'## Two covariates
-#' out2 <- lme2(name.test = "Y", name.class = "D", name.covars = c("X1", "X2"),
-#'              name.clust = "id_Clus", data = data_3class)
+#' out2 <- lme2(fixed.formula = Y ~ X1 + X2, name.class = "D", name.clust = "id_Clus",
+#'              data = data_3class)
 #'
 #' ### Estimate covariate-specific optimal thresholds at one point, with 3 methods
 #' out_thres_2 <- optThres3(method = c("GYI", "MV", "CtP"), out_lme2 = out2, x.val = c(1, 0),
