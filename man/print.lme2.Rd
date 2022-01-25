@@ -4,12 +4,14 @@
 \alias{print.lme2}
 \title{Print summary results of an lme2 object}
 \usage{
-\method{print}{lme2}(x, digits = max(3L, getOption("digits") - 3L), ...)
+\method{print}{lme2}(x, digits = max(3L, getOption("digits") - 3L), call = TRUE, ...)
 }
 \arguments{
 \item{x}{an object of class "lme2", a result of a call to \code{\link{lme2}}.}
 
 \item{digits}{minimal number of significant digits, see \code{\link{print.default}}.}
+
+\item{call}{logical. If \code{TRUE}, the matched call will be printed.}
 
 \item{...}{further arguments passed to \code{\link{print}} method.}
 }
