@@ -361,6 +361,7 @@ lme2 <- function(fixed.formula, name.class, name.clust, data, levl.class = NULL,
 #' @method print lme2
 #' @param x an object of class "lme2", a result of a call to \code{\link{lme2}}.
 #' @param digits minimal number of significant digits, see \code{\link{print.default}}.
+#' @param call logical. If \code{TRUE}, the matched call will be printed.
 #' @param ... further arguments passed to \code{\link{print}} method.
 #'
 #' @details \code{print.lme2} shows a nice format of the summary table for fitting the cluster-effect model for a continuous diagnostic test in three-class setting.
@@ -368,10 +369,12 @@ lme2 <- function(fixed.formula, name.class, name.clust, data, levl.class = NULL,
 #' @seealso \code{\link{lme2}}
 #'
 #' @export
-print.lme2 <- function(x, digits = max(3L, getOption("digits") - 3L), ...){
+print.lme2 <- function(x, digits = max(3L, getOption("digits") - 3L), call = TRUE, ...){
   cat("\n")
-  cat("CALL: ",
-      paste(deparse(x$call), sep = "\n", collapse = "\n"), "\n \n", sep = "")
+  if(call){
+    cat("CALL: ",
+        paste(deparse(x$call), sep = "\n", collapse = "\n"), "\n \n", sep = "")
+  }
   if(!is.null(x$se_para)){
     z <- (x$est_para[1:x$n_coef] - rep(0, x$n_coef))/x$se_para[1:x$n_coef]
     p_val <- 2*pnorm(abs(z), lower.tail = FALSE)
