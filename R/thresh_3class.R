@@ -146,6 +146,7 @@ optThres3control <- function(method.optim = c("L-BFGS-B", "BFGS", "Nelder-Mead")
 #' \item{thres3}{a vector or matrix containing the estimated optimal thresholds.}
 #' \item{vcov.thres3}{a matrix or list of matrices containing the estimated variance-covariance matrices.}
 #' \item{tcfs}{a vector or matrix containing the estimated TCFs at the optimal thresholds.}
+#' \item{mess_order}{a diagnostic message for monontone ordering of means at given covariates' values.}
 #' \item{x.val}{value(s) of covariate(s).}
 #' \item{n_p}{total numbers of the regressors in the model.}
 #'
@@ -261,9 +262,12 @@ optThres3 <- function(method = c("GYI", "CtP", "MV"), out_lme2, x.val, apVar = T
   res_check <- check_mu_order(Z, par_model, n_p)
   if(all(res_check$status == 0))
     stop("The assumption of montone ordering DOES NOT hold for all the value(s) of the covariate(s)")
-  if(any(res_check$status == 0))
-    message(paste("The assumption of montone ordering DOES NOT hold for some points. The points number:",
-                  paste(which(res_check$status == 0), collapse = ", "), "are deleted from analysis!"))
+  if(any(res_check$status == 0)){
+    mess_order <- paste("The assumption of montone ordering DOES NOT hold for some points. The points number:",
+                        paste(which(res_check$status == 0), collapse = ", "), "are deleted from analysis!")
+    fit$mess_order <- mess_order
+    message(mess_order)
+  }
   Z <- res_check$Z_new
   ##
   if(n_p == 1){# no covariate
@@ -472,6 +476,7 @@ plot.optThres3 <- function(x, ci.level = 0.95, colors = NULL, xlims, ylims, size
 #' @method print optThres3
 #' @param x an object of class "optThres3", a result of a call to \code{\link{optThres3}}.
 #' @param digits minimal number of significant digits, see \code{\link{print.default}}.
+#' @param call logical. If \code{TRUE}, the matched call will be printed.
 #' @param ... further arguments passed to \code{\link{print}} method.
 #'
 #' @details \code{print.optThres3} shows a nice format of the summary table for covariate-specific optimal thresholds estimates.
@@ -479,11 +484,15 @@ plot.optThres3 <- function(x, ci.level = 0.95, colors = NULL, xlims, ylims, size
 #' @seealso \code{\link{optThres3}}
 #'
 #' @export
-print.optThres3 <- function(x, digits = max(3, getOption("digits") - 2), ...){
+print.optThres3 <- function(x, digits = 3, call = TRUE, ...){
   if(isFALSE(inherits(x, "optThres3"))) stop("The object is not optThres3!")
   cat("\n")
-  cat("CALL: ",
-      paste(deparse(x$call), sep = "\n", collapse = "\n"), "\n \n", sep = "")
+  if(call){
+    cat("CALL: ", paste(deparse(x$call), sep = "\n", collapse = "\n"), "\n \n", sep = "")
+  }
+  if(!is.null(x$mess_order)){
+    cat("NOTE: ", x$mess_order, "\n \n", sep = "")
+  }
   n_method <- length(x$method)
   if(x$n_p == 1){
     labels <- "Intercept"
