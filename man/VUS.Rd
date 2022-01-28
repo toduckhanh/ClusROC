@@ -39,6 +39,7 @@ VUS(
 \item{vus_ci_log}{the confidence interval of covariate-specific VUS after using logit-transformation.}
 \item{vus_ci_prob}{the confidence interval of covariate-specific VUS after using probit-transformation.}
 \item{ci.level}{confidence level is used.}
+\item{mess_order}{a diagnostic message for monontone ordering of means at given covariates' values.}
 \item{x.val}{value(s) of covariate(s).}
 \item{n_p}{total numbers of the regressors in the model.}
 
