@@ -4,12 +4,14 @@
 \alias{print.optThres3}
 \title{Print summary results of \code{optThres3}}
 \usage{
-\method{print}{optThres3}(x, digits = max(3, getOption("digits") - 2), ...)
+\method{print}{optThres3}(x, digits = 3, call = TRUE, ...)
 }
 \arguments{
 \item{x}{an object of class "optThres3", a result of a call to \code{\link{optThres3}}.}
 
 \item{digits}{minimal number of significant digits, see \code{\link{print.default}}.}
+
+\item{call}{logical. If \code{TRUE}, the matched call will be printed.}
 
 \item{...}{further arguments passed to \code{\link{print}} method.}
 }
