@@ -22,6 +22,7 @@ TCFs(out_lme2, x.val, thresholds, apVar = FALSE)
 \item{tcfs_est}{a vector or matrix containing the estimated TCFs.}
 \item{tcf_vcov}{a matrix or list of matrices containing the estimated variance-covariance matrices.}
 \item{thresholds}{the specified pair of thresholds.}
+\item{mess_order}{a diagnostic message for monontone ordering of means at given covariates' values.}
 \item{x.val}{value(s) of covariate(s).}
 \item{n_p}{total numbers of the regressors in the model.}
 
