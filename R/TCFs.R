@@ -70,6 +70,7 @@ TCF_normal_vcov <- function(par_model, z, thresholds, vcov_par_model, n_p, fixed
 #' \item{tcfs_est}{a vector or matrix containing the estimated TCFs.}
 #' \item{tcf_vcov}{a matrix or list of matrices containing the estimated variance-covariance matrices.}
 #' \item{thresholds}{the specified pair of thresholds.}
+#' \item{mess_order}{a diagnostic message for monontone ordering of means at given covariates' values.}
 #' \item{x.val}{value(s) of covariate(s).}
 #' \item{n_p}{total numbers of the regressors in the model.}
 #'
@@ -148,9 +149,12 @@ TCFs <- function(out_lme2, x.val, thresholds, apVar = FALSE){
   res_check <- check_mu_order(Z, par_model, n_p)
   if(all(res_check$status == 0))
     stop("The assumption of montone ordering DOES NOT hold for all the value(s) of the covariate(s)")
-  if(any(res_check$status == 0))
-    message(paste("The assumption of montone ordering DOES NOT hold for some points. The points number:",
-                  paste(which(res_check$status == 0), collapse = ", "), "are deleted from analysis!"))
+  if(any(res_check$status == 0)){
+    mess_order <- paste("The assumption of montone ordering DOES NOT hold for some points. The points number:",
+                        paste(which(res_check$status == 0), collapse = ", "), "are deleted from analysis!")
+    fit$mess_order <- mess_order
+    message(mess_order)
+  }
   Z <- res_check$Z_new
   if(n_p == 1){ # no covariate
     fit$x.val <- x.val
@@ -206,6 +210,7 @@ TCFs <- function(out_lme2, x.val, thresholds, apVar = FALSE){
 #' @method print TCFs
 #' @param x an object of class "TCFs", a result of a call to \code{\link{TCFs}}.
 #' @param digits minimal number of significant digits, see \code{\link{print.default}}.
+#' @param call logical. If \code{TRUE}, the matched call will be printed.
 #' @param ... further arguments passed to \code{\link{print}} method.
 #'
 #' @details \code{print.TCFs} shows a nice format of the summary table for covariate-specific TCFs estimates.
@@ -213,10 +218,15 @@ TCFs <- function(out_lme2, x.val, thresholds, apVar = FALSE){
 #' @seealso \code{\link{TCFs}}
 #'
 #' @export
-print.TCFs <- function(x, digits = max(3, getOption("digits") - 2), ...){
+print.TCFs <- function(x, digits = 3, call = TRUE, ...){
   if(isFALSE(inherits(x, "TCFs"))) stop("The object is not TCFs!")
   cat("\n")
-  cat("CALL: ", paste(deparse(x$call), sep = "\n", collapse = "\n"), "\n \n", sep = "")
+  if(call){
+    cat("CALL: ", paste(deparse(x$call), sep = "\n", collapse = "\n"), "\n \n", sep = "")
+  }
+  if(!is.null(x$mess_order)){
+    cat("NOTE: ", x$mess_order, "\n \n", sep = "")
+  }
   if(x$n_p == 1){
     labels <- "Intercept"
   }
