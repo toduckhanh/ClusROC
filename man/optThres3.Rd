@@ -34,6 +34,7 @@ optThres3(
 \item{thres3}{a vector or matrix containing the estimated optimal thresholds.}
 \item{vcov.thres3}{a matrix or list of matrices containing the estimated variance-covariance matrices.}
 \item{tcfs}{a vector or matrix containing the estimated TCFs at the optimal thresholds.}
+\item{mess_order}{a diagnostic message for monontone ordering of means at given covariates' values.}
 \item{x.val}{value(s) of covariate(s).}
 \item{n_p}{total numbers of the regressors in the model.}
 
