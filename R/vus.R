@@ -126,6 +126,7 @@ vus_se <- function(par, vcov_par_model, z, n_p, n_c, n_k, n, p.sss, p.ssk, p.sks
 #' \item{vus_ci_log}{the confidence interval of covariate-specific VUS after using logit-transformation.}
 #' \item{vus_ci_prob}{the confidence interval of covariate-specific VUS after using probit-transformation.}
 #' \item{ci.level}{confidence level is used.}
+#' \item{mess_order}{a diagnostic message for monontone ordering of means at given covariates' values.}
 #' \item{x.val}{value(s) of covariate(s).}
 #' \item{n_p}{total numbers of the regressors in the model.}
 #'
@@ -231,9 +232,12 @@ VUS <- function(out_lme2, x.val, apVar = FALSE, ci = FALSE, ci.level = ifelse(ci
   res_check <- check_mu_order(Z, par, n_p)
   if(all(res_check$status == 0))
     stop("The assumption of montone ordering DOES NOT hold for all the value(s) of the covariate(s)")
-  if(any(res_check$status == 0))
-    message(paste("The assumption of montone ordering DOES NOT hold for some points. The points number:",
-                  paste(which(res_check$status == 0), collapse = ", "), "are deleted from analysis!"))
+  if(any(res_check$status == 0)){
+    mess_order <- paste("The assumption of montone ordering DOES NOT hold for some points. The points number:",
+                        paste(which(res_check$status == 0), collapse = ", "), "are excluded from analysis!")
+    fit$mess_order <- mess_order
+    message(mess_order)
+  }
   Z <- res_check$Z_new
   ##
   if(n_p == 1){ # no covariate
@@ -344,6 +348,7 @@ VUS <- function(out_lme2, x.val, apVar = FALSE, ci = FALSE, ci.level = ifelse(ci
 #' @method print VUS
 #' @param x an object of class "VUS", a result of a call to \code{\link{VUS}}.
 #' @param digits minimal number of significant digits, see \code{\link{print.default}}.
+#' @param call logical. If \code{TRUE}, the matched call will be printed.
 #' @param ... further arguments passed to \code{\link{print}} method.
 #'
 #' @details \code{print.VUS} shows a nice format of the summary table for covariate-specific VUS estimates.
@@ -351,11 +356,15 @@ VUS <- function(out_lme2, x.val, apVar = FALSE, ci = FALSE, ci.level = ifelse(ci
 #' @seealso \code{\link{VUS}}
 #'
 #' @export
-print.VUS <- function(x, digits = 3, ...){
+print.VUS <- function(x, digits = 3, call = TRUE, ...){
   if(isFALSE(inherits(x, "VUS"))) stop("The object is not VUS!")
   cat("\n")
-  cat("CALL: ",
-      paste(deparse(x$call), sep = "\n", collapse = "\n"), "\n \n", sep = "")
+  if(call){
+    cat("CALL: ", paste(deparse(x$call), sep = "\n", collapse = "\n"), "\n \n", sep = "")
+  }
+  if(!is.null(x$mess_order)){
+    cat("NOTE: ", x$mess_order, "\n \n", sep = "")
+  }
   if(x$n_p == 1){
     labels <- "Intercept"
   }
