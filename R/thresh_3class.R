@@ -53,10 +53,8 @@ optThres3_se <- function(method, thres_est, out_lme2, z, n_p, n_coef, bootstrap,
         vcov_par_model = out_lme2$vcov_sand, z = z, n_p = n_p)$vcov_cpts
     }
   } else{ ## cluster bootstrap
-    out_bts <- boot_lme2(B = nR, name.test = out_lme2$name.test, name.class = out_lme2$name.class,
-                         name.covars = out_lme2$name.covars, name.clust = out_lme2$name.clust,
-                         data = data, z = z, type = "cluster", boxcox = out_lme2$boxcox,
-                         parallel = parallel, ncpus = ncpus)
+    out_bts <- boot_lme2(out_lme2 = out_lme2, data = data, z = z, B = nR, type = "cluster",
+                         boxcox = out_lme2$boxcox, parallel = parallel, ncpus = ncpus)
     if("GYI" %in% method){
       thres_GYI_bts <- matrix(0, nrow = 2, ncol = nR)
       for(k in 1:nR){
