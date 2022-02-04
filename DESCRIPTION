@@ -15,8 +15,8 @@ Description: This package implements the approaches for ROC surface analysis in 
   (iii) the covariate-specific optimal pairs of thresholds. 
   The selection methods are: Generalized Youden Index (GYI), Closest to Perfection (CtP) and Max Volume (MV).
 License: GPL (>= 2)
-Depends: R (>= 3.5.0)
-Imports: stats, utils, graphics, car, numDeriv, nlme, ggplot2, ggpubr, rgl, snow, doSNOW, foreach, shinyRGL, shiny 
+Depends: R (>= 3.5.0), rgl
+Imports: stats, utils, graphics, car, numDeriv, nlme, ggplot2, ggpubr, snow, doSNOW, foreach, shinyRGL, shiny 
 Encoding: UTF-8
 LazyData: true
 LazyLoad: yes
