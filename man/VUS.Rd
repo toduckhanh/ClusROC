@@ -4,15 +4,7 @@
 \alias{VUS}
 \title{Covariate-specific VUS for clustered data.}
 \usage{
-VUS(
-  out_lme2,
-  x.val,
-  apVar = FALSE,
-  ci = FALSE,
-  ci.level = ifelse(ci, 0.95, NULL),
-  subdivisions = 1000,
-  ...
-)
+VUS(out_lme2, x.val, apVar = FALSE, subdivisions = 1000, ...)
 }
 \arguments{
 \item{out_lme2}{an object of class "lme2", a result of a call to \code{\link{lme2}}.}
@@ -20,10 +12,6 @@ VUS(
 \item{x.val}{specific value(s) of covariate(s) where the VUS are computed. In case non-covariate, no value is needed to specify. In case of one covariate, \code{x.val} should be a number or a vector. In case of \eqn{p} covariates (\eqn{p > 1}), \code{x.val} should be a vector containing \eqn{p} values of the covariates; or a matrix with \eqn{p} columns and \eqn{m} rows containing values of the covariates if the user wants to compute VUS at \eqn{m} points.}
 
 \item{apVar}{a logical value. If set to \code{TRUE}, the standard error of covariate-specific VUS are computed.}
-
-\item{ci}{a logical value. If TRUE (default), confidence intervals are computed.}
-
-\item{ci.level}{a confidence level to be used for constructing the confidence interval; default is 0.95.}
 
 \item{subdivisions}{the maximum number of subintervals used to approximate the integration. Default is 1000.}
 
@@ -35,10 +23,6 @@ VUS(
 \item{call}{the matched call.}
 \item{vus_est}{a vector containing the estimated covariate-specific VUS.}
 \item{vus_se}{a vector containing the standard errors.}
-\item{vus_ci_norm}{the normal-approximate confidence interval of covariate-specific VUS.}
-\item{vus_ci_log}{the confidence interval of covariate-specific VUS after using logit-transformation.}
-\item{vus_ci_prob}{the confidence interval of covariate-specific VUS after using probit-transformation.}
-\item{ci.level}{confidence level is used.}
 \item{mess_order}{a diagnostic message for monontone ordering of means at given covariates' values.}
 \item{x.val}{value(s) of covariate(s).}
 \item{n_p}{total numbers of the regressors in the model.}
@@ -51,9 +35,7 @@ This function computes the covariate-specific VUS of a continuous diagnostic tes
 \details{
 This function implements estimation method in Xiong et al. (2018) for estimating covariate-specific VUS of a continuous diagnostic test in a clustered design when subjects can be diagnosed in three ordinal groups. The estimator is based on the results of fitting the linear mixed-effect model on the diagnostic tests, which is done by using \code{\link{lme2}} with REML approach. The standard error of the estimated covariate-specific VUS is approximated through the Delta method.
 
-Before applying the estimation, a quick check for the monotone ordering assumption will be performed. That is, for given values of covariates, three predicted means of three diagnostic groups will be compared. If the assumption does not meet, the covariate-specific VUS at the values of covariates will be not estimated.
-
-A confidence interval of covariate-specific VUS also is given based on Normal-approximate. If the lower bound (or the upper bound) of the confidence interval is less than 0 (or greater than 1), it will be set as 0 or 1. Furthermore, logit and probit transformations are also applied in order to guarantee the confidence intervals are not outside (0,1). In addition, this function also performs the statistical test, \eqn{H0: VUS = 1/6} versus the alternative of interest.
+Before applying the estimation, a quick check for the monotone ordering assumption will be performed. That is, for given values of covariates, three predicted means of three diagnostic groups will be compared. If the assumption does not meet, the covariate-specific VUS at the values of covariates will be not estimated. In addition, this function also performs the statistical test, \eqn{H0: VUS = 1/6} versus the alternative of interest.
 }
 \examples{
 data(data_3class)
@@ -62,20 +44,24 @@ out1 <- lme2(fixed.formula = Y ~ X1, name.class = "D", name.clust = "id_Clus",
              data = data_3class)
 
 ### Estimate covariate-specific VUS at one value of one covariate
-VUS(out1, x.val = 0.5, apVar = TRUE, ci = TRUE)
+out_vus1 <- VUS(out1, x.val = 0.5, apVar = TRUE)
+ci_VUS(out_vus1, ci.level = 0.95)
 
 ### Estimate covariate-specific VUS at multiple values of one covariate
-VUS(out1, x.val = c(-0.5, 0, 0.5), apVar = TRUE, ci = TRUE)
+out_vus2 <- VUS(out1, x.val = c(-0.5, 0, 0.5), apVar = TRUE)
+ci_VUS(out_vus2, ci.level = 0.95)
 
 ## Two covariates
 out2 <- lme2(fixed.formula = Y ~ X1 + X2, name.class = "D", name.clust = "id_Clus",
              data = data_3class)
 
 ### Estimate covariate-specific VUS at one point
-VUS(out2, x.val = c(1.5, 1), apVar = TRUE, ci = TRUE)
+out_vus3 <- VUS(out2, x.val = c(1.5, 1), apVar = TRUE)
+ci_VUS(out_vus3, ci.level = 0.95)
 
 ### Estimate covariate-specific VUS at three points
-VUS(out2, x.val = rbind(c(-0.5, 0), c(0.5, 0), c(0.5, 1)), apVar = TRUE, ci = TRUE)
+out_vus4 <- VUS(out2, x.val = rbind(c(-0.5, 0), c(0.5, 0), c(0.5, 1)), apVar = TRUE)
+ci_VUS(out_vus4, ci.level = 0.95)
 
 }
 \references{
