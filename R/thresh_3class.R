@@ -425,7 +425,7 @@ plot.optThres3 <- function(x, ci.level = 0.95, colors = NULL, xlims, ylims, size
     geom_point(size = size.point) + xlab("Optimal threshold 1") + ylab("Optimal threshold 2") +
     theme_bw() +
     theme(legend.position = "bottom", strip.text.x = element_text(size = 9))
-  if(x$call$apVar){
+  if(!is.null(x$vcov.thres3)){
     dt_thres_list <- split(dt_thres, dt_thres$method)
     dt_ell_thres <- list()
     if("GYI" %in% x$method){
@@ -526,7 +526,7 @@ print.optThres3 <- function(x, digits = 3, call = TRUE, ...){
   cat("Covariate-specific optimal pair of thresholds: \n")
   print(infer_tab, quote = FALSE, right = TRUE, na.print = "--", row.names = FALSE, ...)
   cat("\n")
-  if(x$call$apVar){
+  if(!is.null(x$thres3_se)){
     se_tab <- data.frame(labels, x$thres3_se$Method, x$thres3_se$threshold_1, x$thres3_se$threshold_2)
     se_tab[,3:4] <- signif(se_tab[,3:4], digits = digits)
     colnames(se_tab) <- c("Covariate(s) Values", "Method", "SE. Threshold 1", "SE. Threshold 2")
