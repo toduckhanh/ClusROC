@@ -143,6 +143,7 @@ optThres3control <- function(method.optim = c("L-BFGS-B", "BFGS", "Nelder-Mead")
 #' \item{method}{the methods were used to obtain the optima threholds.}
 #' \item{thres3}{a vector or matrix containing the estimated optimal thresholds.}
 #' \item{vcov.thres3}{a matrix or list of matrices containing the estimated variance-covariance matrices.}
+#' \item{thres3_se}{a vector or matrix containing the estimated standard errors of optimal thresholds.}
 #' \item{tcfs}{a vector or matrix containing the estimated TCFs at the optimal thresholds.}
 #' \item{mess_order}{a diagnostic message for monontone ordering of means at given covariates' values.}
 #' \item{x.val}{value(s) of covariate(s).}
@@ -163,7 +164,8 @@ optThres3control <- function(method.optim = c("L-BFGS-B", "BFGS", "Nelder-Mead")
 #'
 #' ### Estimate covariate-specific optimal thresholds at multiple values of one covariate,
 #' ### with 3 methods
-#' out_thres_1 <- optThres3(method = c("GYI", "MV", "CtP"), out_lme2 = out1, x.val = 1, apVar = TRUE)
+#' out_thres_1 <- optThres3(method = c("GYI", "MV", "CtP"), out_lme2 = out1, x.val = 1,
+#'                          apVar = TRUE)
 #' print(out_thres_1)
 #' plot(out_thres_1)
 #'
@@ -283,16 +285,19 @@ optThres3 <- function(method = c("GYI", "CtP", "MV"), out_lme2, x.val, apVar = T
       }, x = temp_thres[[i]]$threshold_1, y = temp_thres[[i]]$threshold_2))
     }
     if(apVar){
+      temp_se_thres <- list()
       fit$vcov.thres3 <- list()
       for(i in 1:n_x){
-        fit$vcov.thres3[[i]] <- optThres3_se(method = methodtemp, thres_est = temp_thres[[i]],
-                                             out_lme2 = out_lme2, z = Z, n_p = n_p,
-                                             n_coef = n_coef, bootstrap = bootstrap, nR = controlvals$nR,
-                                             data = data, parallel = controlvals$parallel,
-                                             ncpus = controlvals$ncpus, start = controlvals$start,
-                                             method.optim = controlvals$method.optim,
-                                             maxit = controlvals$maxit, lower = controlvals$lower,
-                                             upper = controlvals$upper)
+        out_var <- optThres3_se(method = methodtemp, thres_est = temp_thres[[i]], out_lme2 = out_lme2,
+                                z = Z, n_p = n_p, n_coef = n_coef, bootstrap = bootstrap, nR = controlvals$nR,
+                                data = data, parallel = controlvals$parallel, ncpus = controlvals$ncpus,
+                                start = controlvals$start, method.optim = controlvals$method.optim,
+                                maxit = controlvals$maxit, lower = controlvals$lower,
+                                upper = controlvals$upper)
+        fit$vcov.thres3[[i]] <- out_var
+        se_thres3 <- t(sapply(out_var, function(x) sqrt(diag(x))))
+        temp_se_thres[[i]] <- data.frame(threshold_1 = se_thres3[,1], threshold_2 = se_thres3[,2],
+                                         Method = Method, row.names = NULL)
       }
     }
   }
@@ -312,16 +317,21 @@ optThres3 <- function(method = c("GYI", "CtP", "MV"), out_lme2, x.val, apVar = T
       }, x = temp_thres[[i]]$threshold_1, y = temp_thres[[i]]$threshold_2))
     }
     if(apVar){
+      temp_se_thres <- list()
       fit$vcov.thres3 <- list()
       for(i in 1:n_x){
-        fit$vcov.thres3[[i]] <- optThres3_se(method = methodtemp, thres_est = temp_thres[[i]],
-                                             out_lme2 = out_lme2, z = Z[[i]], n_p = n_p,
-                                             n_coef = n_coef, bootstrap = bootstrap, nR = controlvals$nR,
-                                             data = data, parallel = controlvals$parallel,
-                                             ncpus = controlvals$ncpus, start = controlvals$start,
-                                             method.optim = controlvals$method.optim,
-                                             maxit = controlvals$maxit, lower = controlvals$lower,
-                                             upper = controlvals$upper)
+        out_var <- optThres3_se(method = methodtemp, thres_est = temp_thres[[i]],
+                                out_lme2 = out_lme2, z = Z[[i]], n_p = n_p,
+                                n_coef = n_coef, bootstrap = bootstrap, nR = controlvals$nR,
+                                data = data, parallel = controlvals$parallel,
+                                ncpus = controlvals$ncpus, start = controlvals$start,
+                                method.optim = controlvals$method.optim,
+                                maxit = controlvals$maxit, lower = controlvals$lower,
+                                upper = controlvals$upper)
+        fit$vcov.thres3[[i]] <- out_var
+        se_thres3 <- t(sapply(out_var, function(x) sqrt(diag(x))))
+        temp_se_thres[[i]] <- data.frame(threshold_1 = se_thres3[,1], threshold_2 = se_thres3[,2],
+                                         Method = Method, x = x.val[i], row.names = NULL)
       }
     }
   }
@@ -341,16 +351,21 @@ optThres3 <- function(method = c("GYI", "CtP", "MV"), out_lme2, x.val, apVar = T
       }, x = temp_thres[[i]]$threshold_1, y = temp_thres[[i]]$threshold_2))
     }
     if(apVar){
+      temp_se_thres <- list()
       fit$vcov.thres3 <- list()
       for(i in 1:n_x){
-        fit$vcov.thres3[[i]] <- optThres3_se(method = methodtemp, thres_est = temp_thres[[i]],
-                                             out_lme2 = out_lme2, z = Z[[i]], n_p = n_p,
-                                             n_coef = n_coef, bootstrap = bootstrap, nR = controlvals$nR,
-                                             data = data, parallel = controlvals$parallel,
-                                             ncpus = controlvals$ncpus, start = controlvals$start,
-                                             method.optim = controlvals$method.optim,
-                                             maxit = controlvals$maxit, lower = controlvals$lower,
-                                             upper = controlvals$upper)
+        out_var <- optThres3_se(method = methodtemp, thres_est = temp_thres[[i]],
+                                out_lme2 = out_lme2, z = Z[[i]], n_p = n_p,
+                                n_coef = n_coef, bootstrap = bootstrap, nR = controlvals$nR,
+                                data = data, parallel = controlvals$parallel,
+                                ncpus = controlvals$ncpus, start = controlvals$start,
+                                method.optim = controlvals$method.optim,
+                                maxit = controlvals$maxit, lower = controlvals$lower,
+                                upper = controlvals$upper)
+        fit$vcov.thres3[[i]] <- out_var
+        se_thres3 <- t(sapply(out_var, function(x) sqrt(diag(x))))
+        temp_se_thres[[i]] <- data.frame(threshold_1 = se_thres3[,1], threshold_2 = se_thres3[,2],
+                                         Method = Method, x = t(x.val[i,]), row.names = NULL)
       }
     }
   }
@@ -358,6 +373,7 @@ optThres3 <- function(method = c("GYI", "CtP", "MV"), out_lme2, x.val, apVar = T
   fit$n_p <- n_p
   fit$thres3 <- do.call(rbind, temp_thres)
   fit$tcfs <- do.call(rbind, temp_tcfs)
+  if(apVar) fit$thres3_se <- do.call(rbind, temp_se_thres)
   class(fit) <- "optThres3"
   return(fit)
 }
@@ -404,51 +420,52 @@ plot.optThres3 <- function(x, ci.level = 0.95, colors = NULL, xlims, ylims, size
   dt_thres <- x$thres3[, 1:3]
   colnames(dt_thres) <- c("x", "y", "method")
   dt_thres$pts <- as.factor(rep(1:n_x, each = length(x$method)))
-  dt_thres_list <- split(dt_thres, dt_thres$method)
-  dt_ell_thres <- list()
-  if("GYI" %in% x$method){
-    dt_ell_thres_GYI <- data.frame()
-    for(i in 1:n_x){
-      uu <- ellipse(center = as.numeric(dt_thres_list$`Generalized Youden Index`[i, 1:2]),
-                    shape = x$vcov.thres3[[i]]$cov_GYI,
-                    radius = sqrt(qchisq(ci.level, 2)), draw = FALSE)
-      dt_ell_thres_GYI <- rbind(dt_ell_thres_GYI, data.frame(uu, pts = as.factor(i)))
-    }
-    dt_ell_thres_GYI$method <- factor(rep(c("Generalized Youden Index"), 52*n_x),
-                                      levels = c("Generalized Youden Index"))
-    dt_ell_thres$GYI <- dt_ell_thres_GYI
-  }
-  if("CtP" %in% x$method){
-    dt_ell_thres_CtP <- data.frame()
-    for(i in 1:n_x){
-      uu <- ellipse(center = as.numeric(dt_thres_list$`Closest to Perfection`[i, 1:2]),
-                    shape = x$vcov.thres3[[i]]$cov_CtP,
-                    radius = sqrt(qchisq(ci.level, 2)), draw = FALSE)
-      dt_ell_thres_CtP <- rbind(dt_ell_thres_CtP, data.frame(uu, pts = as.factor(i)))
-    }
-    dt_ell_thres_CtP$method <- factor(rep(c("Closest to Perfection"), 52*n_x),
-                                      levels = c("Closest to Perfection"))
-    dt_ell_thres$CtP <- dt_ell_thres_CtP
-  }
-  if("MV" %in% x$method){
-    dt_ell_thres_MV <- data.frame()
-    for(i in 1:n_x){
-      uu <- ellipse(center = as.numeric(dt_thres_list$`Max Volume`[i, 1:2]),
-                    shape = x$vcov.thres3[[i]]$cov_MV,
-                    radius = sqrt(qchisq(ci.level, 2)), draw = FALSE)
-      dt_ell_thres_MV <- rbind(dt_ell_thres_MV, data.frame(uu, pts = as.factor(i)))
-    }
-    dt_ell_thres_MV$method <- factor(rep(c("Max Volume"), 52*n_x), levels = c("Max Volume"))
-    dt_ell_thres$MV <- dt_ell_thres_MV
-  }
-  dt_ell_thres <- do.call(rbind, dt_ell_thres)
   pp <- ggplot(dt_thres, aes_string(x = "x", y = "y", colour = "pts")) +
     facet_grid( ~ method) +
-    geom_point(size = size.point) +
-    geom_path(data = dt_ell_thres, aes_string(x = "x", y = "y", group = "pts"), size = size.path) +
-    xlab("Optimal threshold 1") + ylab("Optimal threshold 2") +
+    geom_point(size = size.point) + xlab("Optimal threshold 1") + ylab("Optimal threshold 2") +
     theme_bw() +
     theme(legend.position = "bottom", strip.text.x = element_text(size = 9))
+  if(x$call$apVar){
+    dt_thres_list <- split(dt_thres, dt_thres$method)
+    dt_ell_thres <- list()
+    if("GYI" %in% x$method){
+      dt_ell_thres_GYI <- data.frame()
+      for(i in 1:n_x){
+        uu <- ellipse(center = as.numeric(dt_thres_list$`Generalized Youden Index`[i, 1:2]),
+                      shape = x$vcov.thres3[[i]]$cov_GYI,
+                      radius = sqrt(qchisq(ci.level, 2)), draw = FALSE)
+        dt_ell_thres_GYI <- rbind(dt_ell_thres_GYI, data.frame(uu, pts = as.factor(i)))
+      }
+      dt_ell_thres_GYI$method <- factor(rep(c("Generalized Youden Index"), 52*n_x),
+                                        levels = c("Generalized Youden Index"))
+      dt_ell_thres$GYI <- dt_ell_thres_GYI
+    }
+    if("CtP" %in% x$method){
+      dt_ell_thres_CtP <- data.frame()
+      for(i in 1:n_x){
+        uu <- ellipse(center = as.numeric(dt_thres_list$`Closest to Perfection`[i, 1:2]),
+                      shape = x$vcov.thres3[[i]]$cov_CtP,
+                      radius = sqrt(qchisq(ci.level, 2)), draw = FALSE)
+        dt_ell_thres_CtP <- rbind(dt_ell_thres_CtP, data.frame(uu, pts = as.factor(i)))
+      }
+      dt_ell_thres_CtP$method <- factor(rep(c("Closest to Perfection"), 52*n_x),
+                                        levels = c("Closest to Perfection"))
+      dt_ell_thres$CtP <- dt_ell_thres_CtP
+    }
+    if("MV" %in% x$method){
+      dt_ell_thres_MV <- data.frame()
+      for(i in 1:n_x){
+        uu <- ellipse(center = as.numeric(dt_thres_list$`Max Volume`[i, 1:2]),
+                      shape = x$vcov.thres3[[i]]$cov_MV,
+                      radius = sqrt(qchisq(ci.level, 2)), draw = FALSE)
+        dt_ell_thres_MV <- rbind(dt_ell_thres_MV, data.frame(uu, pts = as.factor(i)))
+      }
+      dt_ell_thres_MV$method <- factor(rep(c("Max Volume"), 52*n_x), levels = c("Max Volume"))
+      dt_ell_thres$MV <- dt_ell_thres_MV
+    }
+    dt_ell_thres <- do.call(rbind, dt_ell_thres)
+    pp <- pp + geom_path(data = dt_ell_thres, aes_string(x = "x", y = "y", group = "pts"), size = size.path)
+  }
   if(is.null(colors)){
     colors <- topo.colors(n_x)
   } else{
@@ -509,6 +526,14 @@ print.optThres3 <- function(x, digits = 3, call = TRUE, ...){
   cat("Covariate-specific optimal pair of thresholds: \n")
   print(infer_tab, quote = FALSE, right = TRUE, na.print = "--", row.names = FALSE, ...)
   cat("\n")
+  if(x$call$apVar){
+    se_tab <- data.frame(labels, x$thres3_se$Method, x$thres3_se$threshold_1, x$thres3_se$threshold_2)
+    se_tab[,3:4] <- signif(se_tab[,3:4], digits = digits)
+    colnames(se_tab) <- c("Covariate(s) Values", "Method", "SE. Threshold 1", "SE. Threshold 2")
+    cat("Standard errors of Covariate-specific optimal pair of thresholds: \n")
+    print(se_tab, quote = FALSE, right = TRUE, na.print = "--", row.names = FALSE, ...)
+    cat("\n")
+  }
   invisible(x)
 }
 
