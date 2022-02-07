@@ -33,6 +33,7 @@ optThres3(
 \item{method}{the methods were used to obtain the optima threholds.}
 \item{thres3}{a vector or matrix containing the estimated optimal thresholds.}
 \item{vcov.thres3}{a matrix or list of matrices containing the estimated variance-covariance matrices.}
+\item{thres3_se}{a vector or matrix containing the estimated standard errors of optimal thresholds.}
 \item{tcfs}{a vector or matrix containing the estimated TCFs at the optimal thresholds.}
 \item{mess_order}{a diagnostic message for monontone ordering of means at given covariates' values.}
 \item{x.val}{value(s) of covariate(s).}
@@ -79,7 +80,8 @@ out1 <- lme2(fixed.formula = Y ~ X1, name.class = "D", name.clust = "id_Clus",
 
 ### Estimate covariate-specific optimal thresholds at multiple values of one covariate,
 ### with 3 methods
-out_thres_1 <- optThres3(method = c("GYI", "MV", "CtP"), out_lme2 = out1, x.val = 1, apVar = TRUE)
+out_thres_1 <- optThres3(method = c("GYI", "MV", "CtP"), out_lme2 = out1, x.val = 1,
+                         apVar = TRUE)
 print(out_thres_1)
 plot(out_thres_1)
 
