@@ -160,12 +160,26 @@ ROCsurface <- function(out_lme2, x.val, step.tcf = 0.01, main = NULL, file.name 
     if(max(c(ellip.tcf$vb[1,], ellip.tcf$vb[2,], ellip.tcf$vb[3,])) > 1 |
        min(c(ellip.tcf$vb[1,], ellip.tcf$vb[2,], ellip.tcf$vb[3,])) < 0){
       tcfs_ellips_prob <- probit(tcfs_ellips)
-      jac_prob <- jacobian(func = probit, x = tcfs_ellips)
-      vcov_tcfs_prob <- jac_prob %*% vcov_tcfs %*% jac_prob
-      ellip.tcf_prob <- shade.ellips(orgi = tcfs_ellips_prob, sig = vcov_tcfs_prob, lev = ci.level)
-      ellip.tcf <- ellip.tcf_prob
-      ellip.tcf$vb[1:3,] <- pnorm(ellip.tcf_prob$vb[1:3,])
-      cat("A probit transformation was applied to guarantee the confidence region inside the unit cube.")
+      jac_prob <- suppressWarnings(jacobian(func = probit, x = tcfs_ellips))
+      if(!any(is.na(jac_prob))){
+        vcov_tcfs_prob <- jac_prob %*% vcov_tcfs %*% jac_prob
+        ellip.tcf_prob <- shade.ellips(orgi = tcfs_ellips_prob, sig = vcov_tcfs_prob, lev = ci.level)
+        ellip.tcf <- ellip.tcf_prob
+        ellip.tcf$vb[1:3,] <- pnorm(ellip.tcf_prob$vb[1:3,])
+        out$massge_probit <- "A probit transformation was applied to guarantee the confidence region inside the unit cube.\n"
+        cat(out$massge_probit)
+      } else{
+        out$massge_probit0 <- "Could not use probit transformation, due to point estimates of TCF 1/TCF 2/TCF 3 are very close to 0 or 1.\n"
+        cat(out$massge_probit0)
+        out$massge_probit1 <- "The confidence region of (TCF 1, TCF 2, TCF 3) is truncated to (0, 1).\n"
+        cat(out$massge_probit1)
+        ellip.tcf$vb[1, ellip.tcf$vb[1,] > 1] <- 1
+        ellip.tcf$vb[2, ellip.tcf$vb[2,] > 1] <- 1
+        ellip.tcf$vb[3, ellip.tcf$vb[3,] > 1] <- 1
+        ellip.tcf$vb[1, ellip.tcf$vb[1,] < 0] <- 0
+        ellip.tcf$vb[2, ellip.tcf$vb[2,] < 0] <- 0
+        ellip.tcf$vb[3, ellip.tcf$vb[3,] < 0] <- 0
+      }
     }
     plot3d(ellip.tcf, box = FALSE, col = "green", alpha = 0.5, xlim = c(0,1),
            ylim = c(0, 1), zlim = c(0, 1), xlab = " ", ylab = " ", zlab = " ",
