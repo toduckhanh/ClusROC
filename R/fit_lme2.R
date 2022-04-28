@@ -120,7 +120,7 @@ llike_bcx_fun <- function(par, fixed, random, weights, data, y_tit, ...){
 
 #' @title Linear Mixed-Effects Models for a continuous diagnostic test.
 #'
-#' @description \code{lme2} is generic function to fit the cluster-effect models for a continuous diagnostic test in three-class setting as described in Xiong et al. (2018) and To et al. (2021).
+#' @description \code{lme2} is generic function to fit the cluster-effect models for a continuous diagnostic test in three-class setting as described in Xiong et al. (2018) and To et al. (2022).
 #'
 #' @param fixed.formula  a two-sided linear formula object describing the fixed-effects part of the model for three classes, with the response on the left of a ~ operator and the terms, separated by + operators, on the right. For example, \code{Y ~ X1 + X2}, \code{Y ~ X1 + X2 + X1:X2} or \code{log(Y) ~ X1 + X2 + I(X1^2)}.
 #' @param name.class  name of variable indicating disease classes (or diagnostic groups) in data.
@@ -130,15 +130,15 @@ llike_bcx_fun <- function(par, fixed, random, weights, data, y_tit, ...){
 #' @param apVar  a logical value. Default = \code{TRUE}. If set to \code{TRUE}, the covariance matrix for all estimated parameters in model with be obtained by using the sandwich formula.
 #' @param boxcox  a logical value. Default = \code{FALSE}. If set to \code{TRUE}, a Box-Cox transformation will be applied to the model to guarantee the normally assumptions.
 #' @param interval_lambda  a vector containing the end-points of the interval to be searched for the Box-Cox parameter, \code{lambda}. Default = (-2, 2).
-#' @param trace  a logical value. Default = \code{TRUE}. If set to \code{TRUE}, the information of verifying the monotonic ordering of ....
+#' @param trace  a logical value. Default = \code{TRUE}. If set to \code{TRUE}, the information of verifying the monotonic ordering of test results will be provided.
 #' @param ...  additional arguments for \code{\link[nlme]{lme}}, such as \code{control}, \code{contrasts}.
 #'
 #' @details
-#' This function fits a linear mixed-effect model for a continuous diagnostic test in three-class setting in order to account for the clustering effect on the test result, as well as for covariates' effects. See Xiong et al. (2018) and To et al. (2021) for more details.
+#' This function fits a linear mixed-effect model for a continuous diagnostic test in three-class setting in order to account for the clustering effect on the test result, as well as for covariates' effects. See Xiong et al. (2018) and To et al. (2022) for more details.
 #' \itemize{
 #' \item The estimation is done by using \code{\link[nlme]{lme}} with the restricted log-likelihood (REML) method.
-#' \item The Box-Cox transformation for linear mixed-effect models can be used when the distributions of test results are skewed (Gurka et al. 2006). The estimation procedure is described in To et al. (2021), where the Box-Cox parameter \eqn{\lambda} is estimated by a grid search on the interval [-2, 2] as discussed in Gurka and Edwards (2011).
-#' \item The variance-covariance matrix of the estimated parameters are obtained by sandwich formula (see, Liang and Zeger, 1986; Kauermann and Carroll, 2001; Mancl and DeRouen, 2001) as discussed in To et al. (2021).
+#' \item The Box-Cox transformation for linear mixed-effect models can be used when the distributions of test results are skewed (Gurka et al. 2006). The estimation procedure is described in To et al. (2022), where the Box-Cox parameter \eqn{\lambda} is estimated by a grid search on the interval [-2, 2] as discussed in Gurka and Edwards (2011).
+#' \item The variance-covariance matrix of the estimated parameters are obtained by sandwich formula (see, Liang and Zeger, 1986; Kauermann and Carroll, 2001; Mancl and DeRouen, 2001) as discussed in To et al. (2022).
 #' }
 #'
 #'
@@ -160,30 +160,30 @@ llike_bcx_fun <- function(par, fixed, random, weights, data, y_tit, ...){
 #' Generic functions such as \code{print} and \code{plot} have methods to show the results of the fit.
 #'
 #' @references
+#' Gurka, M. J., Edwards, L. J. , Muller, K. E., and Kupper, L. L. (2006) ``Extending the Box-Cox transformation to the linear mixed model''. \emph{Journal of the Royal Statistical Society: Series A (Statistics in Society)}, \bold{169}, 2, 273-288.
 #'
-#' Xiong, C., Luo, J., Chen L., Gao, F., Liu, J., Wang, G., Bateman, R. and Morris, J. C. (2018)
-#' ``Estimating diagnostic accuracy for clustered ordinal diagnostic groups in the three-class case -- Application to the early diagnosis of Alzheimer disease''.
-#' \emph{Statistical Methods in Medical Research}, \bold{27}, 3, 701-714.
-#'
-#' To, D-K., Adimari, G., Chiogna, M. and Risso, D. (2021)
-#' ``ROC estimation and threshold selection criteria in three-class classification problems for clustered data''. \emph{Submitted}.
-#'
-#' Liang, K. Y. and Zeger, S. L. (1986)
-#' ``Longitudinal data analysis using generalized linear models''. \emph{Biometrika}, \bold{73}, 1, 13-22.
+#' Gurka, M. J. and Edwards, L. J. (2011) ``Estimating variance components and random effects using the box-cox transformation in the linear mixed model''. \emph{Communications in Statistics - Theory and Methods}, \bold{40}, 3, 515-531.
 #'
 #' Kauermann, G. and Carroll, R. J. (2001)
 #' ``A note on the efficiency of sandwich covariance matrix estimation''.
 #' \emph{Journal of the American Statistical Association}, \bold{96}, 456, 1387-1396.
 #'
+#' Liang, K. Y. and Zeger, S. L. (1986)
+#' ``Longitudinal data analysis using generalized linear models''. \emph{Biometrika}, \bold{73}, 1, 13-22.
+#'
 #' Mancl, L. A. and DeRouen, T. A. (2001) ``A covariance estimator for GEE with improved small-sample properties''.
 #'  \emph{Biometrics}, \bold{57}, 1, 126-134.
 #'
-#' Gurka, M. J., Edwards, L. J. , Muller, K. E., and Kupper, L. L. (2006) ``Extending the Box-Cox transformation to the linear mixed model''. \emph{Journal of the Royal Statistical Society: Series A (Statistics in Society)}, \bold{169}, 2, 273-288.
+#' To, D-K., Adimari, G., Chiogna, M. and Risso, D. (2022)
+#' ``Receiver operating characteristic estimation and threshold selection criteria in three-class classification problems for clustered data''. \emph{Statistical Methods in Medical Research}, DOI: 10.1177/09622802221089029.
 #'
-#' Gurka, M. J. and Edwards, L. J. (2011) ``Estimating variance components and random effects using the box-cox transformation in the linear mixed model''. \emph{Communications in Statistics - Theory and Methods}, \bold{40}, 3, 515-531.
+#' Xiong, C., Luo, J., Chen L., Gao, F., Liu, J., Wang, G., Bateman, R. and Morris, J. C. (2018)
+#' ``Estimating diagnostic accuracy for clustered ordinal diagnostic groups in the three-class case -- Application to the early diagnosis of Alzheimer disease''.
+#' \emph{Statistical Methods in Medical Research}, \bold{27}, 3, 701-714.
+#'
 #'
 #' @examples
-#' ## Example for three-class setting
+#' ## Example 1:
 #' data(data_3class)
 #' head(data_3class)
 #' ## A model with two covariate: X1 + X2
@@ -191,6 +191,14 @@ llike_bcx_fun <- function(par, fixed, random, weights, data, y_tit, ...){
 #'              data = data_3class)
 #' print(out1)
 #' plot(out1)
+#'
+#' ## Example 2: Box-Cox transformation
+#' data(data_3class_bcx)
+#' out2 <- lme2(fixed.formula = Y ~ X, name.class = "D", name.clust = "id_Clus",
+#'              data = data_3class_bcx, boxcox = TRUE)
+#' print(out2)
+#' plot(out2)
+#'
 #'
 #' @export
 lme2 <- function(fixed.formula, name.class, name.clust, data, levl.class = NULL, apVar = TRUE,
