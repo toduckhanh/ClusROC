@@ -34,7 +34,7 @@ shade.ellips <- function(orgi, sig, lev){
 #' @param ci.level  a confidence level to be used for constructing the confidence interval; default is 0.95.
 #'
 #' @details
-#' This function implements estimation method in To et al. (2021) for estimating covariate-specific ROC surface of a continuous diagnostic test in a clustered design when subjects can be diagnosed in three ordinal groups. The estimator is based on the results of fitting the linear mixed-effect model on the diagnostic tests, which is done by using \code{\link{lme2}} with REML approach.
+#' This function implements estimation method in To et al. (2022) for estimating covariate-specific ROC surface of a continuous diagnostic test in a clustered design when subjects can be diagnosed in three ordinal groups. The estimator is based on the results of fitting the linear mixed-effect model on the diagnostic tests, which is done by using \code{\link{lme2}} with REML approach.
 #'
 #' Before applying the estimation, a quick check for the monotone ordering assumption will be performed. That is, for given values of covariates, three predicted means of three diagnostic groups will be compared. If the assumption does not meet, the covariate-specific ROC surface at the values of covariates will be not estimated.
 #'
@@ -43,11 +43,11 @@ shade.ellips <- function(orgi, sig, lev){
 #' @return \code{ROCsurface} returns a 3D \code{rgl} plot of covariate-specific ROC surface.
 #'
 #' @references
-#' To, D-K., Adimari, G., Chiogna, M. and Risso, D. (2021)
-#' ``ROC estimation and threshold selection criteria in three-class classification problems for clustered data''. \emph{Submitted}.
-#'
 #' Bantis, L. E., Nakas, C. T., Reiser, B., Myall, D., and Dalrymple-Alford, J. C. (2017).
 #' ``Construction of joint confidence regions for the optimal true class fractions of Receiver Operating Characteristic (ROC) surfaces and manifolds''. \emph{Statistical methods in medical research}, \bold{26}, 3, 1429-1442.
+#'
+#' To, D-K., Adimari, G., Chiogna, M. and Risso, D. (2022)
+#' ``Receiver operating characteristic estimation and threshold selection criteria in three-class classification problems for clustered data''. \emph{Statistical Methods in Medical Research}, DOI: 10.1177/09622802221089029.
 #'
 #' @examples
 #' \dontrun{
@@ -139,10 +139,20 @@ ROCsurface <- function(out_lme2, x.val, step.tcf = 0.01, main = NULL, file.name 
   tcf3 <- matrix(p3, length(p1), length(p1), byrow = TRUE)
   tcf2 <- matrix(rocs, length(p1), length(p1), byrow = FALSE)
   open3d()
-  par3d(windowRect = 50 + c(0, 0, 640, 640))
+  my.userMatrix <- rbind(c(-0.8370321, -0.5446390, -0.0523976, 0),
+                         c(0.1272045, -0.2868422, 0.9494949, 0),
+                         c(-0.5321618, 0.7880925, 0.3093767, 0),
+                         c(0, 0, 0, 1))
+  par3d(windowRect = 50 + c(0, 0, 640, 640), userMatrix = my.userMatrix)
   if(is.null(main)) main <- "Covariate-specific ROC surface"
-  plot3d(0, 0, 0, type = "n", box = FALSE, xlab = "TCF 1", ylab = "TCF 3", zlab = "TCF 2",
-         xlim = c(0,1), ylim = c(0,1), zlim = c(0,1))
+  # plot3d(0, 0, 0, type = "n", box = FALSE, xlab = "TCF 1", ylab = "TCF 3", zlab = "TCF 2",
+  #        xlim = c(0,1), ylim = c(0,1), zlim = c(0,1))
+  plot3d(0, 0, 0, type = "n", box = FALSE, xlab = "", ylab = "", zlab = "",
+         xlim = c(0,1), ylim = c(0,1), zlim = c(0,1), axes = FALSE)
+  axes3d(edges = c("x--", "y--", "z--"))
+  mtext3d("TCF 1", "x--", line = 2, at = 0.35)
+  mtext3d("TCF 2", "z--", line = 4, at = 0.55)
+  mtext3d("TCF 3", "y--", line = 4, at = 0.15, level = 2)
   bgplot3d({
     plot.new()
     title(main = main, line = 1)
@@ -187,8 +197,8 @@ ROCsurface <- function(out_lme2, x.val, step.tcf = 0.01, main = NULL, file.name 
     plot3d(tcfs_ellips[1], tcfs_ellips[3], tcfs_ellips[2], type = "s", col = "red",
            radius = 0.01, add = TRUE)
   }
-  play3d(spin3d(axis = c(0, 0, 1), rpm = 12.25), duration = 2)
-  play3d(spin3d(axis = c(0, 1, 0), rpm = 0.3), duration = 2)
+  # play3d(spin3d(axis = c(0, 0, 1), rpm = 12.25), duration = 2)
+  # play3d(spin3d(axis = c(0, 1, 0), rpm = 0.3), duration = 2)
   if(!is.null(file.name)){
     if(!grepl(".png", file.name)) file.name <- paste0(file.name, ".png")
     rgl.snapshot(file.name)
