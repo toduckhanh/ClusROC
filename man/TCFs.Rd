@@ -32,7 +32,7 @@ Generic functions such as \code{print} has methods to show the results.
 \code{TCFs} estimates covariate-specific True Class Fractions (TCFs) at a specified pair of thresholds of a continuous diagnostic test in a clustered design when subjects can be diagnosed in three ordinal groups. This function allows to compute covariate-specific TCFs at multiple points of covariates.
 }
 \details{
-This function implements estimation method in To et al. (2021) for estimating covariate-specific TCFs at a specified pair of thresholds of a continuous diagnostic test in a clustered design when subjects can be diagnosed in three ordinal groups. The estimator is based on the results of fitting the linear mixed-effect model on the diagnostic tests, which is done by using \code{\link{lme2}} with REML approach. The asymptotic variance-covariance matrix of the estimated covariate-specific TCFs is approximated through the Delta method. Notice that, if the Box-Cox transformation was applied for the linear mixed-effect on the diagnostic tests (\code{\link{lme2}}), the input thresholds have to be in the original scale.
+This function implements estimation method in To et al. (2022) for estimating covariate-specific TCFs at a specified pair of thresholds of a continuous diagnostic test in a clustered design when subjects can be diagnosed in three ordinal groups. The estimator is based on the results of fitting the linear mixed-effect model on the diagnostic tests, which is done by using \code{\link{lme2}} with REML approach. The asymptotic variance-covariance matrix of the estimated covariate-specific TCFs is approximated through the Delta method. Notice that, if the Box-Cox transformation was applied for the linear mixed-effect on the diagnostic tests (\code{\link{lme2}}), the input thresholds have to be in the original scale.
 
 Before applying the estimation, a quick check for the monotone ordering assumption will be performed. That is, for given values of covariates, three predicted means of three diagnostic groups will be compared. If the assumption does not meet, the covariate-specific TCFs at the values of covariates will be not estimated.
 }
@@ -61,6 +61,6 @@ print(out_tcfs_3)
 
 }
 \references{
-To, D-K., Adimari, G., Chiogna, M. and Risso, D. (2021)
-``ROC estimation and threshold selection criteria in three-class classification problems for clustered data''. \emph{Submitted}.
+To, D-K., Adimari, G., Chiogna, M. and Risso, D. (2022)
+``Receiver operating characteristic estimation and threshold selection criteria in three-class classification problems for clustered data''. \emph{Statistical Methods in Medical Research}, DOI: 10.1177/09622802221089029.
 }
