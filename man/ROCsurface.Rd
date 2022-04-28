@@ -39,7 +39,7 @@ ROCsurface(
 \code{ROCsurface} estimates and makes a 3D plot of covariate-specific ROC surface of a continuous diagnostic test in a clustered design when subjects can be diagnosed in three ordinal groups.
 }
 \details{
-This function implements estimation method in To et al. (2021) for estimating covariate-specific ROC surface of a continuous diagnostic test in a clustered design when subjects can be diagnosed in three ordinal groups. The estimator is based on the results of fitting the linear mixed-effect model on the diagnostic tests, which is done by using \code{\link{lme2}} with REML approach.
+This function implements estimation method in To et al. (2022) for estimating covariate-specific ROC surface of a continuous diagnostic test in a clustered design when subjects can be diagnosed in three ordinal groups. The estimator is based on the results of fitting the linear mixed-effect model on the diagnostic tests, which is done by using \code{\link{lme2}} with REML approach.
 
 Before applying the estimation, a quick check for the monotone ordering assumption will be performed. That is, for given values of covariates, three predicted means of three diagnostic groups will be compared. If the assumption does not meet, the covariate-specific ROC surface at the values of covariates will be not estimated.
 
@@ -71,9 +71,9 @@ ROCsurface(out_lme2 = out2, x.val = c(1, 1), ellips = TRUE, thresholds = c(0.9, 
 
 }
 \references{
-To, D-K., Adimari, G., Chiogna, M. and Risso, D. (2021)
-``ROC estimation and threshold selection criteria in three-class classification problems for clustered data''. \emph{Submitted}.
-
 Bantis, L. E., Nakas, C. T., Reiser, B., Myall, D., and Dalrymple-Alford, J. C. (2017).
 ``Construction of joint confidence regions for the optimal true class fractions of Receiver Operating Characteristic (ROC) surfaces and manifolds''. \emph{Statistical methods in medical research}, \bold{26}, 3, 1429-1442.
+
+To, D-K., Adimari, G., Chiogna, M. and Risso, D. (2022)
+``Receiver operating characteristic estimation and threshold selection criteria in three-class classification problems for clustered data''. \emph{Statistical Methods in Medical Research}, DOI: 10.1177/09622802221089029.
 }
