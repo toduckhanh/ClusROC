@@ -125,7 +125,6 @@ vus_se <- function(par, vcov_par_model, z, n_p, n_c, n_k, n, p.sss, p.ssk, p.sks
 #' Generic functions such as \code{print} has methods to show the results.
 #'
 #' @references
-#'
 #' Xiong, C., Luo, J., Chen L., Gao, F., Liu, J., Wang, G., Bateman, R. and Morris, J. C. (2018)
 #' ``Estimating diagnostic accuracy for clustered ordinal diagnostic groups in the three-class case -- Application to the early diagnosis of Alzheimer disease''.
 #' \emph{Statistical Methods in Medical Research}, \bold{27}, 3, 701-714.
@@ -472,7 +471,7 @@ print.ci_VUS <- function(x, digits = 3, ...){
   colnames(res.ci.tab) <- c("Covariates Values", "Normal approximation", "Logit transformation",
                             "Probit transformation")
   cat(paste0("The ", x$ci.level*100, "% confidence intervals for covariate-specific VUS:\n"))
-  print(res.ci.tab, quote = FALSE, right = TRUE, na.print = "--", row.names = FALSE, print.gap = 3)
+  print(res.ci.tab, quote = FALSE, right = TRUE, na.print = "--", row.names = FALSE, print.gap = 3, ...)
   cat("\n")
   invisible(x)
 }
