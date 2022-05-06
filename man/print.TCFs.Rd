@@ -2,12 +2,12 @@
 % Please edit documentation in R/TCFs.R
 \name{print.TCFs}
 \alias{print.TCFs}
-\title{Print summary results of TCFs}
+\title{Print summary results from TCFs}
 \usage{
 \method{print}{TCFs}(x, digits = 3, call = TRUE, ...)
 }
 \arguments{
-\item{x}{an object of class "TCFs", a result of a call to \code{\link{TCFs}}.}
+\item{x}{an object of class "TCFs", a result of \code{\link{TCFs}} call.}
 
 \item{digits}{minimal number of significant digits, see \code{\link{print.default}}.}
 
@@ -16,10 +16,10 @@
 \item{...}{further arguments passed to \code{\link{print}} method.}
 }
 \description{
-\code{print.TCFs} prints the results for the output of function \code{\link{TCFs}}.
+\code{print.TCFs} displays the results of the output from \code{\link{TCFs}}.
 }
 \details{
-\code{print.TCFs} shows a nice format of the summary table for covariate-specific TCFs estimates.
+\code{print.TCFs} shows a summary table for covariate-specific TCFs estimates.
 }
 \seealso{
 \code{\link{TCFs}}
