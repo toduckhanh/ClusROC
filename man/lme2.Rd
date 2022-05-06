@@ -18,53 +18,53 @@ lme2(
 )
 }
 \arguments{
-\item{fixed.formula}{a two-sided linear formula object describing the fixed-effects part of the model for three classes, with the response on the left of a ~ operator and the terms, separated by + operators, on the right. For example, \code{Y ~ X1 + X2}, \code{Y ~ X1 + X2 + X1:X2} or \code{log(Y) ~ X1 + X2 + I(X1^2)}.}
+\item{fixed.formula}{a two-sided linear formula object, describing the fixed-effects part of the model for three classes, with the response on the left of ~ operator and the terms, separated by + operators, on the right. For example, \code{Y ~ X1 + X2}, \code{Y ~ X1 + X2 + X1:X2} or \code{log(Y) ~ X1 + X2 + I(X1^2)}.}
 
-\item{name.class}{name of variable indicating disease classes (or diagnostic groups) in data.}
+\item{name.class}{name of variable indicating disease classes (or diagnostic groups) in the data.}
 
-\item{name.clust}{name of variable indicating clusters in data.}
+\item{name.clust}{name of variable indicating clusters in the data.}
 
 \item{data}{a data frame containing the variables in the model.}
 
-\item{levl.class}{an vector of the unique values (as character strings) that (disease) class might have taken, sorted into increasing order of means of test results corresponding to the disease classes (diagnostic groups). If \code{levl.class = NULL} (default), the levels will be automatically determined based on data, and sorted into increasing order of means of test results corresponding to the disease classes (diagnostic groups).}
+\item{levl.class}{a vector (of strings) containing the ordered name chosen for the disease classes. The ordering is intended to be ``increasing'' with respect to the disease severity. If \code{levl.class = NULL} (default), the elements of the vector will be automatically determined from data, by considering the order of the means of the test values for each disease class (diagnostic group).}
 
-\item{apVar}{a logical value. Default = \code{TRUE}. If set to \code{TRUE}, the covariance matrix for all estimated parameters in model with be obtained by using the sandwich formula.}
+\item{apVar}{a logical value. Default = \code{TRUE}. If set to \code{TRUE}, the estimated covariance matrix for all estimated parameters in the model will be obtained (by using the sandwich formula).}
 
-\item{boxcox}{a logical value. Default = \code{FALSE}. If set to \code{TRUE}, a Box-Cox transformation will be applied to the model to guarantee the normally assumptions.}
+\item{boxcox}{a logical value. Default = \code{FALSE}. If set to \code{TRUE}, a Box-Cox transformation will be applied to the model.}
 
-\item{interval_lambda}{a vector containing the end-points of the interval to be searched for the Box-Cox parameter, \code{lambda}. Default = (-2, 2).}
+\item{interval_lambda}{a vector containing the end-points of the interval for searching the Box-Cox parameter, \code{lambda}. Default = (-2, 2).}
 
-\item{trace}{a logical value. Default = \code{TRUE}. If set to \code{TRUE}, the information of verifying the monotonic ordering of test results will be provided.}
+\item{trace}{a logical value. Default = \code{TRUE}. If set to \code{TRUE}, the information about the check for the monotonic ordering of test values will be provided.}
 
 \item{...}{additional arguments for \code{\link[nlme]{lme}}, such as \code{control}, \code{contrasts}.}
 }
 \value{
-\code{lme2} returns an object of class inheriting from "lme2" class. An object of class "lme2" is a list containing at least the following components:
+\code{lme2} returns an object of class "lme2" class, i.e., a list containing at least the following components:
 
 \item{call}{the matched call.}
 \item{est_para}{a vector containing the estimated parameters.}
-\item{se_para}{a vector containing the standard errors, obtained by using the sandwich formula.}
-\item{vcov_sand}{the estimated covariance matrix for all estimated parameters, obtained by the sandwich formula.}
-\item{residual}{a list of the residuals.}
-\item{fitted}{a list of the fitted values.}
-\item{randf}{a vector of the estimated random effects for each level of cluster.}
-\item{n_coef}{total numbers of the coefficients included in the model.}
-\item{n_p}{total numbers of the regressors in the model.}
-\item{icc}{a estimate of intra-class correlation - ICC}
+\item{se_para}{a vector containing the standard errors.}
+\item{vcov_sand}{the estimated covariance matrix for all estimated parameters.}
+\item{residual}{a list of residuals.}
+\item{fitted}{a list of fitted values.}
+\item{randf}{a vector of estimated random effects for each cluster level.}
+\item{n_coef}{total number of coefficients included in the model.}
+\item{n_p}{total numbers of regressors in the model.}
+\item{icc}{an estimate of intra-class correlation - ICC}
 \item{terms}{the \code{\link[stats]{terms}} object used.}
-\item{boxcox}{logical value indicating whether the Box-Cox transformation was implemented or not.}
+\item{boxcox}{logical value indicating whether the Box-Cox transformation was applied or not.}
 
-Generic functions such as \code{print} and \code{plot} have methods to show the results of the fit.
+Generic functions such as \code{print} and \code{plot} are also used to show results of the fit.
 }
 \description{
-\code{lme2} is generic function to fit the cluster-effect models for a continuous diagnostic test in three-class setting as described in Xiong et al. (2018) and To et al. (2022).
+\code{lme2} fits the cluster-effect models for a continuous diagnostic test in a three-class setting as described in Xiong et al. (2018) and To et al. (2022).
 }
 \details{
-This function fits a linear mixed-effect model for a continuous diagnostic test in three-class setting in order to account for the clustering effect on the test result, as well as for covariates' effects. See Xiong et al. (2018) and To et al. (2022) for more details.
+This function fits a linear mixed-effect model for a continuous diagnostic test in a three-class setting in order to account for the cluster and covariates effects on the test result. See Xiong et al. (2018) and To et al. (2022) for more details.
 \itemize{
-\item The estimation is done by using \code{\link[nlme]{lme}} with the restricted log-likelihood (REML) method.
-\item The Box-Cox transformation for linear mixed-effect models can be used when the distributions of test results are skewed (Gurka et al. 2006). The estimation procedure is described in To et al. (2022), where the Box-Cox parameter \eqn{\lambda} is estimated by a grid search on the interval [-2, 2] as discussed in Gurka and Edwards (2011).
-\item The variance-covariance matrix of the estimated parameters are obtained by sandwich formula (see, Liang and Zeger, 1986; Kauermann and Carroll, 2001; Mancl and DeRouen, 2001) as discussed in To et al. (2022).
+\item Estimation is done by using \code{\link[nlme]{lme}} with the restricted maximum log-likelihood (REML) method.
+\item Box-Cox transformation for the model can be used when the distributions of test results are skewed (Gurka et al. 2006). The estimation procedure is described in To et al. (2022). The Box-Cox parameter \eqn{\lambda} is estimated by a grid search on the interval [-2, 2], as discussed in Gurka and Edwards (2011).
+\item The estimated variance-covariance matrix for the estimated parameters are obtained by sandwich formula (see, Liang and Zeger, 1986; Kauermann and Carroll, 2001; Mancl and DeRouen, 2001) as discussed in To et al. (2022).
 }
 }
 \examples{
