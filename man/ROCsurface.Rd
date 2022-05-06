@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot_ROC_surface.R
 \name{ROCsurface}
 \alias{ROCsurface}
-\title{Plot the covariate-specific ROC surface for clustered data.}
+\title{Plot an estimated covariate-specific ROC surface for clustered data.}
 \usage{
 ROCsurface(
   out_lme2,
@@ -16,34 +16,34 @@ ROCsurface(
 )
 }
 \arguments{
-\item{out_lme2}{an object of class "lme2", a result of a call to \code{\link{lme2}}.}
+\item{out_lme2}{an object of class "lme2", a result of \code{\link{lme2}} call.}
 
-\item{x.val}{specific value(s) of covariate(s) where the ROC surface are computed. In case non-covariate, no value is needed to specify. In case of one covariate, \code{x.val} should be a number. In case of \eqn{p} covariates (\eqn{p > 1}), \code{x.val} should be a vector containing \eqn{p} values of the covariates.}
+\item{x.val}{specific value(s) of covariate(s) where the ROC surface is estimated. In absence of covariate, no values have to be specified. In case of one covariate, \code{x.val} should be a number. In case of \eqn{p} covariates (\eqn{p > 1}), \code{x.val} should be a vector containing \eqn{p} values.}
 
-\item{step.tcf}{number: increment of the \eqn{p1 = tcf1} and \eqn{p3 = tcf3}.}
+\item{step.tcf}{number: increment to be used in the grid for \eqn{p1 = tcf1} and \eqn{p3 = tcf3}.}
 
-\item{main}{the main title (on top) of plot.}
+\item{main}{the main title for plot.}
 
-\item{file.name}{path to file to save the plot.}
+\item{file.name}{File name to create on disk.}
 
-\item{ellips}{a logical value. If \code{TRUE}, adds an ellipsoidal confidence region for TCFs (True Class Fractions) at a specified pair of thresholds to current plot of covariate-specific ROC surface.}
+\item{ellips}{a logical value. If \code{TRUE}, the function adds an ellipsoidal confidence region for TCFs (True Class Fractions), at a specified pair of values for the thresholds, to the plot of estimated covariate-specific ROC surface.}
 
-\item{thresholds}{a specified pair of thresholds, which used to construct the ellipsoid confidence region for TCFs.}
+\item{thresholds}{a specified pair of thresholds, used to construct the ellipsoidal confidence region for TCFs.}
 
-\item{ci.level}{a confidence level to be used for constructing the confidence interval; default is 0.95.}
+\item{ci.level}{a confidence level to be used for constructing the ellipsoidal confidence region; default is 0.95.}
 }
 \value{
-\code{ROCsurface} returns a 3D \code{rgl} plot of covariate-specific ROC surface.
+\code{ROCsurface} returns a 3D \code{rgl} plot of the estimated covariate-specific ROC surface.
 }
 \description{
-\code{ROCsurface} estimates and makes a 3D plot of covariate-specific ROC surface of a continuous diagnostic test in a clustered design when subjects can be diagnosed in three ordinal groups.
+\code{ROCsurface} estimates and makes a 3D plot of a covariate-specific ROC surface for a continuous diagnostic test, in a clustered design, with three ordinal groups.
 }
 \details{
-This function implements estimation method in To et al. (2022) for estimating covariate-specific ROC surface of a continuous diagnostic test in a clustered design when subjects can be diagnosed in three ordinal groups. The estimator is based on the results of fitting the linear mixed-effect model on the diagnostic tests, which is done by using \code{\link{lme2}} with REML approach.
+This function implements method in To et al. (2022) for estimating covariate-specific ROC surface of a continuous diagnostic test in a clustered design, with three ordinal groups. The estimator is based on the results from \code{\link{lme2}} with REML approach.
 
-Before applying the estimation, a quick check for the monotone ordering assumption will be performed. That is, for given values of covariates, three predicted means of three diagnostic groups will be compared. If the assumption does not meet, the covariate-specific ROC surface at the values of covariates will be not estimated.
+Before performing estimation, a check for the monotone ordering assumption is performed. This mean that, for the fixed values of covariates, three predicted means values for test results in three diagnostic groups are compared. If the assumption does not meet, the covariate-specific ROC surface at the values of covariates is not estimated.
 
-The ellipsoidal confidence region of TCFs at a given pair of thresholds can be constructed by using a normal approximation and plotted in the ROC surface space. The confidence level (default) is 0.95. Notice that, if the Box-Cox transformation was applied for the linear mixed-effect on the diagnostic tests (\code{\link{lme2}}), the thresholds have to input by the original scale. If the constructed confidence region of TCFs is outside the unit cube, a probit transformation will be automatically applied to obtain a appropriate confidence region which is inside the unit cube (see Bantis et. al., 2017).
+The ellipsoidal confidence region for TCFs at a given pair of thresholds, if required, is constructed by using normal approximation and is plotted in the ROC surface space. The confidence level (default) is 0.95. Note that, if the Box-Cox transformation is applied for the linear mixed-effect model, the pair of thresholds must be input in the original scale. If the constructed confidence region for TCFs is outside the unit cube, a probit transformation will be automatically applied to obtain an appropriate confidence region, which is inside the unit cube (see Bantis et. al., 2017).
 }
 \examples{
 \dontrun{
