@@ -2,22 +2,22 @@
 % Please edit documentation in R/vus.R
 \name{print.ci_VUS}
 \alias{print.ci_VUS}
-\title{Print summary results of ci_VUS}
+\title{Print summary results from ci_VUS}
 \usage{
 \method{print}{ci_VUS}(x, digits = 3, ...)
 }
 \arguments{
-\item{x}{an object of class "ci_VUS", a result of a call to \code{\link{ci_VUS}}.}
+\item{x}{an object of class "ci_VUS", a result of \code{\link{ci_VUS}} call.}
 
 \item{digits}{minimal number of significant digits, see \code{\link{print.default}}.}
 
 \item{...}{further arguments passed to \code{\link{print}} method.}
 }
 \description{
-\code{print.ci_VUS} prints the results for the output of function \code{\link{ci_VUS}}.
+\code{print.ci_VUS} displays the results of the output from \code{\link{ci_VUS}}.
 }
 \details{
-\code{print.ci_VUS} shows a nice format of the summary table for CI for covariate-specific VUS estimates.
+\code{print.ci_VUS} shows a summary table for confidence interval limits for covariate-specific VUS.
 }
 \seealso{
 \code{\link{VUS}}
