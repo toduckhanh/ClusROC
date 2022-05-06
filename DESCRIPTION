@@ -7,12 +7,12 @@ Author: Duc-Khanh To [aut, cre] (<https://orcid.org/0000-0002-4641-0764>),
   Gianfranco Adimari [ctb],
   Monica Chiogna [ctb]
 Maintainer: Duc-Khanh To <toduc@stat.unipd.it>
-Description: This package implements the approaches for ROC surface analysis in the setting of clustered data. 
-  In particular, the following quantities are estimated: 
-  (i) the covariate-specific ROC surface; 
-  (ii) the covariate-specific volume under ROC surface (VUS); 
-  (iii) the covariate-specific optimal pairs of thresholds. 
-  The selection methods are: Generalized Youden Index (GYI), Closest to Perfection (CtP) and Max Volume (MV).
+Description: This package implements the techniques for ROC surface analysis, in cases of clustered data and in presence of covariates. In particular, the package allows to obtain covariate-specific point and interval estimation for:
+  (i) true class fractions (TCFs) at fixed pairs of thresholds;
+  (ii) the ROC surface;
+  (iii) the volume under ROC surface (VUS);
+  (iv) the optimal pairs of thresholds.
+  Methods considered in points (i), (ii) and (iv) are proposed and discussed in To et al. (2022). Referring to point (iv), three  different selection criteria are implemented: Generalized Youden Index (GYI), Closest to Perfection (CtP) and Maximum Volume (MV). Methods considered in point (iii) are proposed and discussed in Xiong et al. (2018). Visualization tools are also provided. We refer readers to the articles cited above for all details. 
 License: GPL (>= 2)
 Depends: R (>= 3.5.0), stats, utils, graphics, nlme
 Imports: rgl, car, numDeriv, ggplot2, ggpubr, snow, doSNOW, foreach
