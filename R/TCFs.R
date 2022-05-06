@@ -51,30 +51,30 @@ TCF_normal_vcov <- function(par_model, z, thresholds, vcov_par_model, n_p, fixed
 
 ## Compute TCFs
 ### ---- Estimate TCFs under normal assumption ----
-#' @title Estimate the covariate-specific TCFs for clustered data.
+#' @title Estimation of the covariate-specific TCFs for clustered data.
 #'
-#' @description \code{TCFs} estimates covariate-specific True Class Fractions (TCFs) at a specified pair of thresholds of a continuous diagnostic test in a clustered design when subjects can be diagnosed in three ordinal groups. This function allows to compute covariate-specific TCFs at multiple points of covariates.
+#' @description \code{TCFs} estimates covariate-specific True Class Fractions (TCFs), at a specified pair of thresholds, of a continuous diagnostic test in a clustered design with three ordinal groups. This function allows to estimate covariate-specific TCFs at multiple points for covariates.
 #'
-#' @param out_lme2  an object of class "lme2", a result of a call to \code{\link{lme2}}.
-#' @param x.val  specific value(s) of covariate(s) where the TCFs are computed. In case non-covariate, no value is needed to specify. In case of one covariate, \code{x.val} should be a number or a vector. In case of \eqn{p} covariates (\eqn{p > 1}), \code{x.val} should be a vector containing \eqn{p} values of the covariates; or a matrix with \eqn{p} columns and \eqn{m} rows containing values of the covariates if the user wants to compute TCFs at \eqn{m} points.
-#' @param thresholds  a specified pair of thresholds.
-#' @param apVar  a logical value. If set to \code{TRUE}, the variance-covariance matrix of covariate-specific TCFs is computed.
+#' @param out_lme2  an object of class "lme2", a result of \code{\link{lme2}} call.
+#' @param x.val  specific value(s) of covariate(s) where the TCFs are estimated. In absence of covariate, no values have to be specified. In case of one covariate, \code{x.val} should be a number. In case of \eqn{p} covariates (\eqn{p > 1}), \code{x.val} should be a vector containing \eqn{p} values; or a matrix with \eqn{p} columns and \eqn{m} rows containing values of the covariates if the user wants to estimate at \eqn{m} points.
+#' @param thresholds  specified pair of thresholds.
+#' @param apVar  logical value. If set to \code{TRUE}, the variance-covariance matrix of estimated covariate-specific TCFs is estimated.
 #' @details
-#' This function implements estimation method in To et al. (2022) for estimating covariate-specific TCFs at a specified pair of thresholds of a continuous diagnostic test in a clustered design when subjects can be diagnosed in three ordinal groups. The estimator is based on the results of fitting the linear mixed-effect model on the diagnostic tests, which is done by using \code{\link{lme2}} with REML approach. The asymptotic variance-covariance matrix of the estimated covariate-specific TCFs is approximated through the Delta method. Notice that, if the Box-Cox transformation was applied for the linear mixed-effect on the diagnostic tests (\code{\link{lme2}}), the input thresholds have to be in the original scale.
+#' This function implements method in To et al. (2022) for estimating covariate-specific TCFs at a specified pair of thresholds of a continuous diagnostic test in a clustered design with three ordinal groups. The estimator is based on results from  \code{\link{lme2}}, which used REML approach. The asymptotic variance-covariance matrix of the estimated covariate-specific TCFs is estimated through the Delta method. Note that, if the Box-Cox transformation is applied for the linear mixed-effect model, the pair of thresholds must be input in the original scale.
 #'
-#' Before applying the estimation, a quick check for the monotone ordering assumption will be performed. That is, for given values of covariates, three predicted means of three diagnostic groups will be compared. If the assumption does not meet, the covariate-specific TCFs at the values of covariates will be not estimated.
+#' Before performing estimation, a check for the monotone ordering assumption is performed. This mean that, for the fixed values of covariates, three predicted means values for test results in three diagnostic groups are compared. If the assumption does not meet, the covariate-specific TCFs at the values of covariates are not estimated.
 #'
-#' @return \code{TCFs} returns an object of class inheriting from "TCFs" class, which is a list containing at least the following components:
+#' @return \code{TCFs} returns an object of class "TCFs", which is a list containing at least the following components:
 #'
 #' \item{call}{the matched call.}
 #' \item{tcfs_est}{a vector or matrix containing the estimated TCFs.}
 #' \item{tcf_vcov}{a matrix or list of matrices containing the estimated variance-covariance matrices.}
-#' \item{thresholds}{the specified pair of thresholds.}
-#' \item{mess_order}{a diagnostic message for monontone ordering of means at given covariates' values.}
+#' \item{thresholds}{specified pair of thresholds.}
+#' \item{mess_order}{a diagnostic message from checking the monontone ordering.}
 #' \item{x.val}{value(s) of covariate(s).}
-#' \item{n_p}{total numbers of the regressors in the model.}
+#' \item{n_p}{total number of regressors in the model.}
 #'
-#' Generic functions such as \code{print} has methods to show the results.
+#' Generic functions such as \code{print} is also used to show the results.
 #'
 #'
 #' @references
@@ -203,17 +203,17 @@ TCFs <- function(out_lme2, x.val, thresholds, apVar = FALSE){
 }
 
 ## ---- The function print.TCFs ----
-#' @title Print summary results of TCFs
+#' @title Print summary results from TCFs
 #'
-#' @description \code{print.TCFs} prints the results for the output of function \code{\link{TCFs}}.
+#' @description \code{print.TCFs} displays the results of the output from \code{\link{TCFs}}.
 #'
 #' @method print TCFs
-#' @param x an object of class "TCFs", a result of a call to \code{\link{TCFs}}.
+#' @param x an object of class "TCFs", a result of \code{\link{TCFs}} call.
 #' @param digits minimal number of significant digits, see \code{\link{print.default}}.
 #' @param call logical. If \code{TRUE}, the matched call will be printed.
 #' @param ... further arguments passed to \code{\link{print}} method.
 #'
-#' @details \code{print.TCFs} shows a nice format of the summary table for covariate-specific TCFs estimates.
+#' @details \code{print.TCFs} shows a summary table for covariate-specific TCFs estimates.
 #'
 #' @seealso \code{\link{TCFs}}
 #'
