@@ -97,32 +97,32 @@ vus_se <- function(par, vcov_par_model, z, n_p, n_c, n_k, n, p.sss, p.ssk, p.sks
 }
 
 ### ---- Main function to estimate the covariate-specific VUS ----
-#' @title Covariate-specific VUS for clustered data.
+#' @title Estimation of the covariate-specific VUS for clustered data.
 #'
-#' @description This function computes the covariate-specific VUS of a continuous diagnostic test in the setting of clustered data as described in Xiong et al. (2018). This function allows to compute covariate-specific VUS at multiple points of covariates.
+#' @description This function estimates the covariate-specific VUS of a continuous diagnostic test in the setting of clustered data as described in Xiong et al. (2018). This function allows to estimate covariate-specific VUS at multiple points for covariates.
 #'
-#' @param out_lme2  an object of class "lme2", a result of a call to \code{\link{lme2}}.
-#' @param x.val  specific value(s) of covariate(s) where the VUS are computed. In case non-covariate, no value is needed to specify. In case of one covariate, \code{x.val} should be a number or a vector. In case of \eqn{p} covariates (\eqn{p > 1}), \code{x.val} should be a vector containing \eqn{p} values of the covariates; or a matrix with \eqn{p} columns and \eqn{m} rows containing values of the covariates if the user wants to compute VUS at \eqn{m} points.
-#' @param apVar  a logical value. If set to \code{TRUE}, the standard error of covariate-specific VUS are computed.
-#' @param subdivisions  the maximum number of subintervals used to approximate the integration. Default is 1000.
+#' @param out_lme2  an object of class "lme2", a result of \code{\link{lme2}} call.
+#' @param x.val  specific value(s) of covariate(s) where the optimal pair of thresholds are estimated. In absence of covariate, no values have to be specified. In case of one covariate, \code{x.val} should be a number. In case of \eqn{p} covariates (\eqn{p > 1}), \code{x.val} should be a vector containing \eqn{p} values; or a matrix with \eqn{p} columns and \eqn{m} rows containing values of the covariates if the user wants to estimate at \eqn{m} points.
+#' @param apVar  logical value. If set to \code{TRUE}, the standard error for (estimated) covariate-specific VUS are estimated.
+#' @param subdivisions  the maximum number of subintervals used to approximate integral. Default is 1000.
 #' @param ...  additional arguments to be passed to \code{\link[stats]{integrate}}
 #'
 #' @details
-#' This function implements estimation method in Xiong et al. (2018) for estimating covariate-specific VUS of a continuous diagnostic test in a clustered design when subjects can be diagnosed in three ordinal groups. The estimator is based on the results of fitting the linear mixed-effect model on the diagnostic tests, which is done by using \code{\link{lme2}} with REML approach. The standard error of the estimated covariate-specific VUS is approximated through the Delta method.
+#' This function implements method in Xiong et al. (2018) for estimating covariate-specific VUS of a continuous diagnostic test in a clustered design with three ordinal groups. The estimator is based on results from \code{\link{lme2}}, which used REML approach. The standard error of the estimated covariate-specific VUS is approximated through the Delta method.
 #'
-#' Before applying the estimation, a quick check for the monotone ordering assumption will be performed. That is, for given values of covariates, three predicted means of three diagnostic groups will be compared. If the assumption does not meet, the covariate-specific VUS at the values of covariates will be not estimated. In addition, this function also performs the statistical test, \eqn{H0: VUS = 1/6} versus the alternative of interest.
+#' Before performing estimation, a check for the monotone ordering assumption is performed. This mean that, for the fixed values of covariates, three predicted means values for test results in three diagnostic groups are compared. If the assumption does not meet, the covariate-specific VUS at the values of covariates are not estimated. In addition, this function also performs the statistical test, \eqn{H_0: VUS = 1/6} versus an alternative of interest.
 #'
 #'
-#' @return \code{VUS} returns an object of class inheriting from "VUS" class. An object of class "VUS" is a list containing at least the following components:
+#' @return \code{VUS} returns an object of class "VUS" which is a list containing at least the following components:
 #'
 #' \item{call}{the matched call.}
 #' \item{vus_est}{a vector containing the estimated covariate-specific VUS.}
 #' \item{vus_se}{a vector containing the standard errors.}
-#' \item{mess_order}{a diagnostic message for monontone ordering of means at given covariates' values.}
+#' \item{mess_order}{a diagnostic message from checking the monontone ordering.}
 #' \item{x.val}{value(s) of covariate(s).}
-#' \item{n_p}{total numbers of the regressors in the model.}
+#' \item{n_p}{total number of regressors in the model.}
 #'
-#' Generic functions such as \code{print} has methods to show the results.
+#' Generic functions such as \code{print} is also used to show the results.
 #'
 #' @references
 #' Xiong, C., Luo, J., Chen L., Gao, F., Liu, J., Wang, G., Bateman, R. and Morris, J. C. (2018)
@@ -282,19 +282,19 @@ VUS <- function(out_lme2, x.val, apVar = FALSE, # ci = FALSE, ci.level = ifelse(
 ## ---- The function ci_VUS ----
 #' @title Confidence Intervals for Covariate-specific VUS
 #'
-#' @description Computes confidence intervals for covariate-specific VUS obtained by function \code{\link{VUS}}.
+#' @description Computes confidence intervals for covariate-specific VUS.
 #'
 #' @param x an object of class "VUS", a result of a call to \code{\link{VUS}}.
 #' @param ci.level a confidence level to be used for constructing the confidence interval; default is 0.95.
 #'
-#' @details A confidence interval of covariate-specific VUS also is given based on Normal-approximate. If the lower bound (or the upper bound) of the confidence interval is less than 0 (or greater than 1), it will be set as 0 or 1. Furthermore, logit and probit transformations are also applied in order to guarantee the confidence intervals are not outside (0,1).
+#' @details A confidence interval for covariate-specific VUS is given based on normal approximation. If the lower bound (or the upper bound) of the confidence interval is smaller than 0 (or greater than 1), it will be set as 0 (or 1). Also, logit and probit transformations are applied in order to guarantee that confidence limits are inside (0, 1).
 #'
-#' @return \code{ci_VUS} returns an object of class inheriting from "ci_VUS" class. An object of class "ci_VUS" is a list containing at least the following components:
+#' @return \code{ci_VUS} returns an object of class inheriting from "ci_VUS" class. An object of class "ci_VUS" is a list, containing at least the following components:
 #'
-#' \item{vus_ci_norm}{the normal-approximate confidence interval of covariate-specific VUS.}
-#' \item{vus_ci_log}{the confidence interval of covariate-specific VUS after using logit-transformation.}
-#' \item{vus_ci_prob}{the confidence interval of covariate-specific VUS after using probit-transformation.}
-#' \item{ci.level}{confidence level is used.}
+#' \item{vus_ci_norm}{the normal approximation-based confidence interval for covariate-specific VUS.}
+#' \item{vus_ci_log}{the confidence interval for covariate-specific VUS, after using logit-transformation.}
+#' \item{vus_ci_prob}{the confidence interval for covariate-specific VUS, after using probit-transformation.}
+#' \item{ci.level}{fixed confidence level.}
 #' \item{x.val}{value(s) of covariate(s).}
 #' \item{n_p}{total numbers of the regressors in the model.}
 #'
@@ -365,17 +365,17 @@ ci_VUS <- function(x, ci.level = 0.95){
 }
 
 ## ---- The function print.VUS ----
-#' @title Print summary results of VUS
+#' @title Print summary results from VUS
 #'
-#' @description \code{print.VUS} prints the results for the output of function \code{\link{VUS}}.
+#' @description \code{print.VUS} displays the results of the output from \code{\link{VUS}}.
 #'
 #' @method print VUS
-#' @param x an object of class "VUS", a result of a call to \code{\link{VUS}}.
+#' @param x an object of class "VUS", a result of \code{\link{VUS}} call.
 #' @param digits minimal number of significant digits, see \code{\link{print.default}}.
 #' @param call logical. If \code{TRUE}, the matched call will be printed.
 #' @param ... further arguments passed to \code{\link{print}} method.
 #'
-#' @details \code{print.VUS} shows a nice format of the summary table for covariate-specific VUS estimates.
+#' @details \code{print.VUS} shows a summary table for covariate-specific VUS estimates.
 #'
 #' @seealso \code{\link{VUS}}
 #'
@@ -434,16 +434,16 @@ print.VUS <- function(x, digits = 3, call = TRUE, ...){
 }
 
 ## ---- The function print.ci_VUS ----
-#' @title Print summary results of ci_VUS
+#' @title Print summary results from ci_VUS
 #'
-#' @description \code{print.ci_VUS} prints the results for the output of function \code{\link{ci_VUS}}.
+#' @description \code{print.ci_VUS} displays the results of the output from \code{\link{ci_VUS}}.
 #'
 #' @method print ci_VUS
-#' @param x an object of class "ci_VUS", a result of a call to \code{\link{ci_VUS}}.
+#' @param x an object of class "ci_VUS", a result of \code{\link{ci_VUS}} call.
 #' @param digits minimal number of significant digits, see \code{\link{print.default}}.
 #' @param ... further arguments passed to \code{\link{print}} method.
 #'
-#' @details \code{print.ci_VUS} shows a nice format of the summary table for CI for covariate-specific VUS estimates.
+#' @details \code{print.ci_VUS} shows a summary table for confidence interval limits for covariate-specific VUS.
 #'
 #' @seealso \code{\link{VUS}}
 #'
