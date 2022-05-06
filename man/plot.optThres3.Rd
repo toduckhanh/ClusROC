@@ -2,7 +2,7 @@
 % Please edit documentation in R/thresh_3class.R
 \name{plot.optThres3}
 \alias{plot.optThres3}
-\title{Plot confidence regions for covariate-specific optimal thresholds.}
+\title{Plot of confidence regions for covariate-specific optimal pair of thresholds.}
 \usage{
 \method{plot}{optThres3}(
   x,
@@ -18,27 +18,27 @@
 )
 }
 \arguments{
-\item{x}{an object of class "optThres3", a result of a call to \code{\link{optThres3}}.}
+\item{x}{an object of class "optThres3", i.e., a result of \code{\link{optThres3}}.}
 
-\item{ci.level}{a confidence level to be used for constructing the confidence interval; default is 0.95.}
+\item{ci.level}{confidence level to be used for constructing the confidence regions; default is 0.95.}
 
-\item{colors}{specification color(s) for confidence regions. If specified, the number of colors needs to be equal the number of covariates}
+\item{colors}{a string vector for the name(s) specifying color(s) to be used for drawing confidence regions. If specified, the dimension of the vector needs to be equal the number of considered points (each point corresponds to a set of values for the covariates).}
 
-\item{xlims, ylims}{numeric vectors of length 2, giving the x and y coordinates ranges (the possible range of the first and the second threshold).}
+\item{xlims, ylims}{numeric vectors of dimension 2, giving the limits for x and y axes in the plot.}
 
-\item{size.point, size.path}{numeric value of length 1, giving the amount by which plotting points and lines.}
+\item{size.point, size.path}{numeric values, indicating sizes for point(s) and line(s) in the plot.}
 
-\item{names.labels}{a optional character vector giving the label name of covariates.}
+\item{names.labels}{a optional character vector giving the label name for covariates.}
 
 \item{file.name}{File name to create on disk.}
 
-\item{...}{further arguments passed to \code{\link{ggexport}} method, for example, \code{width}, \code{height}.}
+\item{...}{further arguments used with \code{\link{ggexport}} function, for example, \code{width}, \code{height}.}
 }
 \description{
-Plot covariate-specific optimal thresholds and the corresponding confidence regions.
+This function plots confidence regions for covariate-specific optimal pair of thresholds.
 }
 \details{
-\code{plot.optThres3} provides plots for displaying the confidence regions and point estimates of covariate-specific optimal thresholds. The plots are based on \code{ggplot()}.
+\code{plot.optThres3} provides plots of confidence regions (and point estimates) of covariate-specific optimal pair of thresholds. The plots are based on \code{ggplot()}.
 }
 \seealso{
 \code{\link{optThres3}}
