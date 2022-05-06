@@ -2,7 +2,7 @@
 % Please edit documentation in R/thresh_3class.R
 \name{optThres3}
 \alias{optThres3}
-\title{Estimate the covariate-specific optimal pair of thresholds for clustered data.}
+\title{Estimation of the covariate-specific optimal pair of thresholds for clustered data.}
 \usage{
 optThres3(
   method = c("GYI", "CtP", "MV"),
@@ -16,50 +16,50 @@ optThres3(
 \arguments{
 \item{method}{The method to be used. See 'Details'.}
 
-\item{out_lme2}{an object of class "lme2", a result of a call to \code{\link{lme2}}.}
+\item{out_lme2}{an object of class "lme2", i.e., a result of \code{\link{lme2}} call.}
 
-\item{x.val}{specific value(s) of covariate(s) where the ROC surface are computed. In case non-covariate, no value is needed to specify. In case of one covariate, \code{x.val} should be a number. In case of \eqn{p} covariates (\eqn{p > 1}), \code{x.val} should be a vector containing \eqn{p} values of the covariates.}
+\item{x.val}{specific value(s) of covariate(s) where the optimal pair of thresholds are estimated. In absence of covariate, no values have to be specified. In case of one covariate, \code{x.val} should be a number. In case of \eqn{p} covariates (\eqn{p > 1}), \code{x.val} should be a vector containing \eqn{p} values; or a matrix with \eqn{p} columns and \eqn{m} rows containing values of the covariates if the user wants to estimate at \eqn{m} points.}
 
-\item{apVar}{a logical value. If set to TRUE, the variance-covariance matrix of covariate-specific optimal thresholds is computed.}
+\item{apVar}{logical value. If set to TRUE, the variance-covariance matrix of (estimated) covariate-specific optimal thresholds is estimated.}
 
-\item{data}{a data frame containing the variables in the model, which used for performing bootstrap procedure to estimate the variance-covariance matrix of covariate-specific optimal thresholds.}
+\item{data}{a data frame containing the variables to be used when performing a bootstrap procedure to estimate the variance-covariance matrix, in case of Box-Cox transformation.}
 
-\item{control}{a list of control parameters. See 'Details'}
+\item{control}{a list of control parameters. See 'Details'.}
 }
 \value{
-\code{optThres3} returns an object of class inheriting from "optThres3" class, which is a list containing at least the following components:
+\code{optThres3} returns an object of "optThres3" class, which is a list containing at least the following components:
 
 \item{call}{the matched call.}
-\item{method}{the methods were used to obtain the optima threholds.}
+\item{method}{the methods used to obtain the estimated optimal pair of threholds.}
 \item{thres3}{a vector or matrix containing the estimated optimal thresholds.}
+\item{thres3_se}{a vector or matrix containing the estimated standard errors.}
 \item{vcov.thres3}{a matrix or list of matrices containing the estimated variance-covariance matrices.}
-\item{thres3_se}{a vector or matrix containing the estimated standard errors of optimal thresholds.}
 \item{tcfs}{a vector or matrix containing the estimated TCFs at the optimal thresholds.}
-\item{mess_order}{a diagnostic message for monontone ordering of means at given covariates' values.}
+\item{mess_order}{a diagnostic message from checking the monontone ordering.}
 \item{x.val}{value(s) of covariate(s).}
-\item{n_p}{total numbers of the regressors in the model.}
+\item{n_p}{total number of regressors in the model.}
 
-Generic functions such as \code{print} and \code{plot} have methods to show the results.
+Generic functions such as \code{print} and \code{plot} are also used to show the results.
 }
 \description{
-\code{optThres3} estimates covariate-specific optimal pair of thresholds of a continuous diagnostic test in a clustered design when subjects can be diagnosed in three ordinal groups.
+\code{optThres3} estimates covariate-specific optimal pair of thresholds of a continuous diagnostic test in a clustered design, with three classes of diseases.
 }
 \details{
-This function implements three estimation methods discussed in To et al. (2022) for estimating covariate-specific optimal pair of thresholds in a clustered design when subjects diagnosed in three ordinal groups. The estimators are based on the results of fitting the linear mixed-effect model on the diagnostic tests, which is done by using \code{\link{lme2}} with REML approach.
+This function implements estimation methods discussed in To et al. (2022) for covariate-specific optimal pair of thresholds in a clustered design with three ordinal groups. The estimators are based on the results from \code{\link{lme2}} function, which fits the linear mixed-effect model by using REML approach.
 
-Before applying the estimation, a quick check for the monotone ordering assumption will be performed. That is, for given values of covariates, three predicted means of three diagnostic groups will be compared. If the assumption does not meet, the covariate-specific optimal pair of thresholds at the values of covariates will be not estimated.
+Before performing estimation, a check for the monotone ordering assumption is performed. This mean that, for the fixed values of covariates, three predicted means values for test results in three diagnostic groups are compared. If the assumption does not meet, the covariate-specific optimal pair of thresholds at the values of covariates are not estimated.
 
-Method \code{"GYI"} is Generalized Youden Index. This maximizes the sum of three covariate-specific True Class Fractions - TCFs (or total of correct classification rates) to obtain the optimal pair of thresholds. Method \code{"CtP"} is Closest to Pefection. By using this method, the optimal pair of thresholds is obtained by minimizing the distance, in the unit cube, between the point of three covariate-specific TCFs and the top corner (1, 1, 1). Method \code{"MV"} is Max Volume, which searches for thresholds that maximize the volume of a box under the covariate-specific ROC surface, and the volume is defined as the product of the three covariate-specific TCFs. The user can select more than one method.
+The estimation procedure uses three criteria. Method \code{"GYI"} is Generalized Youden Index, which maximizes the sum of three covariate-specific True Class Fractions - TCFs. Method \code{"CtP"} is based on Closest to Pefection approach. By using this method, the optimal pair of thresholds is obtained by minimizing the distance, in the unit cube, between a generic point on the covariate-specific ROC surface and the top corner (1, 1, 1). Method \code{"MV"} is based on Maximum Volume approach, which searches for thresholds that maximize the volume of a box under the covariate-specific ROC surface. The user can select more than one method.
 
-The asymptotic variance-covariance matrix of the estimated covariate-specific optimal thresholds is approximated through the Delta method under the normal assumptions. If the Box-Cox transformation was applied for the linear mixed-effect on the diagnostic test (\code{\link{lme2}}), a nonparametric bootstrap procedure for clustered data will be applied to obtain the asymptotic covariance matrix the estimated covariate-specific optimal thresholds in original scale (see To et al. 2022, for more details).
+The asymptotic variance-covariance matrix of the (estimated) covariate-specific optimal thresholds is estimated by using the Delta method under the normal assumptions. If the Box-Cox transformation is applied to the linear mixed-effect model, a nonparametric bootstrap procedure for clustered data will be used to obtain the estimated asymptotic covariance matrix (see To et al. 2022, for more details).
 
 The \code{control} argument is a list that can supply any of the following components:
 \describe{
-  \item{\code{method.optim}}{Name of optimization method to be used. There are three options: \code{"L-BFGS-B"}, \code{"BFGS"} and \code{"Nelder-Mead"}.}
-  \item{\code{start}}{Initial values for the thresholds to be optimized over. If it is \code{NULL}, a starting point will be automatically obtained.}
-  \item{\code{maxit}}{The maximum number of iterations. Defaults to 200.}
-  \item{\code{lower, upper}}{Bounds on the variables for the "L-BFGS-B" method. Defaults are \code{-Inf} and \code{Inf}.}
-  \item{\code{nR}}{The number of bootstrap replicates for estimating the covariance matrix under Box-Cox transformation. Defaults to 250.}
+  \item{\code{method.optim}}{Optimization method to be used. There are three options: \code{"L-BFGS-B"}, \code{"BFGS"} and \code{"Nelder-Mead"}.}
+  \item{\code{start}}{Starting values in the optimization procedure. If it is \code{NULL}, a starting point will be automatically obtained.}
+  \item{\code{maxit}}{The maximum number of iterations. Default is 200.}
+  \item{\code{lower, upper}}{Possible bounds on the threshold range, for the optimization based on "L-BFGS-B" method. Defaults are \code{-Inf} and \code{Inf}.}
+  \item{\code{nR}}{Number of bootstrap replicates for estimating the covariance matrix (when Box-Cox transformation is applied). Default is 250.}
   \item{\code{parallel}}{A logical value. If TRUE, a parallel computing is employed in the bootstrap resampling process.}
   \item{\code{ncpus}}{Number of processes to be used in parallel computing. Default is 2.}
 }
