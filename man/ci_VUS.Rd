@@ -12,20 +12,20 @@ ci_VUS(x, ci.level = 0.95)
 \item{ci.level}{a confidence level to be used for constructing the confidence interval; default is 0.95.}
 }
 \value{
-\code{ci_VUS} returns an object of class inheriting from "ci_VUS" class. An object of class "ci_VUS" is a list containing at least the following components:
+\code{ci_VUS} returns an object of class inheriting from "ci_VUS" class. An object of class "ci_VUS" is a list, containing at least the following components:
 
-\item{vus_ci_norm}{the normal-approximate confidence interval of covariate-specific VUS.}
-\item{vus_ci_log}{the confidence interval of covariate-specific VUS after using logit-transformation.}
-\item{vus_ci_prob}{the confidence interval of covariate-specific VUS after using probit-transformation.}
-\item{ci.level}{confidence level is used.}
+\item{vus_ci_norm}{the normal approximation-based confidence interval for covariate-specific VUS.}
+\item{vus_ci_log}{the confidence interval for covariate-specific VUS, after using logit-transformation.}
+\item{vus_ci_prob}{the confidence interval for covariate-specific VUS, after using probit-transformation.}
+\item{ci.level}{fixed confidence level.}
 \item{x.val}{value(s) of covariate(s).}
 \item{n_p}{total numbers of the regressors in the model.}
 }
 \description{
-Computes confidence intervals for covariate-specific VUS obtained by function \code{\link{VUS}}.
+Computes confidence intervals for covariate-specific VUS.
 }
 \details{
-A confidence interval of covariate-specific VUS also is given based on Normal-approximate. If the lower bound (or the upper bound) of the confidence interval is less than 0 (or greater than 1), it will be set as 0 or 1. Furthermore, logit and probit transformations are also applied in order to guarantee the confidence intervals are not outside (0,1).
+A confidence interval for covariate-specific VUS is given based on normal approximation. If the lower bound (or the upper bound) of the confidence interval is smaller than 0 (or greater than 1), it will be set as 0 (or 1). Also, logit and probit transformations are applied in order to guarantee that confidence limits are inside (0, 1).
 }
 \seealso{
 \code{\link{VUS}}
