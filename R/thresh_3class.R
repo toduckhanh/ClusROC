@@ -99,50 +99,50 @@ optThres3control <- function(method.optim = c("L-BFGS-B", "BFGS", "Nelder-Mead")
 
 
 ### ---- Estimate the optimal pair of thresholds under normal assumption ----
-#' @title Estimate the covariate-specific optimal pair of thresholds for clustered data.
+#' @title Estimation of the covariate-specific optimal pair of thresholds for clustered data.
 #'
-#' @description \code{optThres3} estimates covariate-specific optimal pair of thresholds of a continuous diagnostic test in a clustered design when subjects can be diagnosed in three ordinal groups.
+#' @description \code{optThres3} estimates covariate-specific optimal pair of thresholds of a continuous diagnostic test in a clustered design, with three classes of diseases.
 #'
 #' @param method  The method to be used. See 'Details'.
-#' @param out_lme2  an object of class "lme2", a result of a call to \code{\link{lme2}}.
-#' @param x.val  specific value(s) of covariate(s) where the ROC surface are computed. In case non-covariate, no value is needed to specify. In case of one covariate, \code{x.val} should be a number. In case of \eqn{p} covariates (\eqn{p > 1}), \code{x.val} should be a vector containing \eqn{p} values of the covariates.
-#' @param apVar  a logical value. If set to TRUE, the variance-covariance matrix of covariate-specific optimal thresholds is computed.
-#' @param data  a data frame containing the variables in the model, which used for performing bootstrap procedure to estimate the variance-covariance matrix of covariate-specific optimal thresholds.
-#' @param control  a list of control parameters. See 'Details'
+#' @param out_lme2  an object of class "lme2", i.e., a result of \code{\link{lme2}} call.
+#' @param x.val  specific value(s) of covariate(s) where the optimal pair of thresholds are estimated. In absence of covariate, no values have to be specified. In case of one covariate, \code{x.val} should be a number. In case of \eqn{p} covariates (\eqn{p > 1}), \code{x.val} should be a vector containing \eqn{p} values; or a matrix with \eqn{p} columns and \eqn{m} rows containing values of the covariates if the user wants to estimate at \eqn{m} points.
+#' @param apVar  logical value. If set to TRUE, the variance-covariance matrix of (estimated) covariate-specific optimal thresholds is estimated.
+#' @param data  a data frame containing the variables to be used when performing a bootstrap procedure to estimate the variance-covariance matrix, in case of Box-Cox transformation.
+#' @param control  a list of control parameters. See 'Details'.
 #'
 #' @details
-#' This function implements three estimation methods discussed in To et al. (2022) for estimating covariate-specific optimal pair of thresholds in a clustered design when subjects diagnosed in three ordinal groups. The estimators are based on the results of fitting the linear mixed-effect model on the diagnostic tests, which is done by using \code{\link{lme2}} with REML approach.
+#' This function implements estimation methods discussed in To et al. (2022) for covariate-specific optimal pair of thresholds in a clustered design with three ordinal groups. The estimators are based on the results from \code{\link{lme2}} function, which fits the linear mixed-effect model by using REML approach.
 #'
-#' Before applying the estimation, a quick check for the monotone ordering assumption will be performed. That is, for given values of covariates, three predicted means of three diagnostic groups will be compared. If the assumption does not meet, the covariate-specific optimal pair of thresholds at the values of covariates will be not estimated.
+#' Before performing estimation, a check for the monotone ordering assumption is performed. This mean that, for the fixed values of covariates, three predicted means values for test results in three diagnostic groups are compared. If the assumption does not meet, the covariate-specific optimal pair of thresholds at the values of covariates are not estimated.
 #'
-#' Method \code{"GYI"} is Generalized Youden Index. This maximizes the sum of three covariate-specific True Class Fractions - TCFs (or total of correct classification rates) to obtain the optimal pair of thresholds. Method \code{"CtP"} is Closest to Pefection. By using this method, the optimal pair of thresholds is obtained by minimizing the distance, in the unit cube, between the point of three covariate-specific TCFs and the top corner (1, 1, 1). Method \code{"MV"} is Max Volume, which searches for thresholds that maximize the volume of a box under the covariate-specific ROC surface, and the volume is defined as the product of the three covariate-specific TCFs. The user can select more than one method.
+#' The estimation procedure uses three criteria. Method \code{"GYI"} is Generalized Youden Index, which maximizes the sum of three covariate-specific True Class Fractions - TCFs. Method \code{"CtP"} is based on Closest to Pefection approach. By using this method, the optimal pair of thresholds is obtained by minimizing the distance, in the unit cube, between a generic point on the covariate-specific ROC surface and the top corner (1, 1, 1). Method \code{"MV"} is based on Maximum Volume approach, which searches for thresholds that maximize the volume of a box under the covariate-specific ROC surface. The user can select more than one method.
 #'
-#' The asymptotic variance-covariance matrix of the estimated covariate-specific optimal thresholds is approximated through the Delta method under the normal assumptions. If the Box-Cox transformation was applied for the linear mixed-effect on the diagnostic test (\code{\link{lme2}}), a nonparametric bootstrap procedure for clustered data will be applied to obtain the asymptotic covariance matrix the estimated covariate-specific optimal thresholds in original scale (see To et al. 2022, for more details).
+#' The asymptotic variance-covariance matrix of the (estimated) covariate-specific optimal thresholds is estimated by using the Delta method under the normal assumptions. If the Box-Cox transformation is applied to the linear mixed-effect model, a nonparametric bootstrap procedure for clustered data will be used to obtain the estimated asymptotic covariance matrix (see To et al. 2022, for more details).
 #'
 #' The \code{control} argument is a list that can supply any of the following components:
 #' \describe{
-#'   \item{\code{method.optim}}{Name of optimization method to be used. There are three options: \code{"L-BFGS-B"}, \code{"BFGS"} and \code{"Nelder-Mead"}.}
-#'   \item{\code{start}}{Initial values for the thresholds to be optimized over. If it is \code{NULL}, a starting point will be automatically obtained.}
-#'   \item{\code{maxit}}{The maximum number of iterations. Defaults to 200.}
-#'   \item{\code{lower, upper}}{Bounds on the variables for the "L-BFGS-B" method. Defaults are \code{-Inf} and \code{Inf}.}
-#'   \item{\code{nR}}{The number of bootstrap replicates for estimating the covariance matrix under Box-Cox transformation. Defaults to 250.}
+#'   \item{\code{method.optim}}{Optimization method to be used. There are three options: \code{"L-BFGS-B"}, \code{"BFGS"} and \code{"Nelder-Mead"}.}
+#'   \item{\code{start}}{Starting values in the optimization procedure. If it is \code{NULL}, a starting point will be automatically obtained.}
+#'   \item{\code{maxit}}{The maximum number of iterations. Default is 200.}
+#'   \item{\code{lower, upper}}{Possible bounds on the threshold range, for the optimization based on "L-BFGS-B" method. Defaults are \code{-Inf} and \code{Inf}.}
+#'   \item{\code{nR}}{Number of bootstrap replicates for estimating the covariance matrix (when Box-Cox transformation is applied). Default is 250.}
 #'   \item{\code{parallel}}{A logical value. If TRUE, a parallel computing is employed in the bootstrap resampling process.}
 #'   \item{\code{ncpus}}{Number of processes to be used in parallel computing. Default is 2.}
 #'}
 #'
-#' @return \code{optThres3} returns an object of class inheriting from "optThres3" class, which is a list containing at least the following components:
+#' @return \code{optThres3} returns an object of "optThres3" class, which is a list containing at least the following components:
 #'
 #' \item{call}{the matched call.}
-#' \item{method}{the methods were used to obtain the optima threholds.}
+#' \item{method}{the methods used to obtain the estimated optimal pair of threholds.}
 #' \item{thres3}{a vector or matrix containing the estimated optimal thresholds.}
+#' \item{thres3_se}{a vector or matrix containing the estimated standard errors.}
 #' \item{vcov.thres3}{a matrix or list of matrices containing the estimated variance-covariance matrices.}
-#' \item{thres3_se}{a vector or matrix containing the estimated standard errors of optimal thresholds.}
 #' \item{tcfs}{a vector or matrix containing the estimated TCFs at the optimal thresholds.}
-#' \item{mess_order}{a diagnostic message for monontone ordering of means at given covariates' values.}
+#' \item{mess_order}{a diagnostic message from checking the monontone ordering.}
 #' \item{x.val}{value(s) of covariate(s).}
-#' \item{n_p}{total numbers of the regressors in the model.}
+#' \item{n_p}{total number of regressors in the model.}
 #'
-#' Generic functions such as \code{print} and \code{plot} have methods to show the results.
+#' Generic functions such as \code{print} and \code{plot} are also used to show the results.
 #'
 #' @references
 #' To, D-K., Adimari, G., Chiogna, M. and Risso, D. (2022)
@@ -372,21 +372,21 @@ optThres3 <- function(method = c("GYI", "CtP", "MV"), out_lme2, x.val, apVar = T
 
 
 ## ---- The function plot.optThres3 ----
-#' @title Plot confidence regions for covariate-specific optimal thresholds.
+#' @title Plot of confidence regions for covariate-specific optimal pair of thresholds.
 #'
-#' @description Plot covariate-specific optimal thresholds and the corresponding confidence regions.
+#' @description This function plots confidence regions for covariate-specific optimal pair of thresholds.
 #'
 #' @method plot optThres3
-#' @param x an object of class "optThres3", a result of a call to \code{\link{optThres3}}.
-#' @param ci.level  a confidence level to be used for constructing the confidence interval; default is 0.95.
-#' @param colors  specification color(s) for confidence regions. If specified, the number of colors needs to be equal the number of covariates
-#' @param xlims,ylims numeric vectors of length 2, giving the x and y coordinates ranges (the possible range of the first and the second threshold).
-#' @param size.point,size.path  numeric value of length 1, giving the amount by which plotting points and lines.
-#' @param names.labels a optional character vector giving the label name of covariates.
+#' @param x  an object of class "optThres3", i.e., a result of \code{\link{optThres3}}.
+#' @param ci.level  confidence level to be used for constructing the confidence regions; default is 0.95.
+#' @param colors  a string vector for the name(s) specifying color(s) to be used for drawing confidence regions. If specified, the dimension of the vector needs to be equal the number of considered points (each point corresponds to a set of values for the covariates).
+#' @param xlims,ylims numeric vectors of dimension 2, giving the limits for x and y axes in the plot.
+#' @param size.point,size.path  numeric values, indicating sizes for point(s) and line(s) in the plot.
+#' @param names.labels a optional character vector giving the label name for covariates.
 #' @param file.name File name to create on disk.
-#' @param ... further arguments passed to \code{\link{ggexport}} method, for example, \code{width}, \code{height}.
+#' @param ... further arguments used with \code{\link{ggexport}} function, for example, \code{width}, \code{height}.
 #'
-#' @details \code{plot.optThres3} provides plots for displaying the confidence regions and point estimates of covariate-specific optimal thresholds. The plots are based on \code{ggplot()}.
+#' @details \code{plot.optThres3} provides plots of confidence regions (and point estimates) of covariate-specific optimal pair of thresholds. The plots are based on \code{ggplot()}.
 #'
 #' @seealso \code{\link{optThres3}}
 #'
@@ -476,17 +476,17 @@ plot.optThres3 <- function(x, ci.level = 0.95, colors = NULL, xlims, ylims, size
 #
 
 ## ---- The function print.optThres3 ----
-#' @title Print summary results of \code{optThres3}
+#' @title Print summary results from \code{optThres3}
 #'
-#' @description \code{print.optThres3} prints the results for the output of function \code{\link{optThres3}}.
+#' @description \code{print.optThres3} displays the results of the output from \code{\link{optThres3}}.
 #'
 #' @method print optThres3
-#' @param x an object of class "optThres3", a result of a call to \code{\link{optThres3}}.
+#' @param x an object of class "optThres3", a result of \code{\link{optThres3}} call.
 #' @param digits minimal number of significant digits, see \code{\link{print.default}}.
 #' @param call logical. If \code{TRUE}, the matched call will be printed.
 #' @param ... further arguments passed to \code{\link{print}} method.
 #'
-#' @details \code{print.optThres3} shows a nice format of the summary table for covariate-specific optimal thresholds estimates.
+#' @details \code{print.optThres3} shows a summary table for covariate-specific optimal pair of thresholds estimates.
 #'
 #' @seealso \code{\link{optThres3}}
 #'
