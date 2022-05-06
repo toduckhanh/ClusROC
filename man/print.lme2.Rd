@@ -7,7 +7,7 @@
 \method{print}{lme2}(x, digits = max(3L, getOption("digits") - 3L), call = TRUE, ...)
 }
 \arguments{
-\item{x}{an object of class "lme2", a result of a call to \code{\link{lme2}}.}
+\item{x}{an object of class "lme2", a result of \code{\link{lme2}} call.}
 
 \item{digits}{minimal number of significant digits, see \code{\link{print.default}}.}
 
@@ -16,10 +16,10 @@
 \item{...}{further arguments passed to \code{\link{print}} method.}
 }
 \description{
-\code{print.lme2} prints the results for the output of function \code{\link{lme2}}.
+\code{print.lme2} displays results of the output from \code{\link{lme2}}.
 }
 \details{
-\code{print.lme2} shows a nice format of the summary table for fitting the cluster-effect model for a continuous diagnostic test in three-class setting.
+\code{print.lme2} shows a summary table for the estimated parameters in the cluster-effect model (continuous diagnostic test in three-class setting).
 }
 \seealso{
 \code{\link{lme2}}
