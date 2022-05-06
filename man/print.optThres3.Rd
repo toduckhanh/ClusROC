@@ -2,12 +2,12 @@
 % Please edit documentation in R/thresh_3class.R
 \name{print.optThres3}
 \alias{print.optThres3}
-\title{Print summary results of \code{optThres3}}
+\title{Print summary results from \code{optThres3}}
 \usage{
 \method{print}{optThres3}(x, digits = 3, call = TRUE, ...)
 }
 \arguments{
-\item{x}{an object of class "optThres3", a result of a call to \code{\link{optThres3}}.}
+\item{x}{an object of class "optThres3", a result of \code{\link{optThres3}} call.}
 
 \item{digits}{minimal number of significant digits, see \code{\link{print.default}}.}
 
@@ -16,10 +16,10 @@
 \item{...}{further arguments passed to \code{\link{print}} method.}
 }
 \description{
-\code{print.optThres3} prints the results for the output of function \code{\link{optThres3}}.
+\code{print.optThres3} displays the results of the output from \code{\link{optThres3}}.
 }
 \details{
-\code{print.optThres3} shows a nice format of the summary table for covariate-specific optimal thresholds estimates.
+\code{print.optThres3} shows a summary table for covariate-specific optimal pair of thresholds estimates.
 }
 \seealso{
 \code{\link{optThres3}}
