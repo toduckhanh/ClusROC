@@ -2,40 +2,40 @@
 % Please edit documentation in R/vus.R
 \name{VUS}
 \alias{VUS}
-\title{Covariate-specific VUS for clustered data.}
+\title{Estimation of the covariate-specific VUS for clustered data.}
 \usage{
 VUS(out_lme2, x.val, apVar = FALSE, subdivisions = 1000, ...)
 }
 \arguments{
-\item{out_lme2}{an object of class "lme2", a result of a call to \code{\link{lme2}}.}
+\item{out_lme2}{an object of class "lme2", a result of \code{\link{lme2}} call.}
 
-\item{x.val}{specific value(s) of covariate(s) where the VUS are computed. In case non-covariate, no value is needed to specify. In case of one covariate, \code{x.val} should be a number or a vector. In case of \eqn{p} covariates (\eqn{p > 1}), \code{x.val} should be a vector containing \eqn{p} values of the covariates; or a matrix with \eqn{p} columns and \eqn{m} rows containing values of the covariates if the user wants to compute VUS at \eqn{m} points.}
+\item{x.val}{specific value(s) of covariate(s) where the optimal pair of thresholds are estimated. In absence of covariate, no values have to be specified. In case of one covariate, \code{x.val} should be a number. In case of \eqn{p} covariates (\eqn{p > 1}), \code{x.val} should be a vector containing \eqn{p} values; or a matrix with \eqn{p} columns and \eqn{m} rows containing values of the covariates if the user wants to estimate at \eqn{m} points.}
 
-\item{apVar}{a logical value. If set to \code{TRUE}, the standard error of covariate-specific VUS are computed.}
+\item{apVar}{logical value. If set to \code{TRUE}, the standard error for (estimated) covariate-specific VUS are estimated.}
 
-\item{subdivisions}{the maximum number of subintervals used to approximate the integration. Default is 1000.}
+\item{subdivisions}{the maximum number of subintervals used to approximate integral. Default is 1000.}
 
 \item{...}{additional arguments to be passed to \code{\link[stats]{integrate}}}
 }
 \value{
-\code{VUS} returns an object of class inheriting from "VUS" class. An object of class "VUS" is a list containing at least the following components:
+\code{VUS} returns an object of class "VUS" which is a list containing at least the following components:
 
 \item{call}{the matched call.}
 \item{vus_est}{a vector containing the estimated covariate-specific VUS.}
 \item{vus_se}{a vector containing the standard errors.}
-\item{mess_order}{a diagnostic message for monontone ordering of means at given covariates' values.}
+\item{mess_order}{a diagnostic message from checking the monontone ordering.}
 \item{x.val}{value(s) of covariate(s).}
-\item{n_p}{total numbers of the regressors in the model.}
+\item{n_p}{total number of regressors in the model.}
 
-Generic functions such as \code{print} has methods to show the results.
+Generic functions such as \code{print} is also used to show the results.
 }
 \description{
-This function computes the covariate-specific VUS of a continuous diagnostic test in the setting of clustered data as described in Xiong et al. (2018). This function allows to compute covariate-specific VUS at multiple points of covariates.
+This function estimates the covariate-specific VUS of a continuous diagnostic test in the setting of clustered data as described in Xiong et al. (2018). This function allows to estimate covariate-specific VUS at multiple points for covariates.
 }
 \details{
-This function implements estimation method in Xiong et al. (2018) for estimating covariate-specific VUS of a continuous diagnostic test in a clustered design when subjects can be diagnosed in three ordinal groups. The estimator is based on the results of fitting the linear mixed-effect model on the diagnostic tests, which is done by using \code{\link{lme2}} with REML approach. The standard error of the estimated covariate-specific VUS is approximated through the Delta method.
+This function implements method in Xiong et al. (2018) for estimating covariate-specific VUS of a continuous diagnostic test in a clustered design with three ordinal groups. The estimator is based on results from \code{\link{lme2}}, which used REML approach. The standard error of the estimated covariate-specific VUS is approximated through the Delta method.
 
-Before applying the estimation, a quick check for the monotone ordering assumption will be performed. That is, for given values of covariates, three predicted means of three diagnostic groups will be compared. If the assumption does not meet, the covariate-specific VUS at the values of covariates will be not estimated. In addition, this function also performs the statistical test, \eqn{H0: VUS = 1/6} versus the alternative of interest.
+Before performing estimation, a check for the monotone ordering assumption is performed. This mean that, for the fixed values of covariates, three predicted means values for test results in three diagnostic groups are compared. If the assumption does not meet, the covariate-specific VUS at the values of covariates are not estimated. In addition, this function also performs the statistical test, \eqn{H_0: VUS = 1/6} versus an alternative of interest.
 }
 \examples{
 data(data_3class)
