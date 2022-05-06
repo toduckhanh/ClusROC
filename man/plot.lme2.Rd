@@ -7,17 +7,17 @@
 \method{plot}{lme2}(x, file.name = NULL, ...)
 }
 \arguments{
-\item{x}{an object of class "lme2", a result of a call to \code{\link{lme2}}.}
+\item{x}{an object of class "lme2", i.e., a result of \code{\link{lme2}} call.}
 
 \item{file.name}{File name to create on disk.}
 
-\item{...}{further arguments passed to \code{\link{ggexport}} method, for example, \code{width}, \code{height}.}
+\item{...}{further arguments used with \code{\link{ggexport}} function, for example, \code{width}, \code{height}.}
 }
 \description{
-Diagnostic plots for the linear mixed-effects fit are obtained by lme2.
+Diagnostic plots for the linear mixed-effect model, fitted by lme2.
 }
 \details{
-\code{plot.lme2} provides three diagnostic plots: Q-Q plots of residuals, Fitted vs. Residuals, and Q-Q plot of cluster effects, based on \code{ggplot()}.
+\code{plot.lme2} provides three diagnostic plots: Q-Q plots for residuals, Fitted vs. Residuals values, and Q-Q plot for cluster effects, based on \code{ggplot()}.
 }
 \seealso{
 \code{\link{lme2}}
