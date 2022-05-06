@@ -2,12 +2,12 @@
 % Please edit documentation in R/vus.R
 \name{print.VUS}
 \alias{print.VUS}
-\title{Print summary results of VUS}
+\title{Print summary results from VUS}
 \usage{
 \method{print}{VUS}(x, digits = 3, call = TRUE, ...)
 }
 \arguments{
-\item{x}{an object of class "VUS", a result of a call to \code{\link{VUS}}.}
+\item{x}{an object of class "VUS", a result of \code{\link{VUS}} call.}
 
 \item{digits}{minimal number of significant digits, see \code{\link{print.default}}.}
 
@@ -16,10 +16,10 @@
 \item{...}{further arguments passed to \code{\link{print}} method.}
 }
 \description{
-\code{print.VUS} prints the results for the output of function \code{\link{VUS}}.
+\code{print.VUS} displays the results of the output from \code{\link{VUS}}.
 }
 \details{
-\code{print.VUS} shows a nice format of the summary table for covariate-specific VUS estimates.
+\code{print.VUS} shows a summary table for covariate-specific VUS estimates.
 }
 \seealso{
 \code{\link{VUS}}
