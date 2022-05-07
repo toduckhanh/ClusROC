@@ -14,7 +14,7 @@ optThres3(
 )
 }
 \arguments{
-\item{method}{The method to be used. See 'Details'.}
+\item{method}{the method to be used. See 'Details'.}
 
 \item{out_lme2}{an object of class "lme2", i.e., a result of \code{\link{lme2}} call.}
 
@@ -47,11 +47,11 @@ Generic functions such as \code{print} and \code{plot} are also used to show the
 \details{
 This function implements estimation methods discussed in To et al. (2022) for covariate-specific optimal pair of thresholds in a clustered design with three ordinal groups. The estimators are based on the results from \code{\link{lme2}} function, which fits the linear mixed-effect model by using REML approach.
 
-Before performing estimation, a check for the monotone ordering assumption is performed. This mean that, for the fixed values of covariates, three predicted means values for test results in three diagnostic groups are compared. If the assumption does not meet, the covariate-specific optimal pair of thresholds at the values of covariates are not estimated.
+Before performing estimation, a check for the monotone ordering assumption is performed. This means that, for the fixed values of covariates, three predicted mean values for test results in three diagnostic groups are compared. If the assumption is not meet, the covariate-specific optimal pair of thresholds at the values of covariates are not estimated.
 
 The estimation procedure uses three criteria. Method \code{"GYI"} is Generalized Youden Index, which maximizes the sum of three covariate-specific True Class Fractions - TCFs. Method \code{"CtP"} is based on Closest to Pefection approach. By using this method, the optimal pair of thresholds is obtained by minimizing the distance, in the unit cube, between a generic point on the covariate-specific ROC surface and the top corner (1, 1, 1). Method \code{"MV"} is based on Maximum Volume approach, which searches for thresholds that maximize the volume of a box under the covariate-specific ROC surface. The user can select more than one method.
 
-The asymptotic variance-covariance matrix of the (estimated) covariate-specific optimal thresholds is estimated by using the Delta method under the normal assumptions. If the Box-Cox transformation is applied to the linear mixed-effect model, a nonparametric bootstrap procedure for clustered data will be used to obtain the estimated asymptotic covariance matrix (see To et al. 2022, for more details).
+The asymptotic variance-covariance matrix of the (estimated) covariate-specific optimal thresholds is estimated by using the Delta method under the normal assumption. If the Box-Cox transformation is applied to the linear mixed-effect model, a nonparametric bootstrap procedure for clustered data will be used to obtain the estimated asymptotic covariance matrix (see To et al. 2022, for more details).
 
 The \code{control} argument is a list that can supply any of the following components:
 \describe{
