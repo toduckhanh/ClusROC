@@ -39,9 +39,9 @@ ROCsurface(
 \code{ROCsurface} estimates and makes a 3D plot of a covariate-specific ROC surface for a continuous diagnostic test, in a clustered design, with three ordinal groups.
 }
 \details{
-This function implements method in To et al. (2022) for estimating covariate-specific ROC surface of a continuous diagnostic test in a clustered design, with three ordinal groups. The estimator is based on the results from \code{\link{lme2}} with REML approach.
+This function implements a method in To et al. (2022) for estimating covariate-specific ROC surface of a continuous diagnostic test in a clustered design, with three ordinal groups. The estimator is based on the results from \code{\link{lme2}} with REML approach.
 
-Before performing estimation, a check for the monotone ordering assumption is performed. This mean that, for the fixed values of covariates, three predicted means values for test results in three diagnostic groups are compared. If the assumption does not meet, the covariate-specific ROC surface at the values of covariates is not estimated.
+Before performing estimation, a check for the monotone ordering assumption is performed. This means that, for the fixed values of covariates, three predicted mean values for test results in three diagnostic groups are compared. If the assumption is not meet, the covariate-specific ROC surface at the values of covariates is not estimated.
 
 The ellipsoidal confidence region for TCFs at a given pair of thresholds, if required, is constructed by using normal approximation and is plotted in the ROC surface space. The confidence level (default) is 0.95. Note that, if the Box-Cox transformation is applied for the linear mixed-effect model, the pair of thresholds must be input in the original scale. If the constructed confidence region for TCFs is outside the unit cube, a probit transformation will be automatically applied to obtain an appropriate confidence region, which is inside the unit cube (see Bantis et. al., 2017).
 }
