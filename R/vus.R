@@ -108,9 +108,9 @@ vus_se <- function(par, vcov_par_model, z, n_p, n_c, n_k, n, p.sss, p.ssk, p.sks
 #' @param ...  additional arguments to be passed to \code{\link[stats]{integrate}}
 #'
 #' @details
-#' This function implements method in Xiong et al. (2018) for estimating covariate-specific VUS of a continuous diagnostic test in a clustered design with three ordinal groups. The estimator is based on results from \code{\link{lme2}}, which used REML approach. The standard error of the estimated covariate-specific VUS is approximated through the Delta method.
+#' This function implements a method in Xiong et al. (2018) for estimating covariate-specific VUS of a continuous diagnostic test in a clustered design with three ordinal groups. The estimator is based on results from \code{\link{lme2}}, which uses the REML approach. The standard error of the estimated covariate-specific VUS is approximated through the Delta method.
 #'
-#' Before performing estimation, a check for the monotone ordering assumption is performed. This mean that, for the fixed values of covariates, three predicted means values for test results in three diagnostic groups are compared. If the assumption does not meet, the covariate-specific VUS at the values of covariates are not estimated. In addition, this function also performs the statistical test, \eqn{H_0: VUS = 1/6} versus an alternative of interest.
+#' Before performing estimation, a check for the monotone ordering assumption is performed. This means that, for the fixed values of covariates, three predicted mean values for test results in three diagnostic groups are compared. If the assumption is not meet, the covariate-specific VUS at the values of covariates are not estimated. In addition, this function also performs the statistical test, \eqn{H_0: VUS = 1/6} versus an alternative of interest.
 #'
 #'
 #' @return \code{VUS} returns an object of class "VUS" which is a list containing at least the following components:
@@ -284,10 +284,10 @@ VUS <- function(out_lme2, x.val, apVar = FALSE, # ci = FALSE, ci.level = ifelse(
 #'
 #' @description Computes confidence intervals for covariate-specific VUS.
 #'
-#' @param x an object of class "VUS", a result of a call to \code{\link{VUS}}.
+#' @param x an object of class "VUS", a result of \code{\link{VUS}} call.
 #' @param ci.level a confidence level to be used for constructing the confidence interval; default is 0.95.
 #'
-#' @details A confidence interval for covariate-specific VUS is given based on normal approximation. If the lower bound (or the upper bound) of the confidence interval is smaller than 0 (or greater than 1), it will be set as 0 (or 1). Also, logit and probit transformations are applied in order to guarantee that confidence limits are inside (0, 1).
+#' @details A confidence interval for covariate-specific VUS is given based on normal approximation. If the lower bound (or the upper bound) of the confidence interval is smaller than 0 (or greater than 1), it will be set as 0 (or 1). Also, logit and probit transformations are available if one wants guarantees that confidence limits are inside (0, 1).
 #'
 #' @return \code{ci_VUS} returns an object of class inheriting from "ci_VUS" class. An object of class "ci_VUS" is a list, containing at least the following components:
 #'
