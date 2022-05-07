@@ -33,9 +33,9 @@ Generic functions such as \code{print} is also used to show the results.
 This function estimates the covariate-specific VUS of a continuous diagnostic test in the setting of clustered data as described in Xiong et al. (2018). This function allows to estimate covariate-specific VUS at multiple points for covariates.
 }
 \details{
-This function implements method in Xiong et al. (2018) for estimating covariate-specific VUS of a continuous diagnostic test in a clustered design with three ordinal groups. The estimator is based on results from \code{\link{lme2}}, which used REML approach. The standard error of the estimated covariate-specific VUS is approximated through the Delta method.
+This function implements a method in Xiong et al. (2018) for estimating covariate-specific VUS of a continuous diagnostic test in a clustered design with three ordinal groups. The estimator is based on results from \code{\link{lme2}}, which uses the REML approach. The standard error of the estimated covariate-specific VUS is approximated through the Delta method.
 
-Before performing estimation, a check for the monotone ordering assumption is performed. This mean that, for the fixed values of covariates, three predicted means values for test results in three diagnostic groups are compared. If the assumption does not meet, the covariate-specific VUS at the values of covariates are not estimated. In addition, this function also performs the statistical test, \eqn{H_0: VUS = 1/6} versus an alternative of interest.
+Before performing estimation, a check for the monotone ordering assumption is performed. This means that, for the fixed values of covariates, three predicted mean values for test results in three diagnostic groups are compared. If the assumption is not meet, the covariate-specific VUS at the values of covariates are not estimated. In addition, this function also performs the statistical test, \eqn{H_0: VUS = 1/6} versus an alternative of interest.
 }
 \examples{
 data(data_3class)
