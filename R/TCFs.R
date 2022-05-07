@@ -60,9 +60,9 @@ TCF_normal_vcov <- function(par_model, z, thresholds, vcov_par_model, n_p, fixed
 #' @param thresholds  specified pair of thresholds.
 #' @param apVar  logical value. If set to \code{TRUE}, the variance-covariance matrix of estimated covariate-specific TCFs is estimated.
 #' @details
-#' This function implements method in To et al. (2022) for estimating covariate-specific TCFs at a specified pair of thresholds of a continuous diagnostic test in a clustered design with three ordinal groups. The estimator is based on results from  \code{\link{lme2}}, which used REML approach. The asymptotic variance-covariance matrix of the estimated covariate-specific TCFs is estimated through the Delta method. Note that, if the Box-Cox transformation is applied for the linear mixed-effect model, the pair of thresholds must be input in the original scale.
+#' This function implements a method in To et al. (2022) for estimating covariate-specific TCFs at a specified pair of thresholds of a continuous diagnostic test in a clustered design with three ordinal groups. The estimator is based on results from  \code{\link{lme2}}, which uses the REML approach. The asymptotic variance-covariance matrix of the estimated covariate-specific TCFs is estimated through the Delta method. Note that, if the Box-Cox transformation is applied for the linear mixed-effect model, the pair of thresholds must be input in the original scale.
 #'
-#' Before performing estimation, a check for the monotone ordering assumption is performed. This mean that, for the fixed values of covariates, three predicted means values for test results in three diagnostic groups are compared. If the assumption does not meet, the covariate-specific TCFs at the values of covariates are not estimated.
+#' Before performing estimation, a check for the monotone ordering assumption is performed. This means that, for the fixed values of covariates, three predicted mean values for test results in three diagnostic groups are compared. If the assumption is not meet, the covariate-specific TCFs at the values of covariates are not estimated.
 #'
 #' @return \code{TCFs} returns an object of class "TCFs", which is a list containing at least the following components:
 #'
