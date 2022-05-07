@@ -57,7 +57,7 @@ lme2(
 Generic functions such as \code{print} and \code{plot} are also used to show results of the fit.
 }
 \description{
-\code{lme2} fits the cluster-effect models for a continuous diagnostic test in a three-class setting as described in Xiong et al. (2018) and To et al. (2022).
+\code{lme2} fits the cluster-effect model for a continuous diagnostic test in a three-class setting as described in Xiong et al. (2018) and To et al. (2022).
 }
 \details{
 This function fits a linear mixed-effect model for a continuous diagnostic test in a three-class setting in order to account for the cluster and covariates effects on the test result. See Xiong et al. (2018) and To et al. (2022) for more details.
