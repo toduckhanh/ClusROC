@@ -7,7 +7,7 @@
 ci_VUS(x, ci.level = 0.95)
 }
 \arguments{
-\item{x}{an object of class "VUS", a result of a call to \code{\link{VUS}}.}
+\item{x}{an object of class "VUS", a result of \code{\link{VUS}} call.}
 
 \item{ci.level}{a confidence level to be used for constructing the confidence interval; default is 0.95.}
 }
@@ -25,7 +25,7 @@ ci_VUS(x, ci.level = 0.95)
 Computes confidence intervals for covariate-specific VUS.
 }
 \details{
-A confidence interval for covariate-specific VUS is given based on normal approximation. If the lower bound (or the upper bound) of the confidence interval is smaller than 0 (or greater than 1), it will be set as 0 (or 1). Also, logit and probit transformations are applied in order to guarantee that confidence limits are inside (0, 1).
+A confidence interval for covariate-specific VUS is given based on normal approximation. If the lower bound (or the upper bound) of the confidence interval is smaller than 0 (or greater than 1), it will be set as 0 (or 1). Also, logit and probit transformations are available if one wants guarantees that confidence limits are inside (0, 1).
 }
 \seealso{
 \code{\link{VUS}}
