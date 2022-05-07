@@ -120,7 +120,7 @@ llike_bcx_fun <- function(par, fixed, random, weights, data, y_tit, ...){
 
 #' @title Linear Mixed-Effects Models for a continuous diagnostic test.
 #'
-#' @description \code{lme2} fits the cluster-effect models for a continuous diagnostic test in a three-class setting as described in Xiong et al. (2018) and To et al. (2022).
+#' @description \code{lme2} fits the cluster-effect model for a continuous diagnostic test in a three-class setting as described in Xiong et al. (2018) and To et al. (2022).
 #'
 #' @param fixed.formula  a two-sided linear formula object, describing the fixed-effects part of the model for three classes, with the response on the left of ~ operator and the terms, separated by + operators, on the right. For example, \code{Y ~ X1 + X2}, \code{Y ~ X1 + X2 + X1:X2} or \code{log(Y) ~ X1 + X2 + I(X1^2)}.
 #' @param name.class  name of variable indicating disease classes (or diagnostic groups) in the data.
