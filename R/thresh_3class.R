@@ -103,7 +103,7 @@ optThres3control <- function(method.optim = c("L-BFGS-B", "BFGS", "Nelder-Mead")
 #'
 #' @description \code{optThres3} estimates covariate-specific optimal pair of thresholds of a continuous diagnostic test in a clustered design, with three classes of diseases.
 #'
-#' @param method  The method to be used. See 'Details'.
+#' @param method  the method to be used. See 'Details'.
 #' @param out_lme2  an object of class "lme2", i.e., a result of \code{\link{lme2}} call.
 #' @param x.val  specific value(s) of covariate(s) where the optimal pair of thresholds are estimated. In absence of covariate, no values have to be specified. In case of one covariate, \code{x.val} should be a number. In case of \eqn{p} covariates (\eqn{p > 1}), \code{x.val} should be a vector containing \eqn{p} values; or a matrix with \eqn{p} columns and \eqn{m} rows containing values of the covariates if the user wants to estimate at \eqn{m} points.
 #' @param apVar  logical value. If set to TRUE, the variance-covariance matrix of (estimated) covariate-specific optimal thresholds is estimated.
@@ -113,11 +113,11 @@ optThres3control <- function(method.optim = c("L-BFGS-B", "BFGS", "Nelder-Mead")
 #' @details
 #' This function implements estimation methods discussed in To et al. (2022) for covariate-specific optimal pair of thresholds in a clustered design with three ordinal groups. The estimators are based on the results from \code{\link{lme2}} function, which fits the linear mixed-effect model by using REML approach.
 #'
-#' Before performing estimation, a check for the monotone ordering assumption is performed. This mean that, for the fixed values of covariates, three predicted means values for test results in three diagnostic groups are compared. If the assumption does not meet, the covariate-specific optimal pair of thresholds at the values of covariates are not estimated.
+#' Before performing estimation, a check for the monotone ordering assumption is performed. This means that, for the fixed values of covariates, three predicted mean values for test results in three diagnostic groups are compared. If the assumption is not meet, the covariate-specific optimal pair of thresholds at the values of covariates are not estimated.
 #'
 #' The estimation procedure uses three criteria. Method \code{"GYI"} is Generalized Youden Index, which maximizes the sum of three covariate-specific True Class Fractions - TCFs. Method \code{"CtP"} is based on Closest to Pefection approach. By using this method, the optimal pair of thresholds is obtained by minimizing the distance, in the unit cube, between a generic point on the covariate-specific ROC surface and the top corner (1, 1, 1). Method \code{"MV"} is based on Maximum Volume approach, which searches for thresholds that maximize the volume of a box under the covariate-specific ROC surface. The user can select more than one method.
 #'
-#' The asymptotic variance-covariance matrix of the (estimated) covariate-specific optimal thresholds is estimated by using the Delta method under the normal assumptions. If the Box-Cox transformation is applied to the linear mixed-effect model, a nonparametric bootstrap procedure for clustered data will be used to obtain the estimated asymptotic covariance matrix (see To et al. 2022, for more details).
+#' The asymptotic variance-covariance matrix of the (estimated) covariate-specific optimal thresholds is estimated by using the Delta method under the normal assumption. If the Box-Cox transformation is applied to the linear mixed-effect model, a nonparametric bootstrap procedure for clustered data will be used to obtain the estimated asymptotic covariance matrix (see To et al. 2022, for more details).
 #'
 #' The \code{control} argument is a list that can supply any of the following components:
 #' \describe{
