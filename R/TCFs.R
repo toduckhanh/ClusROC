@@ -210,7 +210,7 @@ TCFs <- function(out_lme2, x.val, thresholds, apVar = FALSE){
 #' @method print TCFs
 #' @param x an object of class "TCFs", a result of \code{\link{TCFs}} call.
 #' @param digits minimal number of significant digits, see \code{\link{print.default}}.
-#' @param call logical. If \code{TRUE}, the matched call will be printed.
+#' @param call logical. If set to \code{TRUE}, the matched call will be printed.
 #' @param ... further arguments passed to \code{\link{print}} method.
 #'
 #' @details \code{print.TCFs} shows a summary table for covariate-specific TCFs estimates.
