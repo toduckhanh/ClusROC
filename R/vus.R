@@ -103,7 +103,7 @@ vus_se <- function(par, vcov_par_model, z, n_p, n_c, n_k, n, p.sss, p.ssk, p.sks
 #'
 #' @param out_lme2  an object of class "lme2", a result of \code{\link{lme2}} call.
 #' @param x.val  specific value(s) of covariate(s) where the optimal pair of thresholds are estimated. In absence of covariate, no values have to be specified. In case of one covariate, \code{x.val} should be a number. In case of \eqn{p} covariates (\eqn{p > 1}), \code{x.val} should be a vector containing \eqn{p} values; or a matrix with \eqn{p} columns and \eqn{m} rows containing values of the covariates if the user wants to estimate at \eqn{m} points.
-#' @param apVar  logical value. If set to \code{TRUE}, the standard error for (estimated) covariate-specific VUS are estimated.
+#' @param apVar  logical value. If set to \code{TRUE} (default), the standard error for (estimated) covariate-specific VUS are estimated.
 #' @param subdivisions  the maximum number of subintervals used to approximate integral. Default is 1000.
 #' @param ...  additional arguments to be passed to \code{\link[stats]{integrate}}
 #'
@@ -137,11 +137,11 @@ vus_se <- function(par, vcov_par_model, z, n_p, n_c, n_k, n, p.sss, p.ssk, p.sks
 #'              data = data_3class)
 #'
 #' ### Estimate covariate-specific VUS at one value of one covariate
-#' out_vus1 <- VUS(out1, x.val = 0.5, apVar = TRUE)
+#' out_vus1 <- VUS(out1, x.val = 0.5)
 #' ci_VUS(out_vus1, ci.level = 0.95)
 #'
 #' ### Estimate covariate-specific VUS at multiple values of one covariate
-#' out_vus2 <- VUS(out1, x.val = c(-0.5, 0, 0.5), apVar = TRUE)
+#' out_vus2 <- VUS(out1, x.val = c(-0.5, 0, 0.5))
 #' ci_VUS(out_vus2, ci.level = 0.95)
 #'
 #' ## Two covariates
@@ -149,15 +149,15 @@ vus_se <- function(par, vcov_par_model, z, n_p, n_c, n_k, n, p.sss, p.ssk, p.sks
 #'              data = data_3class)
 #'
 #' ### Estimate covariate-specific VUS at one point
-#' out_vus3 <- VUS(out2, x.val = c(1.5, 1), apVar = TRUE)
+#' out_vus3 <- VUS(out2, x.val = c(1.5, 1))
 #' ci_VUS(out_vus3, ci.level = 0.95)
 #'
 #' ### Estimate covariate-specific VUS at three points
-#' out_vus4 <- VUS(out2, x.val = rbind(c(-0.5, 0), c(0.5, 0), c(0.5, 1)), apVar = TRUE)
+#' out_vus4 <- VUS(out2, x.val = rbind(c(-0.5, 0), c(0.5, 0), c(0.5, 1)))
 #' ci_VUS(out_vus4, ci.level = 0.95)
 #'
 #' @export
-VUS <- function(out_lme2, x.val, apVar = FALSE, # ci = FALSE, ci.level = ifelse(ci, 0.95, NULL),
+VUS <- function(out_lme2, x.val, apVar = TRUE, # ci = FALSE, ci.level = ifelse(ci, 0.95, NULL),
                 subdivisions = 1000, ...){
   ## Check all conditions
   if(isFALSE(inherits(out_lme2, "lme2"))) stop("out_lme2 was not from lme2()!")
@@ -372,7 +372,7 @@ ci_VUS <- function(x, ci.level = 0.95){
 #' @method print VUS
 #' @param x an object of class "VUS", a result of \code{\link{VUS}} call.
 #' @param digits minimal number of significant digits, see \code{\link{print.default}}.
-#' @param call logical. If \code{TRUE}, the matched call will be printed.
+#' @param call logical. If set to \code{TRUE}, the matched call will be printed.
 #' @param ... further arguments passed to \code{\link{print}} method.
 #'
 #' @details \code{print.VUS} shows a summary table for covariate-specific VUS estimates.
@@ -400,7 +400,7 @@ print.VUS <- function(x, digits = 3, call = TRUE, ...){
   }
   if(!is.null(x$vus_se)){
     z <- (x$vus_est - rep(1/6, length(x$vus_est)))/x$vus_se
-    p_val <- 2*pnorm(abs(z), lower.tail = FALSE)
+    p_val <- pnorm(z, lower.tail = FALSE)
     infer_tab <- data.frame(labels, x$vus_est, x$vus_se, z, p_val) # as.factor(labels),
     infer_tab[,2:4] <- signif(infer_tab[,2:4], digits = digits)
     pv <- as.vector(infer_tab[,5])
