@@ -131,13 +131,13 @@ llike_bcx_fun <- function(par, fixed, random, weights, data, y_tit, ...){
 #' @param boxcox  a logical value. Default = \code{FALSE}. If set to \code{TRUE}, a Box-Cox transformation will be applied to the model.
 #' @param interval_lambda  a vector containing the end-points of the interval for searching the Box-Cox parameter, \code{lambda}. Default = (-2, 2).
 #' @param trace  a logical value. Default = \code{TRUE}. If set to \code{TRUE}, the information about the check for the monotonic ordering of test values will be provided.
-#' @param ...  additional arguments for \code{\link[nlme]{lme}}, such as \code{control}, \code{contrasts}.
+#' @param ...  additional arguments for \code{\link[nlme]{lme()}}, such as \code{control}, \code{contrasts}.
 #'
 #' @details
 #' This function fits a linear mixed-effect model for a continuous diagnostic test in a three-class setting in order to account for the cluster and covariates effects on the test result. See Xiong et al. (2018) and To et al. (2022) for more details.
 #' \itemize{
-#' \item Estimation is done by using \code{\link[nlme]{lme}} with the restricted maximum log-likelihood (REML) method.
-#' \item Box-Cox transformation for the model can be used when the distributions of test results are skewed (Gurka et al. 2006). The estimation procedure is described in To et al. (2022). The Box-Cox parameter \eqn{\lambda} is estimated by a grid search on the interval [-2, 2], as discussed in Gurka and Edwards (2011).
+#' \item Estimation is done by using \code{\link[nlme]{lme()}} with the restricted maximum log-likelihood (REML) method.
+#' \item Box-Cox transformation for the model can be used when the distributions of test results are skewed (Gurka et al. 2006). The estimation procedure is described in To et al. (2022). The Box-Cox parameter \eqn{\lambda} is estimated by a grid search on the interval (-2, 2), as discussed in Gurka and Edwards (2011).
 #' \item The estimated variance-covariance matrix for the estimated parameters are obtained by sandwich formula (see, Liang and Zeger, 1986; Kauermann and Carroll, 2001; Mancl and DeRouen, 2001) as discussed in To et al. (2022).
 #' }
 #'
@@ -369,7 +369,7 @@ lme2 <- function(fixed.formula, name.class, name.clust, data, levl.class = NULL,
 #' @method print lme2
 #' @param x an object of class "lme2", a result of \code{\link{lme2}} call.
 #' @param digits minimal number of significant digits, see \code{\link{print.default}}.
-#' @param call logical. If \code{TRUE}, the matched call will be printed.
+#' @param call logical. If set to \code{TRUE}, the matched call will be printed.
 #' @param ... further arguments passed to \code{\link{print}} method.
 #'
 #' @details \code{print.lme2} shows a summary table for the estimated parameters in the cluster-effect model (continuous diagnostic test in three-class setting).
