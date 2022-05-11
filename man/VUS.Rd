@@ -4,14 +4,14 @@
 \alias{VUS}
 \title{Estimation of the covariate-specific VUS for clustered data.}
 \usage{
-VUS(out_lme2, x.val, apVar = FALSE, subdivisions = 1000, ...)
+VUS(out_lme2, x.val, apVar = TRUE, subdivisions = 1000, ...)
 }
 \arguments{
 \item{out_lme2}{an object of class "lme2", a result of \code{\link{lme2}} call.}
 
 \item{x.val}{specific value(s) of covariate(s) where the optimal pair of thresholds are estimated. In absence of covariate, no values have to be specified. In case of one covariate, \code{x.val} should be a number. In case of \eqn{p} covariates (\eqn{p > 1}), \code{x.val} should be a vector containing \eqn{p} values; or a matrix with \eqn{p} columns and \eqn{m} rows containing values of the covariates if the user wants to estimate at \eqn{m} points.}
 
-\item{apVar}{logical value. If set to \code{TRUE}, the standard error for (estimated) covariate-specific VUS are estimated.}
+\item{apVar}{logical value. If set to \code{TRUE} (default), the standard error for (estimated) covariate-specific VUS are estimated.}
 
 \item{subdivisions}{the maximum number of subintervals used to approximate integral. Default is 1000.}
 
@@ -44,11 +44,11 @@ out1 <- lme2(fixed.formula = Y ~ X1, name.class = "D", name.clust = "id_Clus",
              data = data_3class)
 
 ### Estimate covariate-specific VUS at one value of one covariate
-out_vus1 <- VUS(out1, x.val = 0.5, apVar = TRUE)
+out_vus1 <- VUS(out1, x.val = 0.5)
 ci_VUS(out_vus1, ci.level = 0.95)
 
 ### Estimate covariate-specific VUS at multiple values of one covariate
-out_vus2 <- VUS(out1, x.val = c(-0.5, 0, 0.5), apVar = TRUE)
+out_vus2 <- VUS(out1, x.val = c(-0.5, 0, 0.5))
 ci_VUS(out_vus2, ci.level = 0.95)
 
 ## Two covariates
@@ -56,11 +56,11 @@ out2 <- lme2(fixed.formula = Y ~ X1 + X2, name.class = "D", name.clust = "id_Clu
              data = data_3class)
 
 ### Estimate covariate-specific VUS at one point
-out_vus3 <- VUS(out2, x.val = c(1.5, 1), apVar = TRUE)
+out_vus3 <- VUS(out2, x.val = c(1.5, 1))
 ci_VUS(out_vus3, ci.level = 0.95)
 
 ### Estimate covariate-specific VUS at three points
-out_vus4 <- VUS(out2, x.val = rbind(c(-0.5, 0), c(0.5, 0), c(0.5, 1)), apVar = TRUE)
+out_vus4 <- VUS(out2, x.val = rbind(c(-0.5, 0), c(0.5, 0), c(0.5, 1)))
 ci_VUS(out_vus4, ci.level = 0.95)
 
 }
