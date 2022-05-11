@@ -29,7 +29,7 @@ shade.ellips <- function(orgi, sig, lev){
 #' @param step.tcf  number: increment to be used in the grid for \eqn{p1 = tcf1} and \eqn{p3 = tcf3}.
 #' @param main  the main title for plot.
 #' @param file.name  	File name to create on disk.
-#' @param ellips  a logical value. If \code{TRUE}, the function adds an ellipsoidal confidence region for TCFs (True Class Fractions), at a specified pair of values for the thresholds, to the plot of estimated covariate-specific ROC surface.
+#' @param ellips  a logical value. If set to \code{TRUE}, the function adds an ellipsoidal confidence region for TCFs (True Class Fractions), at a specified pair of values for the thresholds, to the plot of estimated covariate-specific ROC surface.
 #' @param thresholds  a specified pair of thresholds, used to construct the ellipsoidal confidence region for TCFs.
 #' @param ci.level  a confidence level to be used for constructing the ellipsoidal confidence region; default is 0.95.
 #'
