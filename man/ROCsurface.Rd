@@ -26,7 +26,7 @@ ROCsurface(
 
 \item{file.name}{File name to create on disk.}
 
-\item{ellips}{a logical value. If \code{TRUE}, the function adds an ellipsoidal confidence region for TCFs (True Class Fractions), at a specified pair of values for the thresholds, to the plot of estimated covariate-specific ROC surface.}
+\item{ellips}{a logical value. If set to \code{TRUE}, the function adds an ellipsoidal confidence region for TCFs (True Class Fractions), at a specified pair of values for the thresholds, to the plot of estimated covariate-specific ROC surface.}
 
 \item{thresholds}{a specified pair of thresholds, used to construct the ellipsoidal confidence region for TCFs.}
 
