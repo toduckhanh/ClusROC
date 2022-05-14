@@ -4,12 +4,12 @@
 \alias{TCFs}
 \title{Estimation of the covariate-specific TCFs for clustered data.}
 \usage{
-TCFs(out_lme2, x.val, thresholds, apVar = FALSE)
+TCFs(out_lme2, newdata, thresholds, apVar = FALSE)
 }
 \arguments{
 \item{out_lme2}{an object of class "lme2", a result of \code{\link{lme2}} call.}
 
-\item{x.val}{specific value(s) of covariate(s) where the TCFs are estimated. In absence of covariate, no values have to be specified. In case of one covariate, \code{x.val} should be a number. In case of \eqn{p} covariates (\eqn{p > 1}), \code{x.val} should be a vector containing \eqn{p} values; or a matrix with \eqn{p} columns and \eqn{m} rows containing values of the covariates if the user wants to estimate at \eqn{m} points.}
+\item{newdata}{a data frame (containing specific value(s) of covariate(s)) in which to look for variables with which to estimate covariate-specific TCFs. In absence of covariate, no values have to be specified.}
 
 \item{thresholds}{specified pair of thresholds.}
 
@@ -23,7 +23,7 @@ TCFs(out_lme2, x.val, thresholds, apVar = FALSE)
 \item{tcf_vcov}{a matrix or list of matrices containing the estimated variance-covariance matrices.}
 \item{thresholds}{specified pair of thresholds.}
 \item{mess_order}{a diagnostic message from checking the monontone ordering.}
-\item{x.val}{value(s) of covariate(s).}
+\item{newdata}{value(s) of covariate(s).}
 \item{n_p}{total number of regressors in the model.}
 
 Generic functions such as \code{print} is also used to show the results.
@@ -43,7 +43,8 @@ out1 <- lme2(fixed.formula = Y ~ X1, name.class = "D", name.clust = "id_Clus",
              data = data_3class)
 
 ### Estimate TCFs at one single value of X1, (t1, t2) = (1, 4)
-out_tcfs_1 <- TCFs(out_lme2 = out1, x.val = 1, thresholds = c(1, 4), apVar = TRUE)
+out_tcfs_1 <- TCFs(out_lme2 = out1, newdata = data.frame(X1 = 1),
+                   thresholds = c(1, 4), apVar = TRUE)
 print(out_tcfs_1)
 
 ## Two covariates
@@ -51,11 +52,13 @@ out2 <- lme2(fixed.formula = Y ~ X1 + X2, name.class = "D", name.clust = "id_Clu
              data = data_3class)
 
 ### Estimate covariate-specific TCFs at point (X1, X2) = (1, 0), and (t1, t2) = (1, 4)
-out_tcfs_2 <- TCFs(out_lme2 = out2, x.val = c(1, 0), thresholds = c(1, 4), apVar = TRUE)
+out_tcfs_2 <- TCFs(out_lme2 = out2, newdata = data.frame(X1 = 1, X2 = 0),
+                   thresholds = c(1, 4), apVar = TRUE)
 print(out_tcfs_2)
 
 ### Estimate covariate-specific TCFs at three points and (t1, t2) = (1, 4)
-out_tcfs_3 <- TCFs(out_lme2 = out2, x.val = rbind(c(-0.5, 0), c(0.5, 0), c(0.5, 1)),
+out_tcfs_3 <- TCFs(out_lme2 = out2,
+                   newdata = data.frame(X1 = c(-0.5, 0.5, 0.5), X2 = c(0, 0, 1)),
                    thresholds = c(1, 4), apVar = TRUE)
 print(out_tcfs_3)
 
