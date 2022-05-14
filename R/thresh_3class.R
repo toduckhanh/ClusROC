@@ -105,7 +105,7 @@ optThres3control <- function(method.optim = c("L-BFGS-B", "BFGS", "Nelder-Mead")
 #'
 #' @param method  the method to be used. See 'Details'.
 #' @param out_lme2  an object of class "lme2", i.e., a result of \code{\link{lme2}} call.
-#' @param x.val  specific value(s) of covariate(s) where the optimal pair of thresholds are estimated. In absence of covariate, no values have to be specified. In case of one covariate, \code{x.val} should be a number. In case of \eqn{p} covariates (\eqn{p > 1}), \code{x.val} should be a vector containing \eqn{p} values; or a matrix with \eqn{p} columns and \eqn{m} rows containing values of the covariates if the user wants to estimate at \eqn{m} points.
+#' @param newdata  a data frame (containing specific value(s) of covariate(s)) in which to look for variables with which to estimate covariate-specific optimal pair of thresholds. In absence of covariate, no values have to be specified.
 #' @param apVar  logical value. If set to \code{TRUE}, the variance-covariance matrix of (estimated) covariate-specific optimal thresholds is estimated.
 #' @param data  a data frame containing the variables to be used when performing a bootstrap procedure to estimate the variance-covariance matrix, in case of Box-Cox transformation.
 #' @param control  a list of control parameters. See 'Details'.
@@ -139,7 +139,7 @@ optThres3control <- function(method.optim = c("L-BFGS-B", "BFGS", "Nelder-Mead")
 #' \item{vcov.thres3}{a matrix or list of matrices containing the estimated variance-covariance matrices.}
 #' \item{tcfs}{a vector or matrix containing the estimated TCFs at the optimal thresholds.}
 #' \item{mess_order}{a diagnostic message from checking the monontone ordering.}
-#' \item{x.val}{value(s) of covariate(s).}
+#' \item{newdata}{value(s) of covariate(s).}
 #' \item{n_p}{total number of regressors in the model.}
 #'
 #' Generic functions such as \code{print} and \code{plot} are also used to show the results.
@@ -156,8 +156,8 @@ optThres3control <- function(method.optim = c("L-BFGS-B", "BFGS", "Nelder-Mead")
 #'
 #' ### Estimate covariate-specific optimal thresholds at multiple values of one covariate,
 #' ### with 3 methods
-#' out_thres_1 <- optThres3(method = c("GYI", "MV", "CtP"), out_lme2 = out1, x.val = 1,
-#'                          apVar = TRUE)
+#' out_thres_1 <- optThres3(method = c("GYI", "MV", "CtP"), out_lme2 = out1,
+#'                          newdata = data.frame(X1 = 1), apVar = TRUE)
 #' print(out_thres_1)
 #' plot(out_thres_1)
 #'
@@ -166,19 +166,20 @@ optThres3control <- function(method.optim = c("L-BFGS-B", "BFGS", "Nelder-Mead")
 #'              data = data_3class)
 #'
 #' ### Estimate covariate-specific optimal thresholds at one point, with 3 methods
-#' out_thres_2 <- optThres3(method = c("GYI", "MV", "CtP"), out_lme2 = out2, x.val = c(1, 0),
-#'                          apVar = TRUE)
+#' out_thres_2 <- optThres3(method = c("GYI", "MV", "CtP"), out_lme2 = out2,
+#'                          newdata = data.frame(X1 = 1, X2 = 0), apVar = TRUE)
 #' print(out_thres_2)
 #' plot(out_thres_2)
 #'
 #' ### Estimate covariate-specific optimal thresholds at three points, with 3 methods
 #' out_thres_3 <- optThres3(method = c("GYI", "MV", "CtP"), out_lme2 = out2,
-#'                          x.val = rbind(c(-0.5, 0), c(0.5, 0), c(0.5, 1)), apVar = TRUE)
+#'                          newdata = data.frame(X1 = c(-0.5, 0.5, 0.5), X2 = c(0, 0, 1)),
+#'                          apVar = TRUE)
 #' print(out_thres_3)
 #' plot(out_thres_3, colors = c("forestgreen", "blue"))
 #'
 #'@export
-optThres3 <- function(method = c("GYI", "CtP", "MV"), out_lme2, x.val, apVar = TRUE,
+optThres3 <- function(method = c("GYI", "CtP", "MV"), out_lme2, newdata, apVar = TRUE,
                       data, control = list()){
   ## Check all conditions
   if(isFALSE(inherits(out_lme2, "lme2"))) stop("out_lme2 was not from lme2()!")
@@ -208,29 +209,15 @@ optThres3 <- function(method = c("GYI", "CtP", "MV"), out_lme2, x.val, apVar = T
   Method <- factor(Method, levels = c("Generalized Youden Index", "Closest to Perfection", "Max Volume"))
   ##
   if(n_p == 1){
-    if(!missing(x.val)) {
-      if(!is.null(x.val)) warning("Sepecified value(s) of covariate(s) are not used!", call. = FALSE)
+    if(!missing(newdata)) {
+      if(!is.null(newdata)) warning("Sepecified value(s) of covariate(s) are not used!", call. = FALSE)
     }
-    x.val <- NULL
-  }
-  if(n_p == 2){
-    if(missing(x.val)) stop("Please input specific value(s) of covariate.")
-    if(is.null(x.val)) stop("Please input specific value(s) of covariate.")
-    if(!inherits(x.val, "numeric")) stop("For the case of 1 covariate, please input a number or a vector.")
-    if(any(is.na(x.val))) stop("NA value(s) are not allowed!")
-  }
-  if(n_p > 2){
-    if(missing(x.val)) stop("Please input specific value(s) of covariates.")
-    if(is.null(x.val)) stop("Please input specific value(s) of covariates.")
-    n_vb <- attr(out_lme2$terms, "n_vb")
-    if(inherits(x.val, "numeric")){
-      if(length(x.val) != n_vb) stop(paste("For case of", n_vb, "covariates, please input a vector of", n_vb, "values of covariates."))
-    }
-    if(inherits(x.val, "matrix")) {
-      if(ncol(x.val) != n_vb) stop(paste("For case of m points of", n_vb, "covariates, please input a matrix with", n_vb, "columns and m rows containing values of covariates."))
-    }
-    if(any(is.na(x.val))) stop("NA value(s) not allowed!")
-    x.val <- matrix(x.val, ncol = n_vb, byrow = FALSE)
+    newdata <- NULL
+  } else {
+    if(missing(newdata)) stop("Please input a data frame including specific value(s) of covariate(s).")
+    if(is.null(newdata)) stop("Please input a data frame including specific value(s) of covariate(s).")
+    if(!inherits(newdata, "data.frame")) stop("Please input a data frame including specific value(s) of covariate(s).")
+    if(any(is.na(newdata))) stop("NA value(s) are not allowed!")
   }
   ##
   if(apVar){
@@ -250,7 +237,7 @@ optThres3 <- function(method = c("GYI", "CtP", "MV"), out_lme2, x.val, apVar = T
   fit$method <- methodtemp
   ## Check the ordering of means: mu_1 < mu_2 < mu_3
   par_model <- out_lme2$est_para
-  Z <- make_data(out_lme2, x.val, n_p)
+  Z <- make_data(out_lme2, newdata, n_p)
   res_check <- check_mu_order(Z, par_model, n_p)
   if(all(res_check$status == 0))
     stop("The assumption of montone ordering DOES NOT hold for all the value(s) of the covariate(s)")
@@ -262,18 +249,19 @@ optThres3 <- function(method = c("GYI", "CtP", "MV"), out_lme2, x.val, apVar = T
   }
   Z <- res_check$Z_new
   ##
-  if(n_p == 1){# no covariate
+  if(n_p == 1){# without covariate
+    fit$newdata <- newdata
     n_x <- 1
     temp_thres <- temp_tcfs <- list()
     for(i in 1:n_x){
-      out <- optThres3_core(method = methodtemp, para = par_model, z = Z, n_p = n_p,
+      out <- optThres3_core(method = methodtemp, para = par_model, z = Z[[i]], n_p = n_p,
                             n_coef = n_coef, boxcox = out_lme2$boxcox, start = controlvals$start,
                             method.optim = controlvals$method.optim, maxit = controlvals$maxit,
                             lower = controlvals$lower, upper = controlvals$upper)
       temp_thres[[i]] <- data.frame(t(sapply(out, function(x) x[c("threshold_1", "threshold_2")])),
                                     Method = Method, row.names = NULL)
       temp_tcfs[[i]] <- t(mapply(function(x, y){
-        TCF_normal(par = par_model, z = Z, thresholds = c(x, y), n_p = n_p, boxcox = out_lme2$boxcox)
+        TCF_normal(par = par_model, z = Z[[i]], thresholds = c(x, y), n_p = n_p, boxcox = out_lme2$boxcox)
       }, x = temp_thres[[i]]$threshold_1, y = temp_thres[[i]]$threshold_2))
     }
     if(apVar){
@@ -281,21 +269,21 @@ optThres3 <- function(method = c("GYI", "CtP", "MV"), out_lme2, x.val, apVar = T
       fit$vcov.thres3 <- list()
       for(i in 1:n_x){
         out_var <- optThres3_se(method = methodtemp, thres_est = temp_thres[[i]], out_lme2 = out_lme2,
-                                z = Z, n_p = n_p, n_coef = n_coef, bootstrap = bootstrap, nR = controlvals$nR,
-                                data = data, parallel = controlvals$parallel, ncpus = controlvals$ncpus,
-                                start = controlvals$start, method.optim = controlvals$method.optim,
-                                maxit = controlvals$maxit, lower = controlvals$lower,
-                                upper = controlvals$upper)
+                                z = Z[[i]], n_p = n_p, n_coef = n_coef, bootstrap = bootstrap,
+                                nR = controlvals$nR, data = data, parallel = controlvals$parallel,
+                                ncpus = controlvals$ncpus, start = controlvals$start,
+                                method.optim = controlvals$method.optim, maxit = controlvals$maxit,
+                                lower = controlvals$lower, upper = controlvals$upper)
         fit$vcov.thres3[[i]] <- out_var
         se_thres3 <- t(sapply(out_var, function(x) sqrt(diag(x))))
         temp_se_thres[[i]] <- data.frame(threshold_1 = se_thres3[,1], threshold_2 = se_thres3[,2],
                                          Method = Method, row.names = NULL)
       }
     }
-  }
-  if(n_p == 2){
-    x.val <- x.val[res_check$status != 0]
-    n_x <- length(x.val)
+  } else {
+    fit$newdata <- as.data.frame(newdata[res_check$status != 0,])
+    names(fit$newdata) <- names(newdata)
+    n_x <- nrow(fit$newdata)
     temp_thres <- temp_tcfs <- list()
     for(i in 1:n_x){
       out <- optThres3_core(method = methodtemp, para = par_model, z = Z[[i]], n_p = n_p,
@@ -303,7 +291,7 @@ optThres3 <- function(method = c("GYI", "CtP", "MV"), out_lme2, x.val, apVar = T
                             method.optim = controlvals$method.optim, maxit = controlvals$maxit,
                             lower = controlvals$lower, upper = controlvals$upper)
       temp_thres[[i]] <- data.frame(t(sapply(out, function(x) x[c("threshold_1", "threshold_2")])),
-                                    Method = Method, x = x.val[i], row.names = NULL)
+                                    Method = Method, x = fit$newdata[i,], row.names = NULL)
       temp_tcfs[[i]] <- t(mapply(function(x, y){
         TCF_normal(par = par_model, z = Z[[i]], thresholds = c(x, y), n_p = n_p, boxcox = out_lme2$boxcox)
       }, x = temp_thres[[i]]$threshold_1, y = temp_thres[[i]]$threshold_2))
@@ -323,45 +311,10 @@ optThres3 <- function(method = c("GYI", "CtP", "MV"), out_lme2, x.val, apVar = T
         fit$vcov.thres3[[i]] <- out_var
         se_thres3 <- t(sapply(out_var, function(x) sqrt(diag(x))))
         temp_se_thres[[i]] <- data.frame(threshold_1 = se_thres3[,1], threshold_2 = se_thres3[,2],
-                                         Method = Method, x = x.val[i], row.names = NULL)
+                                         Method = Method, x = fit$newdata[i,], row.names = NULL)
       }
     }
   }
-  if(n_p > 2){ # multiple covariates
-    x.val <- matrix(x.val[res_check$status != 0,], ncol = n_vb, byrow = FALSE)
-    n_x <- nrow(x.val)
-    temp_thres <- temp_tcfs <- list()
-    for(i in 1:n_x){
-      out <- optThres3_core(method = methodtemp, para = par_model, z = Z[[i]], n_p = n_p,
-                            n_coef = n_coef, boxcox = out_lme2$boxcox, start = controlvals$start,
-                            method.optim = controlvals$method.optim, maxit = controlvals$maxit,
-                            lower = controlvals$lower, upper = controlvals$upper)
-      temp_thres[[i]] <- data.frame(t(sapply(out, function(x) x[c("threshold_1", "threshold_2")])),
-                                    Method = Method, x = t(x.val[i,]), row.names = NULL)
-      temp_tcfs[[i]] <- t(mapply(function(x, y){
-        TCF_normal(par = par_model, z = Z[[i]], thresholds = c(x, y), n_p = n_p, boxcox = out_lme2$boxcox)
-      }, x = temp_thres[[i]]$threshold_1, y = temp_thres[[i]]$threshold_2))
-    }
-    if(apVar){
-      temp_se_thres <- list()
-      fit$vcov.thres3 <- list()
-      for(i in 1:n_x){
-        out_var <- optThres3_se(method = methodtemp, thres_est = temp_thres[[i]],
-                                out_lme2 = out_lme2, z = Z[[i]], n_p = n_p,
-                                n_coef = n_coef, bootstrap = bootstrap, nR = controlvals$nR,
-                                data = data, parallel = controlvals$parallel,
-                                ncpus = controlvals$ncpus, start = controlvals$start,
-                                method.optim = controlvals$method.optim,
-                                maxit = controlvals$maxit, lower = controlvals$lower,
-                                upper = controlvals$upper)
-        fit$vcov.thres3[[i]] <- out_var
-        se_thres3 <- t(sapply(out_var, function(x) sqrt(diag(x))))
-        temp_se_thres[[i]] <- data.frame(threshold_1 = se_thres3[,1], threshold_2 = se_thres3[,2],
-                                         Method = Method, x = t(x.val[i,]), row.names = NULL)
-      }
-    }
-  }
-  fit$x.val <- x.val
   fit$n_p <- n_p
   fit$thres3 <- do.call(rbind, temp_thres)
   fit$tcfs <- do.call(rbind, temp_tcfs)
@@ -400,13 +353,13 @@ plot.optThres3 <- function(x, ci.level = 0.95, colors = NULL, xlims, ylims, size
     if(missing(names.labels)) names.labels <- " "
   }
   if(x$n_p == 2) {
-    n_x <- length(x$x.val)
-    labels <- x$x.val
+    n_x <- nrow(x$newdata)
+    labels <- apply(x$newdata, 1, function(y) paste0(y))
     if(missing(names.labels)) names.labels <- "Value(s) of covariate:"
   }
   if(x$n_p > 2) {
-    n_x <- nrow(x$x.val)
-    labels <- apply(x$x.val, 1, function(y) paste0("(", paste(y, collapse = ", "), ")"))
+    n_x <- nrow(x$newdata)
+    labels <- apply(x$newdata, 1, function(y) paste0("(", paste(y, collapse = ", "), ")"))
     if(missing(names.labels)) names.labels <- "Value(s) of covariates:"
   }
   dt_thres <- x$thres3[, 1:3]
@@ -505,10 +458,10 @@ print.optThres3 <- function(x, digits = 3, call = TRUE, ...){
     labels <- "Intercept"
   }
   if(x$n_p == 2) {
-    labels <- rep(format(x$x.val), each = n_method)
+    labels <- rep(apply(x$newdata, 1, function(y) paste0(y)), each = n_method)
   }
   if(x$n_p > 2) {
-    labels <- rep(apply(x$x.val, 1, function(y) paste0("(", paste(y, collapse = ", "), ")")), each = n_method)
+    labels <- rep(apply(x$newdata, 1, function(y) paste0("(", paste(y, collapse = ", "), ")")), each = n_method)
   }
   infer_tab <- data.frame(labels, x$thres3$Method, x$thres3$threshold_1, x$thres3$threshold_2, x$tcfs[,1],
                           x$tcfs[,2], x$tcfs[,3])
