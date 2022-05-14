@@ -4,18 +4,18 @@
 \alias{VUS}
 \title{Estimation of the covariate-specific VUS for clustered data.}
 \usage{
-VUS(out_lme2, x.val, apVar = TRUE, subdivisions = 1000, ...)
+VUS(out_lme2, newdata, apVar = TRUE, subdivisions = 1000, ...)
 }
 \arguments{
 \item{out_lme2}{an object of class "lme2", a result of \code{\link{lme2}} call.}
 
-\item{x.val}{specific value(s) of covariate(s) where the optimal pair of thresholds are estimated. In absence of covariate, no values have to be specified. In case of one covariate, \code{x.val} should be a number. In case of \eqn{p} covariates (\eqn{p > 1}), \code{x.val} should be a vector containing \eqn{p} values; or a matrix with \eqn{p} columns and \eqn{m} rows containing values of the covariates if the user wants to estimate at \eqn{m} points.}
+\item{newdata}{a data frame (containing specific value(s) of covariate(s)) in which to look for variables with which to estimate covariate-specific VUS. In absence of covariate, no values have to be specified.}
 
 \item{apVar}{logical value. If set to \code{TRUE} (default), the standard error for (estimated) covariate-specific VUS are estimated.}
 
 \item{subdivisions}{the maximum number of subintervals used to approximate integral. Default is 1000.}
 
-\item{...}{additional arguments to be passed to \code{\link[stats]{integrate}}}
+\item{...}{additional arguments to be passed to \code{\link[stats]{integrate}}.}
 }
 \value{
 \code{VUS} returns an object of class "VUS" which is a list containing at least the following components:
@@ -24,7 +24,7 @@ VUS(out_lme2, x.val, apVar = TRUE, subdivisions = 1000, ...)
 \item{vus_est}{a vector containing the estimated covariate-specific VUS.}
 \item{vus_se}{a vector containing the standard errors.}
 \item{mess_order}{a diagnostic message from checking the monontone ordering.}
-\item{x.val}{value(s) of covariate(s).}
+\item{newdata}{value(s) of covariate(s).}
 \item{n_p}{total number of regressors in the model.}
 
 Generic functions such as \code{print} is also used to show the results.
@@ -44,11 +44,11 @@ out1 <- lme2(fixed.formula = Y ~ X1, name.class = "D", name.clust = "id_Clus",
              data = data_3class)
 
 ### Estimate covariate-specific VUS at one value of one covariate
-out_vus1 <- VUS(out1, x.val = 0.5)
+out_vus1 <- VUS(out1, newdata = data.frame(X1 = 0.5))
 ci_VUS(out_vus1, ci.level = 0.95)
 
 ### Estimate covariate-specific VUS at multiple values of one covariate
-out_vus2 <- VUS(out1, x.val = c(-0.5, 0, 0.5))
+out_vus2 <- VUS(out1, newdata = data.frame(X1 = c(-0.5, 0, 0.5)))
 ci_VUS(out_vus2, ci.level = 0.95)
 
 ## Two covariates
@@ -56,11 +56,11 @@ out2 <- lme2(fixed.formula = Y ~ X1 + X2, name.class = "D", name.clust = "id_Clu
              data = data_3class)
 
 ### Estimate covariate-specific VUS at one point
-out_vus3 <- VUS(out2, x.val = c(1.5, 1))
+out_vus3 <- VUS(out2, newdata = data.frame(X1 = 1.5, X2 = 1))
 ci_VUS(out_vus3, ci.level = 0.95)
 
 ### Estimate covariate-specific VUS at three points
-out_vus4 <- VUS(out2, x.val = rbind(c(-0.5, 0), c(0.5, 0), c(0.5, 1)))
+out_vus4 <- VUS(out2, newdata = data.frame(X1 = c(-0.5, 0.5, 0.5), X2 = c(0, 0, 1)))
 ci_VUS(out_vus4, ci.level = 0.95)
 
 }
