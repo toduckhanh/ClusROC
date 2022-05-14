@@ -102,10 +102,10 @@ vus_se <- function(par, vcov_par_model, z, n_p, n_c, n_k, n, p.sss, p.ssk, p.sks
 #' @description This function estimates the covariate-specific VUS of a continuous diagnostic test in the setting of clustered data as described in Xiong et al. (2018). This function allows to estimate covariate-specific VUS at multiple points for covariates.
 #'
 #' @param out_lme2  an object of class "lme2", a result of \code{\link{lme2}} call.
-#' @param x.val  specific value(s) of covariate(s) where the optimal pair of thresholds are estimated. In absence of covariate, no values have to be specified. In case of one covariate, \code{x.val} should be a number. In case of \eqn{p} covariates (\eqn{p > 1}), \code{x.val} should be a vector containing \eqn{p} values; or a matrix with \eqn{p} columns and \eqn{m} rows containing values of the covariates if the user wants to estimate at \eqn{m} points.
+#' @param newdata   a data frame (containing specific value(s) of covariate(s)) in which to look for variables with which to estimate covariate-specific VUS. In absence of covariate, no values have to be specified.
 #' @param apVar  logical value. If set to \code{TRUE} (default), the standard error for (estimated) covariate-specific VUS are estimated.
 #' @param subdivisions  the maximum number of subintervals used to approximate integral. Default is 1000.
-#' @param ...  additional arguments to be passed to \code{\link[stats]{integrate}}
+#' @param ...  additional arguments to be passed to \code{\link[stats]{integrate}}.
 #'
 #' @details
 #' This function implements a method in Xiong et al. (2018) for estimating covariate-specific VUS of a continuous diagnostic test in a clustered design with three ordinal groups. The estimator is based on results from \code{\link{lme2}}, which uses the REML approach. The standard error of the estimated covariate-specific VUS is approximated through the Delta method.
@@ -119,7 +119,7 @@ vus_se <- function(par, vcov_par_model, z, n_p, n_c, n_k, n, p.sss, p.ssk, p.sks
 #' \item{vus_est}{a vector containing the estimated covariate-specific VUS.}
 #' \item{vus_se}{a vector containing the standard errors.}
 #' \item{mess_order}{a diagnostic message from checking the monontone ordering.}
-#' \item{x.val}{value(s) of covariate(s).}
+#' \item{newdata}{value(s) of covariate(s).}
 #' \item{n_p}{total number of regressors in the model.}
 #'
 #' Generic functions such as \code{print} is also used to show the results.
@@ -137,11 +137,11 @@ vus_se <- function(par, vcov_par_model, z, n_p, n_c, n_k, n, p.sss, p.ssk, p.sks
 #'              data = data_3class)
 #'
 #' ### Estimate covariate-specific VUS at one value of one covariate
-#' out_vus1 <- VUS(out1, x.val = 0.5)
+#' out_vus1 <- VUS(out1, newdata = data.frame(X1 = 0.5))
 #' ci_VUS(out_vus1, ci.level = 0.95)
 #'
 #' ### Estimate covariate-specific VUS at multiple values of one covariate
-#' out_vus2 <- VUS(out1, x.val = c(-0.5, 0, 0.5))
+#' out_vus2 <- VUS(out1, newdata = data.frame(X1 = c(-0.5, 0, 0.5)))
 #' ci_VUS(out_vus2, ci.level = 0.95)
 #'
 #' ## Two covariates
@@ -149,47 +149,32 @@ vus_se <- function(par, vcov_par_model, z, n_p, n_c, n_k, n, p.sss, p.ssk, p.sks
 #'              data = data_3class)
 #'
 #' ### Estimate covariate-specific VUS at one point
-#' out_vus3 <- VUS(out2, x.val = c(1.5, 1))
+#' out_vus3 <- VUS(out2, newdata = data.frame(X1 = 1.5, X2 = 1))
 #' ci_VUS(out_vus3, ci.level = 0.95)
 #'
 #' ### Estimate covariate-specific VUS at three points
-#' out_vus4 <- VUS(out2, x.val = rbind(c(-0.5, 0), c(0.5, 0), c(0.5, 1)))
+#' out_vus4 <- VUS(out2, newdata = data.frame(X1 = c(-0.5, 0.5, 0.5), X2 = c(0, 0, 1)))
 #' ci_VUS(out_vus4, ci.level = 0.95)
 #'
 #' @export
-VUS <- function(out_lme2, x.val, apVar = TRUE, # ci = FALSE, ci.level = ifelse(ci, 0.95, NULL),
+VUS <- function(out_lme2, newdata, apVar = TRUE, # ci = FALSE, ci.level = ifelse(ci, 0.95, NULL),
                 subdivisions = 1000, ...){
   ## Check all conditions
   if(isFALSE(inherits(out_lme2, "lme2"))) stop("out_lme2 was not from lme2()!")
   n_p <- out_lme2$n_p
   if(out_lme2$n_coef/n_p != 3) stop("There is not a case of three-class setting!")
   if(n_p == 1){
-    if(!missing(x.val)) {
-      if(!is.null(x.val)) warning("Sepecified value(s) of covariate(s) are not used!", call. = FALSE)
+    if(!missing(newdata)) {
+      if(!is.null(newdata)) warning("Sepecified value(s) of covariate(s) are not used!", call. = FALSE)
     }
-    x.val <- NULL
-  }
-  if(n_p == 2){
-    if(missing(x.val)) stop("Please input specific value(s) of covariate.")
-    if(is.null(x.val)) stop("Please input specific value(s) of covariate.")
-    if(!inherits(x.val, "numeric")) stop("For the case of 1 covariate, please input a number or a vector.")
-    if(any(is.na(x.val))) stop("NA value(s) are not allowed!")
-  }
-  if(n_p > 2){
-    if(missing(x.val)) stop("Please input specific value(s) of covariates.")
-    if(is.null(x.val)) stop("Please input specific value(s) of covariates.")
-    n_vb <- attr(out_lme2$terms, "n_vb")
-    if(inherits(x.val, "numeric")){
-      if(length(x.val) != n_vb) stop(paste("For case of", n_vb, "covariates, please input a vector of", n_vb, "values of covariates."))
-    }
-    if(inherits(x.val, "matrix")) {
-      if(ncol(x.val) != n_vb) stop(paste("For case of m points of", n_vb, "covariates, please input a matrix with", n_vb, "columns and m rows containing values of covariates."))
-    }
-    if(any(is.na(x.val))) stop("NA value(s) not allowed!")
-    x.val <- matrix(x.val, ncol = n_vb, byrow = FALSE)
+    newdata <- NULL
+  } else {
+    if(missing(newdata)) stop("Please input a data frame including specific value(s) of covariate(s).")
+    if(is.null(newdata)) stop("Please input a data frame including specific value(s) of covariate(s).")
+    if(!inherits(newdata, "data.frame")) stop("Please input a data frame including specific value(s) of covariate(s).")
+    if(any(is.na(newdata))) stop("NA value(s) are not allowed!")
   }
   ##
-  # if(isFALSE(apVar) & ci) stop("Confidence intervals cannot computed without option of apVar!")
   if(apVar){
     if(is.null(out_lme2$vcov_sand)) stop("The estimated covariance matrix of parameters was missing!")
     if(any(is.na(out_lme2$vcov_sand))) stop("There are NA values in the estimated covariance matrix of parameters. Unable to estimate standard error.")
@@ -222,7 +207,7 @@ VUS <- function(out_lme2, x.val, apVar = TRUE, # ci = FALSE, ci.level = ifelse(c
   }
   p.skk <- p.sks <- p.ssk
   par <- out_lme2$est_para[1:(out_lme2$n_coef + 4)]
-  Z <- make_data(out_lme2, x.val, n_p)
+  Z <- make_data(out_lme2, newdata, n_p)
   ## Check the ordering of means: mu_1 < mu_2 < mu_3
   res_check <- check_mu_order(Z, par, n_p)
   if(all(res_check$status == 0))
@@ -235,43 +220,28 @@ VUS <- function(out_lme2, x.val, apVar = TRUE, # ci = FALSE, ci.level = ifelse(c
   }
   Z <- res_check$Z_new
   ##
-  if(n_p == 1){ # no covariate
-    fit$x.val <- x.val
-    fit$vus_est <- vus_core(par = par, z = Z, n_p = n_p, n_c = n_c, n_k = n_k, n = n, p.sss = p.sss,
+  if(n_p == 1){ # without covariate
+    fit$newdata <- newdata
+    fit$vus_est <- vus_core(par = par, z = Z[[1]], n_p = n_p, n_c = n_c, n_k = n_k, n = n, p.sss = p.sss,
                             p.ssk = p.ssk, p.sks = p.sks, p.skk = p.skk, p.ijk = p.ijk,
                             subdivisions = subdivisions, ...)
     if(apVar){
-      fit$vus_se <- vus_se(par = par, vcov_par_model = vcov_par_model, z = Z, n_p = n_p, n_c = n_c,
+      fit$vus_se <- vus_se(par = par, vcov_par_model = vcov_par_model, z = Z[[1]], n_p = n_p, n_c = n_c,
                            n_k = n_k, n = n, p.sss = p.sss, p.ssk = p.ssk, p.sks = p.sks, p.skk = p.skk,
                            p.ijk = p.ijk)
     }
-  }
-  if(n_p == 2){ # 1 covariate
-    fit$x.val <- x.val[res_check$status != 0]
-    # vus_core_vector <- Vectorize(vus_core, vectorize.args = "x.val")
+  } else { # with covariate
+    fit$newdata <- as.data.frame(newdata[res_check$status != 0,])
+    names(fit$newdata) <- names(newdata)
     fit$vus_est <- sapply(Z, function(x){
       vus_core(par = par, z = x, n_p = n_p, n_c = n_c, n_k = n_k, n = n, p.sss = p.sss, p.ssk = p.ssk,
                p.sks = p.sks, p.skk = p.skk, p.ijk = p.ijk, subdivisions = subdivisions, ...)
       })
     if(apVar){
-     # vus_se_vector <- Vectorize(vus_se, vectorize.args = "x.val")
       fit$vus_se <- sapply(Z, function(x){
         vus_se(par = par, vcov_par_model = vcov_par_model, z = x, n_p = n_p, n_c = n_c, n_k = n_k, n = n,
                p.sss = p.sss, p.ssk = p.ssk, p.sks = p.sks, p.skk = p.skk, p.ijk = p.ijk)
         })
-    }
-  }
-  if(n_p > 2){ # multiple covariates
-    fit$x.val <- matrix(x.val[res_check$status != 0,], ncol = n_vb, byrow = FALSE)
-    fit$vus_est <- sapply(Z, function(x){
-      vus_core(par = par, z = x, n_p = n_p, n_c = n_c, n_k = n_k, n = n, p.sss = p.sss, p.ssk = p.ssk,
-               p.sks = p.sks, p.skk = p.skk, p.ijk = p.ijk, subdivisions = subdivisions, ...)
-    })
-    if(apVar){
-      fit$vus_se <- sapply(Z, function(x){
-        vus_se(par = par, vcov_par_model = vcov_par_model, z = x, n_p = n_p, n_c = n_c, n_k = n_k, n = n,
-               p.sss = p.sss, p.ssk = p.ssk, p.sks = p.sks, p.skk = p.skk, p.ijk = p.ijk)
-      })
     }
   }
   fit$n_p <- n_p
@@ -295,7 +265,7 @@ VUS <- function(out_lme2, x.val, apVar = TRUE, # ci = FALSE, ci.level = ifelse(c
 #' \item{vus_ci_log}{the confidence interval for covariate-specific VUS, after using logit-transformation.}
 #' \item{vus_ci_prob}{the confidence interval for covariate-specific VUS, after using probit-transformation.}
 #' \item{ci.level}{fixed confidence level.}
-#' \item{x.val}{value(s) of covariate(s).}
+#' \item{newdata}{value(s) of covariate(s).}
 #' \item{n_p}{total numbers of the regressors in the model.}
 #'
 #' @seealso \code{\link{VUS}}
@@ -359,7 +329,7 @@ ci_VUS <- function(x, ci.level = 0.95){
   }
   fit$ci.level <- ci.level
   fit$n_p <- n_p
-  fit$x.val <- x$x.val
+  fit$newdata <- x$newdata
   class(fit) <- "ci_VUS"
   return(fit)
 }
@@ -393,10 +363,10 @@ print.VUS <- function(x, digits = 3, call = TRUE, ...){
     labels <- "Intercept"
   }
   if(x$n_p == 2) {
-    labels <- as.character(x$x.val)
+    labels <- apply(x$newdata, 1, function(y) paste0(y))
   }
   if(x$n_p > 2) {
-    labels <- apply(x$x.val, 1, function(y) paste0("(", paste(y, collapse = ", "), ")"))
+    labels <- apply(x$newdata, 1, function(y) paste0("(", paste(y, collapse = ", "), ")"))
   }
   if(!is.null(x$vus_se)){
     z <- (x$vus_est - rep(1/6, length(x$vus_est)))/x$vus_se
@@ -417,15 +387,12 @@ print.VUS <- function(x, digits = 3, call = TRUE, ...){
     print(infer_tab, quote = FALSE, right = TRUE, na.print = "--", row.names = FALSE, ...)
     cat("---\nSignif. codes:  ", sleg, sep = "",
         fill = getOption("width") + 4 + max(nchar(sleg, "bytes") - nchar(sleg)))
-    cat("z-value and p-value are for testing the null hypothesis H0: VUS = 1/6 \n")
-    # rownames(infer_tab) <- labels
-    # printCoefmat(infer_tab, has.Pvalue = TRUE, digits = digits, na.print = "--") # cs.ind = 2:3, tst.ind = 4,
+    cat("z-value and p-value are for testing the null hypothesis H0: VUS = 1/6 vs H1: VUS > 1/6 \n")
   }
   else{
     infer_tab <- data.frame(labels, x$vus_est)
     infer_tab[,2] <- signif(infer_tab[,2], digits = digits)
     colnames(infer_tab) <- c("Covariates Values", "Est.")
-    # rownames(infer_tab) <- labels
     cat("Covariate-specific VUS: \n")
     print(infer_tab, quote = FALSE, right = TRUE, na.print = "--", row.names = FALSE, ...)
   }
@@ -454,10 +421,10 @@ print.ci_VUS <- function(x, digits = 3, ...){
     labels <- "Intercept"
   }
   if(x$n_p == 2) {
-    labels <- as.character(x$x.val)
+    labels <- apply(x$newdata, 1, function(y) paste0(y))
   }
   if(x$n_p > 2) {
-    labels <- apply(x$x.val, 1, function(y) paste0("(", paste(y, collapse = ", "), ")"))
+    labels <- apply(x$newdata, 1, function(y) paste0("(", paste(y, collapse = ", "), ")"))
   }
   ci.tab <- cbind(x$vus_ci_norm, x$vus_ci_log, x$vus_ci_prob)
   ci.tab <- format(round(ci.tab, digits = digits))
