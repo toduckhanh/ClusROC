@@ -1,7 +1,7 @@
 Package: ClusROC
 Type: Package
 Title: ROC analysis in three-class classification problems for clustered data
-Date: 2022-04-28
+Date: 2022-05-12
 Version: 1.0.1
 Author: Duc-Khanh To [aut, cre] (<https://orcid.org/0000-0002-4641-0764>),
   Gianfranco Adimari [ctb],
