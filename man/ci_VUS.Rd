@@ -18,7 +18,7 @@ ci_VUS(x, ci.level = 0.95)
 \item{vus_ci_log}{the confidence interval for covariate-specific VUS, after using logit-transformation.}
 \item{vus_ci_prob}{the confidence interval for covariate-specific VUS, after using probit-transformation.}
 \item{ci.level}{fixed confidence level.}
-\item{x.val}{value(s) of covariate(s).}
+\item{newdata}{value(s) of covariate(s).}
 \item{n_p}{total numbers of the regressors in the model.}
 }
 \description{
