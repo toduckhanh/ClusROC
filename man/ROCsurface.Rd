@@ -6,7 +6,7 @@
 \usage{
 ROCsurface(
   out_lme2,
-  x.val,
+  newdata,
   step.tcf = 0.01,
   main = NULL,
   file.name = NULL,
@@ -18,7 +18,7 @@ ROCsurface(
 \arguments{
 \item{out_lme2}{an object of class "lme2", a result of \code{\link{lme2}} call.}
 
-\item{x.val}{specific value(s) of covariate(s) where the ROC surface is estimated. In absence of covariate, no values have to be specified. In case of one covariate, \code{x.val} should be a number. In case of \eqn{p} covariates (\eqn{p > 1}), \code{x.val} should be a vector containing \eqn{p} values.}
+\item{newdata}{a data frame with 1 row (containing specific value(s) of covariate(s)) in which to look for variables with which to estimate covariate-specific ROC. In absence of covariate, no values have to be specified.}
 
 \item{step.tcf}{number: increment to be used in the grid for \eqn{p1 = tcf1} and \eqn{p3 = tcf3}.}
 
@@ -53,20 +53,22 @@ out1 <- lme2(fixed.formula = Y ~ X1, name.class = "D", name.clust = "id_Clus",
              data = data_3class)
 
 ### plot only covariate-specific ROC surface
-ROCsurface(out_lme2 = out1, x.val = 1)
+ROCsurface(out_lme2 = out1, newdata = data.frame(X1 = 1))
 
 ### plot covariate-specific ROC surface and a 95\% ellipsoidal confidence region for TCFs
-ROCsurface(out_lme2 = out1, x.val = 1, ellips = TRUE, thresholds = c(0.9, 3.95))
+ROCsurface(out_lme2 = out1, newdata = data.frame(X1 = 1), ellips = TRUE,
+           thresholds = c(0.9, 3.95))
 
 ## Two covariates
 out2 <- lme2(fixed.formula = Y ~ X1 + X2, name.class = "D", name.clust = "id_Clus",
              data = data_3class)
 
 ### plot only covariate-specific ROC surface
-ROCsurface(out_lme2 = out2, x.val = c(1, 1))
+ROCsurface(out_lme2 = out2, newdata = data.frame(X1 = 1, X2 = 1))
 
 ### plot covariate-specific ROC surface and a 95\% ellipsoidal confidence region for TCFs
-ROCsurface(out_lme2 = out2, x.val = c(1, 1), ellips = TRUE, thresholds = c(0.9, 3.95))
+ROCsurface(out_lme2 = out2, newdata = data.frame(X1 = 1, X2 = 1), ellips = TRUE,
+           thresholds = c(0.9, 3.95))
 }
 
 }
