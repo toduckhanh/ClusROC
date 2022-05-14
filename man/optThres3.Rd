@@ -7,7 +7,7 @@
 optThres3(
   method = c("GYI", "CtP", "MV"),
   out_lme2,
-  x.val,
+  newdata,
   apVar = TRUE,
   data,
   control = list()
@@ -18,7 +18,7 @@ optThres3(
 
 \item{out_lme2}{an object of class "lme2", i.e., a result of \code{\link{lme2}} call.}
 
-\item{x.val}{specific value(s) of covariate(s) where the optimal pair of thresholds are estimated. In absence of covariate, no values have to be specified. In case of one covariate, \code{x.val} should be a number. In case of \eqn{p} covariates (\eqn{p > 1}), \code{x.val} should be a vector containing \eqn{p} values; or a matrix with \eqn{p} columns and \eqn{m} rows containing values of the covariates if the user wants to estimate at \eqn{m} points.}
+\item{newdata}{a data frame (containing specific value(s) of covariate(s)) in which to look for variables with which to estimate covariate-specific optimal pair of thresholds. In absence of covariate, no values have to be specified.}
 
 \item{apVar}{logical value. If set to \code{TRUE}, the variance-covariance matrix of (estimated) covariate-specific optimal thresholds is estimated.}
 
@@ -36,7 +36,7 @@ optThres3(
 \item{vcov.thres3}{a matrix or list of matrices containing the estimated variance-covariance matrices.}
 \item{tcfs}{a vector or matrix containing the estimated TCFs at the optimal thresholds.}
 \item{mess_order}{a diagnostic message from checking the monontone ordering.}
-\item{x.val}{value(s) of covariate(s).}
+\item{newdata}{value(s) of covariate(s).}
 \item{n_p}{total number of regressors in the model.}
 
 Generic functions such as \code{print} and \code{plot} are also used to show the results.
@@ -72,8 +72,8 @@ out1 <- lme2(fixed.formula = Y ~ X1, name.class = "D", name.clust = "id_Clus",
 
 ### Estimate covariate-specific optimal thresholds at multiple values of one covariate,
 ### with 3 methods
-out_thres_1 <- optThres3(method = c("GYI", "MV", "CtP"), out_lme2 = out1, x.val = 1,
-                         apVar = TRUE)
+out_thres_1 <- optThres3(method = c("GYI", "MV", "CtP"), out_lme2 = out1,
+                         newdata = data.frame(X1 = 1), apVar = TRUE)
 print(out_thres_1)
 plot(out_thres_1)
 
@@ -82,14 +82,15 @@ out2 <- lme2(fixed.formula = Y ~ X1 + X2, name.class = "D", name.clust = "id_Clu
              data = data_3class)
 
 ### Estimate covariate-specific optimal thresholds at one point, with 3 methods
-out_thres_2 <- optThres3(method = c("GYI", "MV", "CtP"), out_lme2 = out2, x.val = c(1, 0),
-                         apVar = TRUE)
+out_thres_2 <- optThres3(method = c("GYI", "MV", "CtP"), out_lme2 = out2,
+                         newdata = data.frame(X1 = 1, X2 = 0), apVar = TRUE)
 print(out_thres_2)
 plot(out_thres_2)
 
 ### Estimate covariate-specific optimal thresholds at three points, with 3 methods
 out_thres_3 <- optThres3(method = c("GYI", "MV", "CtP"), out_lme2 = out2,
-                         x.val = rbind(c(-0.5, 0), c(0.5, 0), c(0.5, 1)), apVar = TRUE)
+                         newdata = data.frame(X1 = c(-0.5, 0.5, 0.5), X2 = c(0, 0, 1)),
+                         apVar = TRUE)
 print(out_thres_3)
 plot(out_thres_3, colors = c("forestgreen", "blue"))
 
