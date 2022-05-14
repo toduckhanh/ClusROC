@@ -214,15 +214,21 @@ lme2 <- function(fixed.formula, name.class, name.clust, data, levl.class = NULL,
   if(missing(name.class)) stop("argument name.class is missing with no default")
   if(!inherits(name.class, "character") || length(name.class) != 1)
     stop("agrument name.class must be a character vector with length 1.")
+  if(!is.element(name.class, names(data)))
+    stop(paste("Could not find name.class:", name.class, "in the input data."))
   if(missing(name.clust)) stop("argument name.clust is missing with no default")
   if(!inherits(name.clust, "character") || length(name.clust) != 1)
     stop("agrument name.clust must be a character vector with length 1.")
+  if(!is.element(name.clust, names(data)))
+    stop(paste("Could not find name.clust:", name.clust, "in the input data."))
+  ##
   n_class <- length(table(data[, name.class]))
   if(n_class != 3) stop("There is not a case of three-class setting!")
   mf <- unlist(strsplit(as.character(fixed.formula), "~"))[-1]
   name.test <- mf[1]
   if(boxcox){
-    if(any(data[, name.test] < 0)) stop("Cannot apply Box-Cox transform for negative values.")
+    if(any(model.extract(model.frame(fixed.formula, data), "response") < 0))
+      stop("Cannot apply Box-Cox transform for negative values.")
   }
   form.mean <- as.formula(paste(name.test, "~", name.class))
   mean.temp <- aggregate(form.mean, FUN = mean, data = data)
@@ -262,14 +268,19 @@ lme2 <- function(fixed.formula, name.class, name.clust, data, levl.class = NULL,
   fit$name.class <- name.class
   fit$name.clust <- name.clust
   fixed <- as.formula(paste(name.test, "~", name.class, "+", "(", name.covars, ")", ":", name.class, "-1"))
-                            # paste0(name.covars, ":", name.class, collapse = " + "), "- 1"))
   fit$name.covars <- name.covars
   random <- as.formula(paste("~", "1|", name.clust))
   form.weights <- as.formula(paste("~", "1|", name.class))
   weights <- varIdent(form = form.weights)
+  ##
+  md.frame <- model.frame(fixed, data)
+  md.frame[, name.class] <- factor(md.frame[, name.class], levels = levl.class)
   fit$terms <- terms(fixed)
+  xx <- model.matrix(fit$terms, md.frame, contrasts.arg = NULL)
   attr(fit$terms, "levl.class") <- levl.class
   attr(fit$terms, "n_vb") <- length(as.character(attr(fit$terms, "variables"))[-c(1:3)])
+  attr(fit$terms, "xlevels") <- .getXlevels(fit$terms, md.frame)
+  attr(fit$terms, "contrasts") <- attr(xx, "contrasts")
   n <- nrow(data)
   Clus <- model.frame(getGroupsFormula(random), data = data)[,1]
   n_c <- table(Clus)
