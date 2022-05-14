@@ -25,7 +25,7 @@ shade.ellips <- function(orgi, sig, lev){
 #' @description \code{ROCsurface} estimates and makes a 3D plot of a covariate-specific ROC surface for a continuous diagnostic test, in a clustered design, with three ordinal groups.
 #'
 #' @param out_lme2  an object of class "lme2", a result of \code{\link{lme2}} call.
-#' @param x.val  specific value(s) of covariate(s) where the ROC surface is estimated. In absence of covariate, no values have to be specified. In case of one covariate, \code{x.val} should be a number. In case of \eqn{p} covariates (\eqn{p > 1}), \code{x.val} should be a vector containing \eqn{p} values.
+#' @param newdata  a data frame with 1 row (containing specific value(s) of covariate(s)) in which to look for variables with which to estimate covariate-specific ROC. In absence of covariate, no values have to be specified.
 #' @param step.tcf  number: increment to be used in the grid for \eqn{p1 = tcf1} and \eqn{p3 = tcf3}.
 #' @param main  the main title for plot.
 #' @param file.name  	File name to create on disk.
@@ -57,46 +57,42 @@ shade.ellips <- function(orgi, sig, lev){
 #'              data = data_3class)
 #'
 #' ### plot only covariate-specific ROC surface
-#' ROCsurface(out_lme2 = out1, x.val = 1)
+#' ROCsurface(out_lme2 = out1, newdata = data.frame(X1 = 1))
 #'
 #' ### plot covariate-specific ROC surface and a 95% ellipsoidal confidence region for TCFs
-#' ROCsurface(out_lme2 = out1, x.val = 1, ellips = TRUE, thresholds = c(0.9, 3.95))
+#' ROCsurface(out_lme2 = out1, newdata = data.frame(X1 = 1), ellips = TRUE,
+#'            thresholds = c(0.9, 3.95))
 #'
 #' ## Two covariates
 #' out2 <- lme2(fixed.formula = Y ~ X1 + X2, name.class = "D", name.clust = "id_Clus",
 #'              data = data_3class)
 #'
 #' ### plot only covariate-specific ROC surface
-#' ROCsurface(out_lme2 = out2, x.val = c(1, 1))
+#' ROCsurface(out_lme2 = out2, newdata = data.frame(X1 = 1, X2 = 1))
 #'
 #' ### plot covariate-specific ROC surface and a 95% ellipsoidal confidence region for TCFs
-#' ROCsurface(out_lme2 = out2, x.val = c(1, 1), ellips = TRUE, thresholds = c(0.9, 3.95))
+#' ROCsurface(out_lme2 = out2, newdata = data.frame(X1 = 1, X2 = 1), ellips = TRUE,
+#'            thresholds = c(0.9, 3.95))
 #' }
 #'
 #' @export
-ROCsurface <- function(out_lme2, x.val, step.tcf = 0.01, main = NULL, file.name = NULL,
+ROCsurface <- function(out_lme2, newdata, step.tcf = 0.01, main = NULL, file.name = NULL,
                        ellips = FALSE, thresholds = NULL, ci.level = ifelse(ellips, 0.95, NULL)){
   # define parameters
   if(isFALSE(inherits(out_lme2, "lme2"))) stop("out_lme2 was not from lme2()!")
   if(out_lme2$n_coef/out_lme2$n_p != 3) stop("There is not a case of three-class setting!")
   n_p <- out_lme2$n_p
   if(n_p == 1) {
-    if(!missing(x.val)) {
-      if(!is.null(x.val)) warning("Sepecified value(s) of covariate(s) are not used!", call. = FALSE)
+    if(!missing(newdata)) {
+      if(!is.null(newdata)) warning("Sepecified value(s) of covariate(s) are not used!", call. = FALSE)
     }
-    x.val <- NULL
-  }
-  if(n_p == 2){
-    if(missing(x.val)) stop("Please input specific value of covariate.")
-    if(is.null(x.val)) stop("Please input specific value of covariate.")
-    if(!inherits(x.val, "numeric") | length(x.val) != 1) stop("For case of 1 covariate, please input a number.")
-  }
-  if(n_p > 2){
-    if(missing(x.val)) stop("Please input specific value(s) of covariates.")
-    if(is.null(x.val)) stop("Please input specific value(s) of covariates.")
-    n_vb <- attr(out_lme2$terms, "n_vb")
-    if(!inherits(x.val, "numeric") | length(x.val) != n_vb) stop(paste("For case of", n_vb, "covariates, please input a vector of", n_vb, "values of covariates."))
-    if(any(is.na(x.val))) stop("NA value(s) not allowed!")
+    newdata <- NULL
+  }else {
+    if(missing(newdata)) stop("Please input a data frame including specific value(s) of covariate(s).")
+    if(is.null(newdata)) stop("Please input a data frame including specific value(s) of covariate(s).")
+    if(!inherits(newdata, "data.frame") | nrow(newdata) != 1)
+      stop("The number of rows in newdata must be equal 1.")
+    if(any(is.na(newdata))) stop("NA value(s) not allowed!")
   }
   if(ellips){
     if(is.null(thresholds)) stop("Need to assign the pair of thresholds!")
@@ -115,7 +111,7 @@ ROCsurface <- function(out_lme2, x.val, step.tcf = 0.01, main = NULL, file.name 
   par_model <- out_lme2$est_para
   beta_d <- par_model[1:(3*n_p)]
   sigma_d <- sqrt(par_model[(3*n_p + 2):(3*n_p + 4)]^2 + par_model[(3*n_p + 1)]^2)
-  Z <- make_data(out_lme2, x.val, n_p)
+  Z <- make_data(out_lme2, newdata, n_p)
   mu_d <- Z[[1]] %*% beta_d
   if((mu_d[1] < mu_d[2])*(mu_d[2] < mu_d[3]) == 0) stop("The monotone ordering assumption DOES NOT hold for the value(s) of the covariate(s)")
   a12 <- sigma_d[2]/sigma_d[1]
