@@ -19,7 +19,7 @@ This package implements the techniques for ROC surface analysis, in cases of clu
 Package: \tab ClusROC\cr
 Type: \tab Package\cr
 Version: \tab 1.0-1\cr
-Date: \tab 2022-04-28\cr
+Date: \tab 2022-05-12\cr
 License: \tab GPL 2 | GPL 3\cr
 Lazy load: \tab yes\cr
 }
@@ -29,7 +29,7 @@ Major functions are \code{\link{lme2}}, \code{\link{ROCsurface}}, \code{\link{op
 }
 
 \author{
-Duc-Khanh To, with contributions from Monica Chiogna and Gianfranco Adimari
+Duc-Khanh To, with contributions from Gianfranco Adimari and Monica Chiogna
 
 Maintainer: Duc-Khanh To <toduc@stat.unipd.it>
 }
