@@ -235,8 +235,7 @@ lme2 <- function(fixed.formula, name.class, name.clust, data, levl.class = NULL,
   temp.levl <- mean.temp[order(mean.temp[,2]), 1]
   if(is.null(levl.class)){
     if(trace){
-      cat("The ordered levels of classes were not assigned by user!\n")
-      cat("The ordered levels of classes are now determined by the orders of averages of tests results:\n")
+      cat("The ordered levels of disease classes are specified by the order of \n the means of the test values for each disease class:\n")
       cat(paste(temp.levl, collapse = " < "), "\n")
     }
     levl.class <- temp.levl
@@ -245,12 +244,12 @@ lme2 <- function(fixed.formula, name.class, name.clust, data, levl.class = NULL,
       stop("agrument levl.class must be a character vector with length 3.")
     if(all(levl.class == temp.levl)){
       if(trace){
-        cat("The orders of inputed levels of classes are the same as the one obtained by the orders of averages of tests results:\n")
+        cat("The orders of inputed levels of disease classes are the same as \n the one obtained by the orders of averages of tests results:\n")
         cat(paste(levl.class, collapse = " < "),"\n")
       }
     } else{
       if(trace){
-        cat("The orders of inputed levels of classes are not the same as the one obtained by the orders of averages of tests results:\n")
+        cat("The orders of inputed levels of disease classes are not the same as \n the one obtained by the orders of averages of tests results:\n")
         cat("The correct one should be:\n")
         cat(paste(temp.levl, collapse = " < "),"\n")
       }
