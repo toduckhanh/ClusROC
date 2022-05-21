@@ -3,7 +3,7 @@
 \alias{ClusROC}
 \docType{package}
 \title{
-ROC analysis in three-class classification problems for clustered data
+ROC Analysis in Three-Class Classification Problems for Clustered Data
 }
 \description{
 This package implements the techniques for ROC surface analysis, in cases of clustered data and in presence of covariates. In particular, the package allows to obtain covariate-specific point and interval estimation for:
