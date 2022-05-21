@@ -1,11 +1,11 @@
 Package: ClusROC
 Type: Package
-Title: ROC analysis in three-class classification problems for clustered data
+Title: ROC Analysis in Three-Class Classification Problems for Clustered Data
 Date: 2022-05-12
 Version: 1.0.1
 Author: Duc-Khanh To [aut, cre] (<https://orcid.org/0000-0002-4641-0764>), with contributions from Gianfranco Adimari and Monica Chiogna
 Maintainer: Duc-Khanh To <toduc@stat.unipd.it>
-Description: This package implements the techniques for ROC surface analysis, in cases of clustered data and in presence of covariates. In particular, the package allows to obtain covariate-specific point and interval estimation for:
+Description: Statistical methods for ROC surface analysis in three-class classification problems for clustered data and in presence of covariates. In particular, the package allows to obtain covariate-specific point and interval estimation for:
   (i) true class fractions (TCFs) at fixed pairs of thresholds;
   (ii) the ROC surface;
   (iii) the volume under ROC surface (VUS);
