@@ -77,13 +77,14 @@ out1 <- lme2(fixed.formula = Y ~ X1 + X2, name.class = "D", name.clust = "id_Clu
 print(out1)
 plot(out1)
 
+\dontrun{
 ## Example 2: Box-Cox transformation
 data(data_3class_bcx)
 out2 <- lme2(fixed.formula = Y ~ X, name.class = "D", name.clust = "id_Clus",
              data = data_3class_bcx, boxcox = TRUE)
 print(out2)
 plot(out2)
-
+}
 
 }
 \references{
