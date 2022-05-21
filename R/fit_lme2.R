@@ -192,13 +192,14 @@ llike_bcx_fun <- function(par, fixed, random, weights, data, y_tit, ...){
 #' print(out1)
 #' plot(out1)
 #'
+#' \dontrun{
 #' ## Example 2: Box-Cox transformation
 #' data(data_3class_bcx)
 #' out2 <- lme2(fixed.formula = Y ~ X, name.class = "D", name.clust = "id_Clus",
 #'              data = data_3class_bcx, boxcox = TRUE)
 #' print(out2)
 #' plot(out2)
-#'
+#' }
 #'
 #' @export
 lme2 <- function(fixed.formula, name.class, name.clust, data, levl.class = NULL, apVar = TRUE,
