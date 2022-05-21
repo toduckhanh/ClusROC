@@ -39,8 +39,8 @@ boot_lme2 <- function(out_lme2, data, z, B = 250, type = c("cluster", "stratifie
       }
       out <- try(lme2(fixed.formula = fixed.formula, name.class = name.class, name.clust = name.clust,
                       data = data_bts, levl.class = levl.class, boxcox = boxcox, apVar = FALSE, trace = FALSE),
-                 silent = FALSE)
-      if(class(out) != "try-error") {
+                 silent = TRUE)
+      if(!inherits(out, "try-error")) {
         flag <- check_order(out$est_para, z = z, n_class = length(levl.class), n_p = out$n_p)
         if(boxcox){
           flag <- flag*check_sign(out$est_para, z = z, length(levl.class), n_p = out$n_p)
