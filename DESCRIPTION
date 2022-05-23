@@ -19,7 +19,5 @@ LazyData: true
 LazyLoad: yes
 ByteCompile: yes
 RoxygenNote: 7.2.0
-Suggests: webshot2, knitr, rmarkdown, markdown
-Additional_repositories: https://dmurdoch.github.io/drat
 URL: https://github.com/toduckhanh/ClusROC
 BugReports: https://github.com/toduckhanh/ClusROC/issues
