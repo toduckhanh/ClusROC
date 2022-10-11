@@ -18,13 +18,13 @@ This package implements the techniques for ROC surface analysis, in cases of clu
 \tabular{ll}{
 Package: \tab ClusROC\cr
 Type: \tab Package\cr
-Version: \tab 1.0-1\cr
-Date: \tab 2022-05-12\cr
+Version: \tab 1.0-2\cr
+Date: \tab 2022-10-10\cr
 License: \tab GPL 2 | GPL 3\cr
 Lazy load: \tab yes\cr
 }
 
-Major functions are \code{\link{lme2}}, \code{\link{ROCsurface}}, \code{\link{optThres3}}, \code{\link{VUS}} and \code{\link{TCFs}}.
+Major functions are \code{\link{clus_lme}}, \code{\link{clus_roc_surface}}, \code{\link{clus_opt_thres3}}, \code{\link{clus_vus}} and \code{\link{clus_tcfs}}.
 
 }
 
@@ -47,7 +47,7 @@ Liang, K. Y. and Zeger, S. L. (1986). Longitudinal data analysis using generaliz
 
 Mancl, L. A. and DeRouen, T. A. (2001). A covariance estimator for GEE with improved small-sample properties. \emph{Biometrics}, \bold{57}, 1, 126-134.
 
-To, D-K., Adimari, G., Chiogna, M. and Risso, D. (2022). Receiver operating characteristic estimation and threshold selection criteria in three-class classification problems for clustered data. \emph{Statistical Methods in Medical Research}, DOI: 10.1177/09622802221089029.
+To, D-K., Adimari, G., Chiogna, M. and Risso, D. (2022). Receiver operating characteristic estimation and threshold selection criteria in three-class classification problems for clustered data. \emph{Statistical Methods in Medical Research}, \bold{7}, 31, 1325-1341.
 
 Xiong, C., Luo, J., Chen L., Gao, F., Liu, J., Wang, G., Bateman, R. and Morris, J. C. (2018). Estimating diagnostic accuracy for clustered ordinal diagnostic groups in the three-class case -- Application to the early diagnosis of Alzheimer disease. \emph{Statistical Methods in Medical Research}, \bold{27}, 3, 701-714.
 
