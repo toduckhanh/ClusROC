@@ -1,7 +1,6 @@
 ####========================================================================####
 ## This file consists of functions for estimating TCFs at a fixed             ##
 ## pair of thresholds                                                         ##
-## Date: 10/10/2022																														##
 ####========================================================================####
 
 tcf_normal <- function(par, z, thresholds, n_p, boxcox = FALSE) {

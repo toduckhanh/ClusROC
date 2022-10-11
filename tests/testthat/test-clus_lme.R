@@ -4,5 +4,3 @@ test_that("clus_mle work with one contiuous covariate", {
                            name_clust = "id_Clus", data = data_3class),
                   "clus_lme")
 })
-
-

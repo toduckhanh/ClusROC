@@ -1,8 +1,7 @@
-####==========================================================================####
-## This file consists of functions for fitting the cluster-effect models        ##
-## REML approach, based on the lme() routine                                    ##
-## Date: 10/10/2022																															##
-####==========================================================================####
+####========================================================================####
+## This file consists of functions for fitting the cluster-effect models      ##
+## REML approach, based on the lme() routine                                  ##
+####========================================================================####
 #' @import numDeriv
 #' @import nlme
 #' @import stats

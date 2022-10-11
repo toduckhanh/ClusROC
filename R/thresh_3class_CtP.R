@@ -1,7 +1,6 @@
 ####========================================================================####
 ## This file consists of functions for estimating optimal pair of thresholds  ##
 ## Based on ctp method                                                        ##
-## Date: 10/10/2022																														##
 ####========================================================================####
 
 ctp_normal <- function(par, par_model, z, n_p) {

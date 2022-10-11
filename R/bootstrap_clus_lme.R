@@ -1,7 +1,6 @@
 ####========================================================================####
 ## This file consists of functions for nonparametric bootstrap for            ##
 ## the cluster-effect models under Box-Cox transformation                     ##
-## Date: 10/10/2022																														##
 ####========================================================================####
 
 #' @import snow
