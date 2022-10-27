@@ -34,7 +34,7 @@ clus_opt_thres3_core <- function(method, para, z, n_p, n_coef, boxcox, start,
 }
 
 clus_opt_thres3_se <- function(method, thres_est, out_clus_lme, z, n_p, n_coef,
-                               bootstrap, n_boot, data, parallel, ncpus, start,
+                               bootstrap, n_boot, parallel, ncpus, start,
                                method_optim, maxit, lower, upper) {
   out <- list()
   ## asymptotic variance under normal distribution
@@ -60,7 +60,7 @@ clus_opt_thres3_se <- function(method, thres_est, out_clus_lme, z, n_p, n_coef,
         vcov_par_model = out_clus_lme$vcov_sand, z = z, n_p = n_p)$vcov_cpts
     }
   } else { ## cluster bootstrap
-    out_bts <- boot_clus_lme(out_clus_lme = out_clus_lme, data = data, z = z,
+    out_bts <- boot_clus_lme(out_clus_lme = out_clus_lme, z = z,
                              n_boot = n_boot, type = "cluster",
                              boxcox = out_clus_lme$boxcox, parallel = parallel,
                              ncpus = ncpus)
@@ -124,7 +124,6 @@ clus_opt_thres3_control <- function(method_optim = c("L-BFGS-B", "BFGS",
 #' @param out_clus_lme  an object of class "clus_lme", i.e., a result of \code{\link{clus_lme}} call.
 #' @param newdata  a data frame (containing specific value(s) of covariate(s)) in which to look for variables with which to estimate covariate-specific optimal pair of thresholds. In absence of covariate, no values have to be specified.
 #' @param ap_var  logical value. If set to \code{TRUE}, the variance-covariance matrix of (estimated) covariate-specific optimal thresholds is estimated.
-#' @param data  a data frame containing the variables to be used when performing a bootstrap procedure to estimate the variance-covariance matrix, in case of Box-Cox transformation.
 #' @param control  a list of control parameters. See 'Details'.
 #'
 #' @details
@@ -202,7 +201,7 @@ clus_opt_thres3_control <- function(method_optim = c("L-BFGS-B", "BFGS",
 #'
 #'@export
 clus_opt_thres3 <- function(method = c("GYI", "CtP", "MV"), out_clus_lme,
-                            newdata, ap_var = TRUE, data, control = list()) {
+                            newdata, ap_var = TRUE, control = list()) {
   ## Check all conditions
   if (isFALSE(inherits(out_clus_lme, "clus_lme"))) {
     stop("out_clus_lme was not from clus_lme()!")
@@ -281,9 +280,9 @@ clus_opt_thres3 <- function(method = c("GYI", "CtP", "MV"), out_clus_lme,
       }
     } else {
       bootstrap <- TRUE
-      if (missing(data)) {
-        stop("The original data is required to process bootstrap procedure!")
-      }
+      # if (missing(data)) {
+      #   stop("The original data is required to process bootstrap procedure!")
+      # }
     }
   }
   ##
@@ -333,7 +332,7 @@ clus_opt_thres3 <- function(method = c("GYI", "CtP", "MV"), out_clus_lme,
         out_var <- clus_opt_thres3_se(
           method = methodtemp, thres_est = temp_thres[[i]],
           out_clus_lme = out_clus_lme, z = z[[i]], n_p = n_p, n_coef = n_coef,
-          bootstrap = bootstrap, n_boot = controlvals$n_boot, data = data,
+          bootstrap = bootstrap, n_boot = controlvals$n_boot,
           parallel = controlvals$parallel, ncpus = controlvals$ncpus,
           start = controlvals$start, method_optim = controlvals$method_optim,
           maxit = controlvals$maxit, lower = controlvals$lower,
@@ -372,7 +371,7 @@ clus_opt_thres3 <- function(method = c("GYI", "CtP", "MV"), out_clus_lme,
         out_var <- clus_opt_thres3_se(
           method = methodtemp, thres_est = temp_thres[[i]],
           out_clus_lme = out_clus_lme, z = z[[i]], n_p = n_p, n_coef = n_coef,
-          bootstrap = bootstrap, n_boot = controlvals$n_boot, data = data,
+          bootstrap = bootstrap, n_boot = controlvals$n_boot,
           parallel = controlvals$parallel, ncpus = controlvals$ncpus,
           start = controlvals$start, method_optim = controlvals$method_optim,
           maxit = controlvals$maxit, lower = controlvals$lower,
