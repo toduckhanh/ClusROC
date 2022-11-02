@@ -226,12 +226,14 @@ clus_opt_thres3 <- function(method = c("GYI", "CtP", "MV"), out_clus_lme,
   par_model <- out_clus_lme$est_para
   zz <- make_data(out_clus_lme, newdata, n_p)
   res_check <- check_mu_order(zz, par_model, n_p)
-  z <- new_data_check(res_check)
+  res_check_2 <- new_data_check(res_check)
+  z <- res_check_2$z_new
   ##
   call <- match.call()
   fit <- list()
   fit$call <- call
   fit$method <- methodtemp
+  fit$mess_order <- res_check_2$mess_order
   n_coef <- out_clus_lme$n_coef
   ##
   if (n_p == 1) {# without covariate

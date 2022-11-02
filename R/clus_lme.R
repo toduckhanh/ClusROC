@@ -356,7 +356,7 @@ clus_lme <- function(fixed_formula, name_class, name_clust,
   if (ap_var) {
     if (boxcox) {
       data_matrix <- model.matrix(out_model$terms, data = data)
-      all_d <- model.matrix(terms(form_mean), data = data)
+      all_d <- data_matrix[, 1:n_class]
       all_z <- data_matrix[, id_coef]
       y_list <- split(all_y, clus)
       d_list <- lapply(split(as.data.frame(all_d), clus), as.matrix)
@@ -374,7 +374,7 @@ clus_lme <- function(fixed_formula, name_class, name_clust,
     } else {
       all_y <- model.response(model.frame(out_model$terms, data = data))
       data_matrix <- model.matrix(out_model$terms, data = data)
-      all_d <- model.matrix(terms(form_mean), data = data)
+      all_d <- data_matrix[, 1:n_class]
       all_z <- data_matrix[, id_coef]
       y_list <- split(all_y, clus)
       d_list <- lapply(split(as.data.frame(all_d), clus), as.matrix)

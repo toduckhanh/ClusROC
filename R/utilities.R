@@ -218,6 +218,7 @@ check_mu_order <- function(z, par, n_p) {
 }
 
 new_data_check <- function(res_check) {
+  mess_order <- NULL
   if (all(res_check$status == 0)) {
     stop("The assumption of montone ordering DOES NOT hold for all the value(s) of the covariate(s)")
   }
@@ -225,10 +226,9 @@ new_data_check <- function(res_check) {
     mess_order <- paste("The assumption of montone ordering DOES NOT hold for some points. The points number:",
                         paste(which(res_check$status == 0), collapse = ", "),
                         "are deleted from analysis!")
-    fit$mess_order <- mess_order
     message(mess_order)
   }
-  return(res_check$z_new)
+  return(list(z_new = res_check$z_new, mess_order = mess_order))
 }
 
 check_ellip_roc <- function(ellips, thresholds, vcov_sand) {
