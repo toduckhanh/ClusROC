@@ -9,7 +9,6 @@ clus_opt_thres3(
   out_clus_lme,
   newdata,
   ap_var = TRUE,
-  data,
   control = list()
 )
 }
@@ -21,8 +20,6 @@ clus_opt_thres3(
 \item{newdata}{a data frame (containing specific value(s) of covariate(s)) in which to look for variables with which to estimate covariate-specific optimal pair of thresholds. In absence of covariate, no values have to be specified.}
 
 \item{ap_var}{logical value. If set to \code{TRUE}, the variance-covariance matrix of (estimated) covariate-specific optimal thresholds is estimated.}
-
-\item{data}{a data frame containing the variables to be used when performing a bootstrap procedure to estimate the variance-covariance matrix, in case of Box-Cox transformation.}
 
 \item{control}{a list of control parameters. See 'Details'.}
 }

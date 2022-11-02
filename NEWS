@@ -1,0 +1,15 @@
+Version 1.0-2 (12th October 2022)
+-------------
+* Correct the names of variables and functions according to the Tidyverse style.
+* Change the names of major functions, as listed below:
+** lme2() ---> clus_lme()
+** VUS() ---> clus_vus()
+** ROCsurface() ---> clus_roc_surface()
+** TCFs() ---> clus_tcfs()
+** optThres3() ---> clus_opt_thres3()
+* Adding the COYING file, which contains the terms of GPL-3 license.
+* Adding the test files.
+
+Version 1.0-1 (25th May 2022)
+-------------
+* First release.

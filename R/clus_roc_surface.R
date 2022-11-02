@@ -1,6 +1,5 @@
 ####========================================================================####
 ## This file consists of functions for estimating and ploting the ROC surface ##
-## Date: 26/03/2021																														##
 ####========================================================================####
 
 #' @import rgl
@@ -84,52 +83,11 @@ clus_roc_surface <- function(out_clus_lme, newdata, step_tcf = 0.01,
   if (isFALSE(inherits(out_clus_lme, "clus_lme"))) {
     stop("out_clus_lme was not from clus_lme()!")
   }
-  if (out_clus_lme$n_coef / out_clus_lme$n_p != 3) {
-    stop("There is not a case of three-class setting!")
-  }
   n_p <- out_clus_lme$n_p
-  if (n_p == 1) {
-    if (!missing(newdata)) {
-      if (!is.null(newdata)) {
-        warning("Sepecified value(s) of covariate(s) are not used!",
-                call. = FALSE)
-      }
-    }
-    newdata <- NULL
-  } else {
-    if (missing(newdata)) {
-      stop("Please input a data frame including specific value(s) of covariate(s).")
-    }
-    if (is.null(newdata)) {
-      stop("Please input a data frame including specific value(s) of covariate(s).")
-    }
-    if (!inherits(newdata, "data.frame") || nrow(newdata) != 1) {
-      stop("The number of rows in newdata must be equal 1.")
-    }
-    if (any(is.na(newdata))) {
-      stop("NA value(s) not allowed!")
-    }
-  }
-  if (ellips) {
-    if (is.null(thresholds)) {
-      stop("Need to assign the pair of thresholds!")
-    } else {
-      if (!inherits(thresholds, "numeric") || length(thresholds) != 2) {
-        stop("Please input a the pair of thresholds!")
-      } else {
-        if (thresholds[1] > thresholds[2]) {
-          stop("The 1st threshold needs to less than 2nd threshold!")
-        } else {
-          if (is.null(out_clus_lme$vcov_sand)) {
-            stop("The estimated covariance matrix of parameters was missing!")
-          }
-          if (any(is.na(out_clus_lme$vcov_sand))) {
-            stop("There are NA values in the estimated covariance matrix of parameters. Unable to estimate standard error of TCFs.")
-          }
-        }
-      }
-    }
-  }
+  out_check_newdata <- check_newdata_roc(out_clus_lme$fixed_formula, newdata,
+                                         n_p)
+  newdata <- out_check_newdata$newdata
+  check_ellip_roc(ellips, thresholds, out_clus_lme$vcov_sand)
   ## main
   par_model <- out_clus_lme$est_para
   beta_d <- par_model[1:(3 * n_p)]

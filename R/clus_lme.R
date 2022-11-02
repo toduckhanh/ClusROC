@@ -1,12 +1,12 @@
-####==========================================================================####
-## This file consists of functions for fitting the cluster-effect models        ##
-## REML approach, based on the lme() routine                                    ##
-## Date: 10/10/2022																															##
-####==========================================================================####
+####========================================================================####
+## This file consists of functions for fitting the cluster-effect models      ##
+## REML approach, based on the lme() routine                                  ##
+####========================================================================####
 #' @import numDeriv
 #' @import nlme
 #' @import stats
 #' @import utils
+
 
 ### ---- reml log-likelihood for normal distribution ----
 reml_loglik_vec <- function(par, d_list, y_list, z_list, v_list, cls, n_p,
@@ -148,9 +148,11 @@ llike_bcx_fun <- function(par, fixed, random, weights, data, y_tit, ...) {
 #' @description \code{clus_lme} fits the cluster-effect model for a continuous diagnostic test in a three-class setting as described in Xiong et al. (2018) and To et al. (2022).
 #'
 #' @param fixed_formula  a two-sided linear formula object, describing the fixed-effects part of the model for three classes, with the response on the left of ~ operator and the terms, separated by + operators, on the right. For example, \code{Y ~ X1 + X2}, \code{Y ~ X1 + X2 + X1:X2} or \code{log(Y) ~ X1 + X2 + I(X1^2)}.
-#' @param name_class  name of variable indicating disease classes (or diagnostic groups) in the data.
+#' @param name_class  name of variable indicating three classes (or three groups) in the data.
 #' @param name_clust  name of variable indicating clusters in the data.
 #' @param data  a data frame containing the variables in the model.
+#' @param subset  an optional expression indicating the subset of the rows of data that should be used in the fit. This can be a logical vector, or a numeric vector indicating which observation numbers are to be included, or a character vector of the row names to be included. All observations are included by default.
+#' @param na_action  a function that indicates what should happen when the data contain NAs. The default action (\code{\link[stats]{na.fail}}) causes \code{clus_lme} to print an error message and terminate if there are any incomplete observations.
 #' @param levl_class  a vector (of strings) containing the ordered name chosen for the disease classes. The ordering is intended to be ``increasing'' with respect to the disease severity. If \code{levl_class = NULL} (default), the elements of the vector will be automatically determined from data, by considering the order of the means of the test values for each disease class (diagnostic group).
 #' @param ap_var  a logical value. Default = \code{TRUE}. If set to \code{TRUE}, the estimated covariance matrix for all estimated parameters in the model will be obtained (by using the sandwich formula).
 #' @param boxcox  a logical value. Default = \code{FALSE}. If set to \code{TRUE}, a Box-Cox transformation will be applied to the model.
@@ -181,6 +183,7 @@ llike_bcx_fun <- function(par, fixed, random, weights, data, y_tit, ...) {
 #' \item{icc}{an estimate of intra-class correlation - ICC}
 #' \item{terms}{the \code{\link[stats]{terms}} object used.}
 #' \item{boxcox}{logical value indicating whether the Box-Cox transformation was applied or not.}
+#' \item{data}{data frame is used to fitting model.}
 #'
 #' Generic functions such as \code{print} and \code{plot} are also used to show results of the fit.
 #'
@@ -227,90 +230,60 @@ llike_bcx_fun <- function(par, fixed, random, weights, data, y_tit, ...) {
 #' }
 #'
 #' @export
-clus_lme <- function(fixed_formula, name_class, name_clust, data,
-                     levl_class = NULL, ap_var = TRUE, boxcox = FALSE,
-                     interval_lambda = c(-2, 2), trace = TRUE, ...) {
-  if (missing(data)) {
-    data <- .GlobalEnv
-    cat("Warning: the data is missing, the global environment is used!\n")
+clus_lme <- function(fixed_formula, name_class, name_clust,
+                     data = sys.frame(sys.parent()), subset,
+                     na_action = na.fail, levl_class = NULL, ap_var = TRUE,
+                     boxcox = FALSE, interval_lambda = c(-2, 2),
+                     trace = TRUE, ...) {
+  call <- match.call()
+  mfargs_data <- list(formula = ~ ., data = data, na.action = na_action)
+  if (!missing(subset)) {
+    mfargs_data[["subset"]] <- asOneSidedFormula(call[["subset"]])[[2L]]
   }
+  data <- do.call(model.frame, mfargs_data)
+  attr(data, "terms") <- NULL
   data <- as.data.frame(data)
-  if (missing(fixed_formula)) {
-    stop("argument fixed_formula is missing with no default")
-  }
-  if (!inherits(fixed_formula, "formula") || length(fixed_formula) != 3) {
-    stop("\nfixed-effects model must be a formula of the form \"resp ~ pred\"")
-  }
-  if (missing(name_class)) {
-    stop("argument name_class is missing with no default")
-  }
-  if (!inherits(name_class, "character") || length(name_class) != 1) {
-    stop("agrument name_class must be a character vector with length 1.")
-  }
-  if (!is.element(name_class, names(data))) {
-    stop(paste("Could not find name_class:", name_class, "in the input data."))
-  }
-  if (missing(name_clust)) {
-    stop("argument name_clust is missing with no default")
-  }
-  if (!inherits(name_clust, "character") || length(name_clust) != 1) {
-    stop("agrument name_clust must be a character vector with length 1.")
-  }
-  if (!is.element(name_clust, names(data))) {
-    stop(paste("Could not find name_clust:", name_clust, "in the input data."))
-  }
+  names_vars <- names(data)
+  ## check fixed_formula
+  out_check_fm <- check_fixed_formula(fixed_formula, call, names_vars)
+  terms_0 <- terms(fixed_formula)
+  if (attr(terms_0, "intercept") == 0) stop("intercept term must be included.")
+  ## if check ok!
+  name_test <- out_check_fm$name_test
+  names_covars <- out_check_fm$names_covars
+  name_covars <- unlist(strsplit(as.character(fixed_formula), "~"))[3]
+  ## check name_class
+  out_check_class <- check_class(name_class, names_vars, data)
+  n_class <- out_check_class$n_class
+  ## check name_clust
+  check_clust(name_clust, names_vars, name_test, names_covars, name_class)
   ##
-  n_class <- length(table(data[, name_class]))
-  if (n_class != 3) {
-    stop("There is not a case of three-class setting!")
-  }
-  mf <- unlist(strsplit(as.character(fixed_formula), "~"))[-1]
-  name_test <- mf[1]
   if (boxcox) {
     if (any(model.extract(model.frame(fixed_formula, data), "response") < 0)) {
       stop("Cannot apply Box-Cox transform for negative values.")
     }
   }
+  ## check the order of the average and assign levl_class
   form_mean <- as.formula(paste(name_test, "~", name_class))
   mean_temp <- aggregate(form_mean, FUN = mean, data = data)
   temp_levl <- mean_temp[order(mean_temp[, 2]), 1]
-  if (is.null(levl_class)) {
-    if (trace) {
-      cat("The ordered levels of disease classes are specified by the order of \n the means of the test values for each disease class:\n")
-      cat(paste(temp_levl, collapse = " < "), "\n")
-    }
-    levl_class <- temp_levl
-  } else {
-    if (!inherits(levl_class, "character") || length(levl_class) != 3) {
-      stop("agrument levl_class must be a character vector with length 3.")
-    }
-    if (all(levl_class == temp_levl)) {
-      if (trace) {
-        cat("The orders of inputed levels of disease classes are the same as \n the one obtained by the orders of averages of tests results:\n")
-        cat(paste(levl_class, collapse = " < "), "\n")
-      }
-    } else {
-      if (trace) {
-        cat("The orders of inputed levels of disease classes are not the same as \n the one obtained by the orders of averages of tests results:\n")
-        cat("The correct one should be:\n")
-        cat(paste(temp_levl, collapse = " < "), "\n")
-      }
-      levl_class <- temp_levl
-    }
-  }
+  out_check_levl <- check_levl_class(trace, levl_class, temp_levl)
+  levl_class <- out_check_levl$levl_class
   data[, name_class] <- factor(data[, name_class], levels = levl_class)
-  name_covars <- mf[2]
   ## define the formulas for fixed, random and weights
-  call <- match.call()
   fit <- list()
   fit$call <- call
+  fit$data <- data
+  fit$na_action <- attr(data, "na.action")
   fit$boxcox <- boxcox
+  fit$fixed_formula <- fixed_formula
   fit$name_test <- name_test
   fit$name_class <- name_class
   fit$name_clust <- name_clust
-  fixed <- as.formula(paste(name_test, "~", name_class, "+",
-                            "(", name_covars, ")", ":", name_class, "-1"))
-  fit$name_covars <- name_covars
+  fixed <- as.formula(
+    paste(name_test, "~", name_class, "+", "(", name_covars, ")", ":",
+          name_class, "-1"))
+  fit$names_covars <- names_covars
   random <- as.formula(paste("~", "1|", name_clust))
   form_weights <- as.formula(paste("~", "1|", name_class))
   weights <- varIdent(form = form_weights)
@@ -320,8 +293,8 @@ clus_lme <- function(fixed_formula, name_class, name_clust, data,
   fit$terms <- terms(fixed)
   xx <- model.matrix(fit$terms, md_frame, contrasts.arg = NULL)
   attr(fit$terms, "levl_class") <- levl_class
-  attr(fit$terms, "n_vb") <- length(as.character(attr(fit$terms,
-                                                      "variables"))[-c(1:3)])
+  attr(fit$terms, "n_vb") <- length(
+    as.character(attr(fit$terms, "variables"))[-c(1:3)])
   attr(fit$terms, "xlevels") <- .getXlevels(fit$terms, md_frame)
   attr(fit$terms, "contrasts") <- attr(xx, "contrasts")
   n <- nrow(data)
@@ -336,7 +309,7 @@ clus_lme <- function(fixed_formula, name_class, name_clust, data,
     lambda_est <- optimize(llike_bcx_fun, interval = interval_lambda,
                            fixed = fixed, random = random, weights = weights,
                            data = data, y_tit = y_tit,
-                           maximum = TRUE, ...)$maximum
+                           maximum = TRUE)$maximum
     all_y_boxcox <- boxcox_trans(all_y, lambda_est)
     data$y_boxcox <- all_y_boxcox
     fixed_new <- update(fixed, y_boxcox  ~ .)
@@ -349,13 +322,8 @@ clus_lme <- function(fixed_formula, name_class, name_clust, data,
   ## collecting results
   n_coef <- length(out_model$coefficients$fixed)
   n_p <- n_coef / n_class
-  if (n_class == 2) {
-    id_coef <- c(seq(1, n_coef - 1, by = 2), seq(2, n_coef, by = 2))
-  }
-  if (n_class == 3) {
-    id_coef <- c(seq(1, n_coef - 2, by = 3), seq(2, n_coef - 1, by = 3),
-                 seq(3, n_coef, by = 3))
-  }
+  id_coef <- c(seq(1, n_coef - 2, by = 3), seq(2, n_coef - 1, by = 3),
+               seq(3, n_coef, by = 3))
   sigma_e_est <- coef(out_model$modelStruct$varStruct, unconstrained = FALSE,
                       allCoef = TRUE) * out_model$sigma
   sigma_e_est <- sigma_e_est[as.character(levl_class)]
@@ -475,6 +443,9 @@ print.clus_lme <- function(x, digits = max(3L, getOption("digits") - 3L),
     printCoefmat(x = infer_tab, has.Pvalue = FALSE, digits = digits, ...)
   }
   cat("\n")
+  cat("Number of observations:", x$n, "\n")
+  mess <- naprint(x$na_action)
+  if (nzchar(mess)) cat("  (", mess, ")\n", sep = "")
   cat("Number of clusters:", x$cls, "\n")
   cat("Sample size within cluster:\n")
   print(c(Min = min(x$n_c), Max = max(x$n_c), Average = mean(x$n_c)))

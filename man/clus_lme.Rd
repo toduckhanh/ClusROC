@@ -8,7 +8,9 @@ clus_lme(
   fixed_formula,
   name_class,
   name_clust,
-  data,
+  data = sys.frame(sys.parent()),
+  subset,
+  na_action = na.fail,
   levl_class = NULL,
   ap_var = TRUE,
   boxcox = FALSE,
@@ -20,11 +22,15 @@ clus_lme(
 \arguments{
 \item{fixed_formula}{a two-sided linear formula object, describing the fixed-effects part of the model for three classes, with the response on the left of ~ operator and the terms, separated by + operators, on the right. For example, \code{Y ~ X1 + X2}, \code{Y ~ X1 + X2 + X1:X2} or \code{log(Y) ~ X1 + X2 + I(X1^2)}.}
 
-\item{name_class}{name of variable indicating disease classes (or diagnostic groups) in the data.}
+\item{name_class}{name of variable indicating three classes (or three groups) in the data.}
 
 \item{name_clust}{name of variable indicating clusters in the data.}
 
 \item{data}{a data frame containing the variables in the model.}
+
+\item{subset}{an optional expression indicating the subset of the rows of data that should be used in the fit. This can be a logical vector, or a numeric vector indicating which observation numbers are to be included, or a character vector of the row names to be included. All observations are included by default.}
+
+\item{na_action}{a function that indicates what should happen when the data contain NAs. The default action (\code{\link[stats]{na.fail}}) causes \code{clus_lme} to print an error message and terminate if there are any incomplete observations.}
 
 \item{levl_class}{a vector (of strings) containing the ordered name chosen for the disease classes. The ordering is intended to be ``increasing'' with respect to the disease severity. If \code{levl_class = NULL} (default), the elements of the vector will be automatically determined from data, by considering the order of the means of the test values for each disease class (diagnostic group).}
 
@@ -53,6 +59,7 @@ clus_lme(
 \item{icc}{an estimate of intra-class correlation - ICC}
 \item{terms}{the \code{\link[stats]{terms}} object used.}
 \item{boxcox}{logical value indicating whether the Box-Cox transformation was applied or not.}
+\item{data}{data frame is used to fitting model.}
 
 Generic functions such as \code{print} and \code{plot} are also used to show results of the fit.
 }

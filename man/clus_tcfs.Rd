@@ -11,7 +11,7 @@ clus_tcfs(out_clus_lme, newdata, thresholds, ap_var = FALSE)
 
 \item{newdata}{a data frame (containing specific value(s) of covariate(s)) in which to look for variables with which to estimate covariate-specific TCFs. In absence of covariate, no values have to be specified.}
 
-\item{thresholds}{specified pair of thresholds.}
+\item{thresholds}{a specified pair of thresholds.}
 
 \item{ap_var}{logical value. If set to \code{TRUE}, the variance-covariance matrix of estimated covariate-specific TCFs is estimated.}
 }
