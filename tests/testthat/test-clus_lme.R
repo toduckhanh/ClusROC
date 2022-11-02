@@ -51,24 +51,31 @@ test_that("clus_mle does not work without input fixed_formula", {
     regexp = "agrument \"fixed_formula\" must be a formula of the form \"resp ~ pred\"")
 })
 
+test_that("clus_mle does not work if removing intercept term from fixed_formula", {
+  data(data_3class)
+  expect_error(
+    object = clus_lme(fixed_formula = Y ~ X1 - 1, name_class = "D",
+                      name_clust = "id_Clus", data = data_3class))
+})
+
 test_that("clus_mle does not work if input fixed_formula as dot in predictors", {
   data(data_3class)
   expect_error(
-    object = clus_lme(fixed_formula = Y ~ . , name_class = "D",
+    object = clus_lme(fixed_formula = Y ~ ., name_class = "D",
                       name_clust = "id_Clus", data = data_3class))
 })
 
 test_that("clus_mle does not work if input fixed_formula as dot in response", {
   data(data_3class)
   expect_error(
-    object = clus_lme(fixed_formula = . ~ X1 , name_class = "D",
+    object = clus_lme(fixed_formula = . ~ X1, name_class = "D",
                       name_clust = "id_Clus", data = data_3class))
 })
 
 test_that("clus_mle does not work if input fixed_formula as dot", {
   data(data_3class)
   expect_error(
-    object = clus_lme(fixed_formula = . ~ . , name_class = "D",
+    object = clus_lme(fixed_formula = . ~ ., name_class = "D",
                       name_clust = "id_Clus", data = data_3class))
 })
 
@@ -201,4 +208,3 @@ test_that("clus_mle does works with na.omit() for missing data", {
                       na_action = na.omit),
     class = "clus_lme")
 })
-

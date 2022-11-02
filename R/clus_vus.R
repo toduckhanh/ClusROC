@@ -194,31 +194,9 @@ clus_vus <- function(out_clus_lme, newdata, ap_var = TRUE,
     stop("out_clus_lme was not from clus_lme()!")
   }
   n_p <- out_clus_lme$n_p
-  if (out_clus_lme$n_coef / n_p != 3) {
-    stop("There is not a case of three-class setting!")
-  }
-  if (n_p == 1) {
-    if (!missing(newdata)) {
-      if (!is.null(newdata)) {
-        warning("Sepecified value(s) of covariate(s) are not used!",
-                call. = FALSE)
-      }
-    }
-    newdata <- NULL
-  } else {
-    if (missing(newdata)) {
-      stop("Please input a data frame including specific value(s) of covariate(s).")
-    }
-    if (is.null(newdata)) {
-      stop("Please input a data frame including specific value(s) of covariate(s).")
-    }
-    if (!inherits(newdata, "data.frame")) {
-      stop("Please input a data frame including specific value(s) of covariate(s).")
-    }
-    if (any(is.na(newdata))) {
-      stop("NA value(s) are not allowed!")
-    }
-  }
+  out_check_newdata <- check_newdata_vus(out_clus_lme$fixed_formula, newdata,
+                                         n_p)
+  newdata <- out_check_newdata$newdata
   ##
   if (ap_var) {
     if (is.null(out_clus_lme$vcov_sand)) {

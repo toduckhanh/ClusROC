@@ -62,7 +62,7 @@ tcf_normal_vcov <- function(par_model, z, thresholds, vcov_par_model, n_p,
 #'
 #' @param out_clus_lme  an object of class "clus_lme", a result of \code{\link{clus_lme}} call.
 #' @param newdata  a data frame (containing specific value(s) of covariate(s)) in which to look for variables with which to estimate covariate-specific TCFs. In absence of covariate, no values have to be specified.
-#' @param thresholds  specified pair of thresholds.
+#' @param thresholds  a specified pair of thresholds.
 #' @param ap_var  logical value. If set to \code{TRUE}, the variance-covariance matrix of estimated covariate-specific TCFs is estimated.
 #' @details
 #' This function implements a method in To et al. (2022) for estimating covariate-specific TCFs at a specified pair of thresholds of a continuous diagnostic test in a clustered design with three ordinal groups. The estimator is based on results from  \code{\link{clus_lme}}, which uses the REML approach. The asymptotic variance-covariance matrix of the estimated covariate-specific TCFs is estimated through the Delta method. Note that, if the Box-Cox transformation is applied for the linear mixed-effect model, the pair of thresholds must be input in the original scale.
@@ -120,31 +120,9 @@ clus_tcfs <- function(out_clus_lme, newdata, thresholds, ap_var = FALSE) {
     stop("out_clus_lme was not from lme2()!")
   }
   n_p <- out_clus_lme$n_p
-  if (out_clus_lme$n_coef / n_p != 3) {
-    stop("There is not a case of three-class setting!")
-  }
-  if (n_p == 1) {
-    if (!missing(newdata)) {
-      if (!is.null(newdata)) {
-        warning("Sepecified value(s) of covariate(s) are not used!",
-                call. = FALSE)
-      }
-    }
-    newdata <- NULL
-  } else {
-    if (missing(newdata)) {
-      stop("Please input a data frame including specific value(s) of covariate(s).")
-    }
-    if (is.null(newdata)) {
-      stop("Please input a data frame including specific value(s) of covariate(s).")
-    }
-    if (!inherits(newdata, "data.frame")) {
-      stop("Please input a data frame including specific value(s) of covariate(s).")
-    }
-    if (any(is.na(newdata))) {
-      stop("NA value(s) are not allowed!")
-    }
-  }
+  out_check_newdata <- check_newdata_vus(out_clus_lme$fixed_formula, newdata,
+                                         n_p)
+  newdata <- out_check_newdata$newdata
   if (ap_var) {
     if (is.null(out_clus_lme$vcov_sand)) {
       stop("The estimated covariance matrix of parameters was missing!")

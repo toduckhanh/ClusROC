@@ -206,105 +206,33 @@ clus_opt_thres3 <- function(method = c("GYI", "CtP", "MV"), out_clus_lme,
   if (isFALSE(inherits(out_clus_lme, "clus_lme"))) {
     stop("out_clus_lme was not from clus_lme()!")
   }
-  n_p <- out_clus_lme$n_p
-  n_coef <- out_clus_lme$n_coef
-  if (n_coef / n_p != 3) {
-    stop("There is not a case of three-class setting!")
-  }
-  if (missing(method)) {
-    stop("Please, input the selection method(s)!")
-  }
+  ## checking the method
+  out_check_method <- get_method_opt_thres3(method)
+  methodtemp <- out_check_method$methodtemp
+  mmethod <- out_check_method$mmethod
   controlvals <- clus_opt_thres3_control()
+  ##
+  n_p <- out_clus_lme$n_p
+  out_check_newdata <- check_newdata_vus(out_clus_lme$fixed_formula, newdata,
+                                         n_p)
+  newdata <- out_check_newdata$newdata
+  ##
+  bootstrap <- check_apvar_opt_thres3(ap_var, out_clus_lme$boxcox,
+                                      out_clus_lme$vcov_sand)
   if (!missing(control)) {
     controlvals[names(control)] <- control
   }
-  ## checking the method
-  methodtemp <- substitute(me, list(me = method))
-  ok_method <- c("GYI", "CtP", "MV")
-  if (length(methodtemp) > 3) {
-    stop(gettextf("The maximum number of selection methods are 3!"),
-         domain = NA)
-  }
-  if (any(duplicated(methodtemp))) {
-    stop(gettextf("The selection methods need to be unique!"), domain = NA)
-  }
-  if (!is.character(methodtemp)) {
-    methodtemp <- deparse(methodtemp)
-  }
-  if (any(sapply(methodtemp, function(x) !is.element(x, ok_method)))) {
-    stop(gettextf("the selection method(s) should be: %s",
-                  paste(sQuote(ok_method), collapse = ", ")),
-         domain = NA)
-  }
-  methodtemp <- methodtemp[c(which(methodtemp == "GYI"),
-                             which(methodtemp == "CtP"),
-                             which(methodtemp == "MV"))]
-  mmethod <- character(length(methodtemp))
-  mmethod[methodtemp == "GYI"] <- "Generalized Youden Index"
-  mmethod[methodtemp == "CtP"] <- "Closest to Perfection"
-  mmethod[methodtemp == "MV"] <- "Max Volume"
-  mmethod <- factor(mmethod, levels = c("Generalized Youden Index",
-                                        "Closest to Perfection", "Max Volume"))
-  ##
-  if (n_p == 1) {
-    if (!missing(newdata)) {
-      if (!is.null(newdata)) {
-        warning("Sepecified value(s) of covariate(s) are not used!",
-                call. = FALSE)
-      }
-    }
-    newdata <- NULL
-  } else {
-    if (missing(newdata)) {
-      stop("Please input a data frame including specific value(s) of covariate(s).")
-    }
-    if (is.null(newdata)) {
-      stop("Please input a data frame including specific value(s) of covariate(s).")
-    }
-    if (!inherits(newdata, "data.frame")) {
-      stop("Please input a data frame including specific value(s) of covariate(s).")
-    }
-    if (any(is.na(newdata))) {
-      stop("NA value(s) are not allowed!")
-    }
-  }
-  ##
-  if (ap_var) {
-    if (!out_clus_lme$boxcox) { ## asymptotic variance under normal distribution
-      bootstrap <- FALSE
-      if (is.null(out_clus_lme$vcov_sand)) {
-        stop("The estimated covariance matrix of parameters was missing!")
-      }
-      if (any(is.na(out_clus_lme$vcov_sand))) {
-        stop("There are NA values in the estimated covariance matrix of parameters. Unable to estimate standard error.")
-      }
-    } else {
-      bootstrap <- TRUE
-      # if (missing(data)) {
-      #   stop("The original data is required to process bootstrap procedure!")
-      # }
-    }
-  }
+  ## Check the ordering of means: mu_1 < mu_2 < mu_3
+  par_model <- out_clus_lme$est_para
+  zz <- make_data(out_clus_lme, newdata, n_p)
+  res_check <- check_mu_order(zz, par_model, n_p)
+  z <- new_data_check(res_check)
   ##
   call <- match.call()
   fit <- list()
   fit$call <- call
   fit$method <- methodtemp
-  ## Check the ordering of means: mu_1 < mu_2 < mu_3
-  par_model <- out_clus_lme$est_para
-  z <- make_data(out_clus_lme, newdata, n_p)
-  res_check <- check_mu_order(z, par_model, n_p)
-  if (all(res_check$status == 0)) {
-    stop("The assumption of montone ordering DOES NOT hold for all the value(s) of the covariate(s)")
-  }
-  if (any(res_check$status == 0)) {
-    mess_order <- paste("The assumption of montone ordering DOES NOT hold for some points. The points number:",
-                        paste(which(res_check$status == 0), collapse = ", "),
-                        "are deleted from analysis!")
-    fit$mess_order <- mess_order
-    message(mess_order)
-  }
-  z <- res_check$z_new
+  n_coef <- out_clus_lme$n_coef
   ##
   if (n_p == 1) {# without covariate
     fit$newdata <- newdata
@@ -424,32 +352,15 @@ plot.clus_opt_thres3 <- function(x, ci_level = 0.95, colors = NULL, xlims,
   if (isFALSE(inherits(x, "clus_opt_thres3"))) {
     stop("x was not from clus_opt_thres3()!")
   }
-  if (x$n_p == 1) {
-    n_x <- 1
-    labels <- "Intercept"
-    if (missing(names_labels)) {
-      names_labels <- " "
-    }
-  }
-  if (x$n_p == 2) {
-    n_x <- nrow(x$newdata)
-    labels <- apply(x$newdata, 1, function(y) paste0(y))
-    if (missing(names_labels)) {
-      names_labels <- "Value(s) of covariate:"
-    }
-  }
-  if (x$n_p > 2) {
-    n_x <- nrow(x$newdata)
-    labels <- apply(x$newdata, 1, function(y) {
-      paste0("(", paste(y, collapse = ", "), ")")
-    })
-    if (missing(names_labels)) {
-      names_labels <- "Value(s) of covariates:"
-    }
-  }
+  out_infor <- get_labels_opt_thres3(x$n_p, x$newdata, names_labels)
+  n_x <- out_infor$n_x
+  point_labels <- out_infor$point_labels
+  names_labels <- out_infor$names_labels
+  ##
   dt_thres <- x$thres3[, 1:3]
   colnames(dt_thres) <- c("x", "y", "method")
   dt_thres$pts <- as.factor(rep(1:n_x, each = length(x$method)))
+  ##
   pp <- ggplot(dt_thres, aes_string(x = "x", y = "y", colour = "pts")) +
     facet_grid(~ method) +
     geom_point(size = size_point) +
@@ -517,7 +428,7 @@ plot.clus_opt_thres3 <- function(x, ci_level = 0.95, colors = NULL, xlims,
   }
   pp <- pp +
     scale_color_manual(name = names_labels, breaks = as.character(1:n_x),
-                       values = colors, labels = labels)
+                       values = colors, labels = point_labels)
   if (!missing(xlims) && !missing(ylims)) {
     pp <- pp + xlim(xlims) + ylim(ylims)
   }

@@ -157,6 +157,7 @@ llike_bcx_fun <- function(par, fixed, random, weights, data, y_tit, ...) {
 #' @param ap_var  a logical value. Default = \code{TRUE}. If set to \code{TRUE}, the estimated covariance matrix for all estimated parameters in the model will be obtained (by using the sandwich formula).
 #' @param boxcox  a logical value. Default = \code{FALSE}. If set to \code{TRUE}, a Box-Cox transformation will be applied to the model.
 #' @param interval_lambda  a vector containing the end-points of the interval for searching the Box-Cox parameter, \code{lambda}. Default = (-2, 2).
+#' @param trace  a logical value. Default = \code{TRUE}. If set to \code{TRUE}, the information about the check for the monotonic ordering of test values will be provided.
 #' @param ...  additional arguments for \code{\link[nlme]{lme}}, such as \code{control}, \code{contrasts}.
 #'
 #' @details
@@ -232,7 +233,8 @@ llike_bcx_fun <- function(par, fixed, random, weights, data, y_tit, ...) {
 clus_lme <- function(fixed_formula, name_class, name_clust,
                      data = sys.frame(sys.parent()), subset,
                      na_action = na.fail, levl_class = NULL, ap_var = TRUE,
-                     boxcox = FALSE, interval_lambda = c(-2, 2), ...) {
+                     boxcox = FALSE, interval_lambda = c(-2, 2),
+                     trace = TRUE, ...) {
   call <- match.call()
   mfargs_data <- list(formula = ~ ., data = data, na.action = na_action)
   if (!missing(subset)) {
@@ -242,81 +244,46 @@ clus_lme <- function(fixed_formula, name_class, name_clust,
   attr(data, "terms") <- NULL
   data <- as.data.frame(data)
   names_vars <- names(data)
-  if (missing(fixed_formula) || !inherits(fixed_formula, "formula") ||
-      length(fixed_formula) != 3) {
-    stop("agrument \"fixed_formula\" must be a formula of the form \"resp ~ pred\"")
-  } else {
-    mf <- unlist(strsplit(as.character(fixed_formula), "~"))[-1]
-    name_test <- mf[1]
-    name_covars <- mf[2]
-    names_covars <- unlist(strsplit(name_covars, " + ", fixed = TRUE))
-    if (!is.element(name_test, names_vars)) {
-      stop(paste(name_test, " is not included in data", deparse(call$data)))
-    }
-    if (!all(is.element(names_covars, names_vars))) {
-      stop(paste("One or some covariates are not found in data",
-                 deparse(call$data)))
-    }
-  }
-  if (missing(name_class) || !inherits(name_class, "character") ||
-      length(name_class) != 1 || !is.element(name_class, names_vars)) {
-    stop("agrument \"name_class\" was either missing or wrong name!")
-  } else {
-    n_class <- length(table(data[, name_class]))
-    if (n_class != 3) {
-      stop("agrument \"name_class\" must have 3 levels or classes!")
-    }
-  }
-  if (missing(name_clust) || !inherits(name_clust, "character") ||
-      length(name_clust) != 1 || !is.element(name_clust, names_vars)) {
-    stop("agrument \"name_clust\" was either missing or wrong name!")
-  } else{
-    if (is.element(name_clust, name_test) ||
-        is.element(name_clust, names_covars) ||
-        is.element(name_clust, name_class)) {
-      stop("agrument \"name_clust\" cannot be the name of neither test, covariates nor classes!")
-    }
-  }
+  ## check fixed_formula
+  out_check_fm <- check_fixed_formula(fixed_formula, call, names_vars)
+  terms_0 <- terms(fixed_formula)
+  if (attr(terms_0, "intercept") == 0) stop("intercept term must be included.")
+  ## if check ok!
+  name_test <- out_check_fm$name_test
+  names_covars <- out_check_fm$names_covars
+  name_covars <- unlist(strsplit(as.character(fixed_formula), "~"))[3]
+  ## check name_class
+  out_check_class <- check_class(name_class, names_vars, data)
+  n_class <- out_check_class$n_class
+  ## check name_clust
+  check_clust(name_clust, names_vars, name_test, names_covars, name_class)
   ##
   if (boxcox) {
     if (any(model.extract(model.frame(fixed_formula, data), "response") < 0)) {
       stop("Cannot apply Box-Cox transform for negative values.")
     }
   }
+  ## check the order of the average and assign levl_class
   form_mean <- as.formula(paste(name_test, "~", name_class))
   mean_temp <- aggregate(form_mean, FUN = mean, data = data)
   temp_levl <- mean_temp[order(mean_temp[, 2]), 1]
-  if (is.null(levl_class)) {
-    cat("The ordered levels of classes are specified by the order of \n averages of the test values for each class:\n")
-    cat(paste(temp_levl, collapse = " < "), "\n")
-    levl_class <- temp_levl
-  } else {
-    if (any(is.na(levl_class)) || !inherits(levl_class, "character") ||
-        length(levl_class) != 3) {
-      stop("agrument levl_class must be a character vector with length 3 without NA.")
-    }
-    if (all(levl_class == temp_levl)) {
-      cat("The orders of \"levl_class\" are the same as \n the orders of averages of tests values for each class:\n")
-      cat(paste(levl_class, collapse = " < "), "\n")
-    } else {
-      cat("The orders of \"levl_class\" are not the same as \n the orders of averages of tests values for each class\n")
-      cat("The correct one should be:\n")
-      cat(paste(temp_levl, collapse = " < "), "\n")
-      levl_class <- temp_levl
-    }
-  }
+  out_check_levl <- check_levl_class(trace, levl_class, temp_levl)
+  levl_class <- out_check_levl$levl_class
   data[, name_class] <- factor(data[, name_class], levels = levl_class)
   ## define the formulas for fixed, random and weights
   fit <- list()
   fit$call <- call
   fit$data <- data
+  fit$na_action <- attr(data, "na.action")
   fit$boxcox <- boxcox
+  fit$fixed_formula <- fixed_formula
   fit$name_test <- name_test
   fit$name_class <- name_class
   fit$name_clust <- name_clust
-  fixed <- as.formula(paste(name_test, "~", name_class, "+",
-                            "(", name_covars, ")", ":", name_class, "-1"))
-  fit$name_covars <- name_covars
+  fixed <- as.formula(
+    paste(name_test, "~", name_class, "+", "(", name_covars, ")", ":",
+          name_class, "-1"))
+  fit$names_covars <- names_covars
   random <- as.formula(paste("~", "1|", name_clust))
   form_weights <- as.formula(paste("~", "1|", name_class))
   weights <- varIdent(form = form_weights)
@@ -326,8 +293,8 @@ clus_lme <- function(fixed_formula, name_class, name_clust,
   fit$terms <- terms(fixed)
   xx <- model.matrix(fit$terms, md_frame, contrasts.arg = NULL)
   attr(fit$terms, "levl_class") <- levl_class
-  attr(fit$terms, "n_vb") <- length(as.character(attr(fit$terms,
-                                                      "variables"))[-c(1:3)])
+  attr(fit$terms, "n_vb") <- length(
+    as.character(attr(fit$terms, "variables"))[-c(1:3)])
   attr(fit$terms, "xlevels") <- .getXlevels(fit$terms, md_frame)
   attr(fit$terms, "contrasts") <- attr(xx, "contrasts")
   n <- nrow(data)
@@ -355,13 +322,8 @@ clus_lme <- function(fixed_formula, name_class, name_clust,
   ## collecting results
   n_coef <- length(out_model$coefficients$fixed)
   n_p <- n_coef / n_class
-  if (n_class == 2) {
-    id_coef <- c(seq(1, n_coef - 1, by = 2), seq(2, n_coef, by = 2))
-  }
-  if (n_class == 3) {
-    id_coef <- c(seq(1, n_coef - 2, by = 3), seq(2, n_coef - 1, by = 3),
-                 seq(3, n_coef, by = 3))
-  }
+  id_coef <- c(seq(1, n_coef - 2, by = 3), seq(2, n_coef - 1, by = 3),
+               seq(3, n_coef, by = 3))
   sigma_e_est <- coef(out_model$modelStruct$varStruct, unconstrained = FALSE,
                       allCoef = TRUE) * out_model$sigma
   sigma_e_est <- sigma_e_est[as.character(levl_class)]
@@ -394,7 +356,7 @@ clus_lme <- function(fixed_formula, name_class, name_clust,
   if (ap_var) {
     if (boxcox) {
       data_matrix <- model.matrix(out_model$terms, data = data)
-      all_d <- data_matrix[, 1:n_class]
+      all_d <- model.matrix(terms(form_mean), data = data)
       all_z <- data_matrix[, id_coef]
       y_list <- split(all_y, clus)
       d_list <- lapply(split(as.data.frame(all_d), clus), as.matrix)
@@ -412,7 +374,7 @@ clus_lme <- function(fixed_formula, name_class, name_clust,
     } else {
       all_y <- model.response(model.frame(out_model$terms, data = data))
       data_matrix <- model.matrix(out_model$terms, data = data)
-      all_d <- data_matrix[, 1:n_class]
+      all_d <- model.matrix(terms(form_mean), data = data)
       all_z <- data_matrix[, id_coef]
       y_list <- split(all_y, clus)
       d_list <- lapply(split(as.data.frame(all_d), clus), as.matrix)
@@ -481,6 +443,9 @@ print.clus_lme <- function(x, digits = max(3L, getOption("digits") - 3L),
     printCoefmat(x = infer_tab, has.Pvalue = FALSE, digits = digits, ...)
   }
   cat("\n")
+  cat("Number of observations:", x$n, "\n")
+  mess <- naprint(x$na_action)
+  if (nzchar(mess)) cat("  (", mess, ")\n", sep = "")
   cat("Number of clusters:", x$cls, "\n")
   cat("Sample size within cluster:\n")
   print(c(Min = min(x$n_c), Max = max(x$n_c), Average = mean(x$n_c)))

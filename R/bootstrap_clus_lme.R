@@ -10,16 +10,12 @@
 boot_clus_lme <- function(out_clus_lme, z, n_boot = 250,
                           type = c("cluster", "stratified"), boxcox = TRUE,
                           parallel = FALSE, ncpus = ifelse(parallel, 2, NULL)) {
-  if (isFALSE(inherits(out_clus_lme, "clus_lme"))) {
-    stop("out_clus_lme was not from clus_lme()!")
-  }
   levl_class <- as.character(attr(out_clus_lme$terms, "levl_class"))
   data <- out_clus_lme$data
   data[, out_clus_lme$name_class] <- factor(data[, out_clus_lme$name_class],
                                             levels = levl_class)
   data_list <- split(data, data[, out_clus_lme$name_clust])
-  fixed_formula <- as.formula(paste(out_clus_lme$name_test, "~",
-                                    out_clus_lme$name_covars))
+  fixed_formula <- out_clus_lme$fixed_formula
   type <- match.arg(type)
   # re-sampling process
   bts_func <- function(n_boot, data_list, fixed_formula, name_class, name_clust,

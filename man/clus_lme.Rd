@@ -15,6 +15,7 @@ clus_lme(
   ap_var = TRUE,
   boxcox = FALSE,
   interval_lambda = c(-2, 2),
+  trace = TRUE,
   ...
 )
 }
@@ -38,6 +39,8 @@ clus_lme(
 \item{boxcox}{a logical value. Default = \code{FALSE}. If set to \code{TRUE}, a Box-Cox transformation will be applied to the model.}
 
 \item{interval_lambda}{a vector containing the end-points of the interval for searching the Box-Cox parameter, \code{lambda}. Default = (-2, 2).}
+
+\item{trace}{a logical value. Default = \code{TRUE}. If set to \code{TRUE}, the information about the check for the monotonic ordering of test values will be provided.}
 
 \item{...}{additional arguments for \code{\link[nlme]{lme}}, such as \code{control}, \code{contrasts}.}
 }
