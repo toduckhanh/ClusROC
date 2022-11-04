@@ -2,6 +2,8 @@
 ## This file consists of functions for estimating covariate-specific VUS      ##
 ####========================================================================####
 
+#' @importFrom Rcpp evalCpp
+#' @useDynLib ClusROC, .registration = TRUE
 #' @import utils
 #' @import numDeriv
 #' @import stats
@@ -229,8 +231,7 @@ clus_vus <- function(out_clus_lme, newdata, ap_var = TRUE,
     outer_n_ksqr_n_k <- outer(n_k_sqr, n_k)
     diag(outer_n_ksqr_n_k) <- NA
     p_ssk <- sum(outer_n_ksqr_n_k, na.rm = TRUE) / (n^3)
-    combo <- combn(x = 1:n_c, m = 3)
-    p_ijk <- sum(apply(combo, 2, function(idx) prod(n_k[idx]))) / (n^3)
+    p_ijk <- fast_combn_sum(vals = 1:n_c, n = 3, n_k = n_k) / (n^3)
     p_ijk <- 6 * p_ijk
   }
   p_skk <- p_sks <- p_ssk
