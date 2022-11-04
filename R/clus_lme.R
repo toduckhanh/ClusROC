@@ -252,6 +252,7 @@ clus_lme <- function(fixed_formula, name_class, name_clust,
   name_test <- out_check_fm$name_test
   names_covars <- out_check_fm$names_covars
   name_covars <- unlist(strsplit(as.character(fixed_formula), "~"))[3]
+  name_test_wk <- unlist(strsplit(as.character(fixed_formula), "~"))[2]
   ## check name_class
   out_check_class <- check_class(name_class, names_vars, data)
   n_class <- out_check_class$n_class
@@ -264,7 +265,7 @@ clus_lme <- function(fixed_formula, name_class, name_clust,
     }
   }
   ## check the order of the average and assign levl_class
-  form_mean <- as.formula(paste(name_test, "~", name_class))
+  form_mean <- as.formula(paste(name_test_wk, "~", name_class))
   mean_temp <- aggregate(form_mean, FUN = mean, data = data)
   temp_levl <- mean_temp[order(mean_temp[, 2]), 1]
   out_check_levl <- check_levl_class(trace, levl_class, temp_levl)
@@ -281,7 +282,7 @@ clus_lme <- function(fixed_formula, name_class, name_clust,
   fit$name_class <- name_class
   fit$name_clust <- name_clust
   fixed <- as.formula(
-    paste(name_test, "~", name_class, "+", "(", name_covars, ")", ":",
+    paste(name_test_wk, "~", name_class, "+", "(", name_covars, ")", ":",
           name_class, "-1"))
   fit$names_covars <- names_covars
   random <- as.formula(paste("~", "1|", name_clust))

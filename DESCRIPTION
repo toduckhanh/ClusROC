@@ -12,8 +12,9 @@ Description: Statistical methods for ROC surface analysis in three-class classif
   (iv) the optimal pairs of thresholds.
   Methods considered in points (i), (ii) and (iv) are proposed and discussed in To et al. (2022) <doi:10.1177/09622802221089029>. Referring to point (iv), three  different selection criteria are implemented: Generalized Youden Index (GYI), Closest to Perfection (CtP) and Maximum Volume (MV). Methods considered in point (iii) are proposed and discussed in Xiong et al. (2018) <doi:10.1177/0962280217742539>. Visualization tools are also provided. We refer readers to the articles cited above for all details. 
 License: GPL-3
-Depends: R (>= 3.5.0), stats, utils, graphics, nlme
+Depends: R (>= 3.5.0), stats, utils, graphics, nlme, Rcpp (>= 0.12.3)
 Imports: rgl, car, numDeriv, ggplot2, ggpubr, snow, doSNOW, foreach
+LinkingTo: Rcpp, RcppArmadillo
 Encoding: UTF-8
 LazyData: true
 LazyLoad: yes
