@@ -2,7 +2,7 @@
 #' @name MouseNeurons
 #' @docType data
 #'
-#' @description A subset of mouse brain cells data used in To el al. (2022). This is used to evaluate the ability of Lamp5 gene to discriminate three types of glutamatergic neurons. A full data is publicly available at \url{https://portal.brain-map.org/atlases-and-data/rnaseq/mouse-v1-and-alm-smart-seq}
+#' @description A subset of mouse brain cells data used in To el al. (2022). This is used to evaluate the ability of Lamp5 gene to discriminate three types of glutamatergic neurons. A full data is publicly available at \url{https://portal.brain-map.org/atlases-and-data/rnaseq/mouse-v1-and-alm-smart-seq}.
 #'
 #' @usage data(MouseNeurons)
 #'
@@ -16,6 +16,10 @@
 #'   \item{\code{Slc17a7_cpm}}{count per million of Slc17a7 (Solute Carrier Family 17 Member 7) gene expression.}
 #'   \item{\code{Lamp5_cpm}}{count per million of Lamp5 (Lysosomal Associated Membrane Protein Family Member 5) gene expression.}
 #'}
+#'
+#' @references
+#' To, D-K., Adimari, G., Chiogna, M. and Risso, D. (2022)
+#' ``Receiver operating characteristic estimation and threshold selection criteria in three-class classification problems for clustered data''. \emph{Statistical Methods in Medical Research}, \bold{7}, 31, 1325-1341.
 #'
 #' @keywords data
 #'

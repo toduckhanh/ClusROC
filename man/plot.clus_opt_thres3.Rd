@@ -13,6 +13,7 @@
   size_point = 0.5,
   size_path = 0.5,
   names_labels,
+  nrow_legend = 1,
   file_name = NULL,
   ...
 )
@@ -28,7 +29,9 @@
 
 \item{size_point, size_path}{numeric values, indicating sizes for point(s) and line(s) in the plot.}
 
-\item{names_labels}{a optional character vector giving the label name for covariates.}
+\item{names_labels}{an optional character vector giving the label name for covariates.}
+
+\item{nrow_legend}{an optional number of rows in the legend.}
 
 \item{file_name}{File name to create on disk.}
 

@@ -444,7 +444,7 @@ print.clus_vus <- function(x, digits = 3, call = TRUE, ...) {
           row.names = FALSE, ...)
     cat("---\nSignif. codes:  ", sleg, sep = "",
         fill = getOption("width") + 4 + max(nchar(sleg, "bytes") - nchar(sleg)))
-    cat("z-value and p-value are for testing the null hypothesis H0: VUS = 1/6 vs H1: VUS > 1/6 \n")
+    cat("z-value and p-value are for testing the null hypothesis H0: VUS = 1/6 vs HA: VUS > 1/6 \n")
   } else {
     infer_tab <- data.frame(labels, x$vus_est)
     infer_tab[, 2] <- signif(infer_tab[, 2], digits = digits)
@@ -506,7 +506,7 @@ print.ci_clus_vus <- function(x, digits = 3, ...) {
                                  }))
   colnames(res_ci_tab) <- c("Covariates Values", "Normal approximation",
                             "Logit transformation", "Probit transformation")
-  cat(paste0("The ", x$ci.level * 100,
+  cat(paste0("The ", x$ci_level * 100,
              "% confidence intervals for covariate-specific VUS:\n"))
   print(res_ci_tab, quote = FALSE, right = TRUE, na.print = "--",
         row.names = FALSE, print.gap = 3, ...)

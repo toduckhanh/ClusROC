@@ -25,7 +25,8 @@ test_that("clus_vus works in case of no covariate", {
     class = "clus_vus")
 })
 
-test_that("clus_vus does not work in case of one contiuous covariate without newdata", {
+test_that("clus_vus does not work in case of one contiuous covariate
+          without newdata", {
   data(data_3class)
   out1 <- clus_lme(fixed_formula = Y ~ X1, name_class = "D",
                    name_clust = "id_Clus", data = data_3class)
