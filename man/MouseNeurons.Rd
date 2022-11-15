@@ -20,6 +20,10 @@ A data frame with 860 observations from 23 clusters and 7 variables:
 data(MouseNeurons)
 }
 \description{
-A subset of mouse brain cells data used in To el al. (2022). This is used to evaluate the ability of Lamp5 gene to discriminate three types of glutamatergic neurons. A full data is publicly available at \url{https://portal.brain-map.org/atlases-and-data/rnaseq/mouse-v1-and-alm-smart-seq}
+A subset of mouse brain cells data used in To el al. (2022). This is used to evaluate the ability of Lamp5 gene to discriminate three types of glutamatergic neurons. A full data is publicly available at \url{https://portal.brain-map.org/atlases-and-data/rnaseq/mouse-v1-and-alm-smart-seq}.
+}
+\references{
+To, D-K., Adimari, G., Chiogna, M. and Risso, D. (2022)
+``Receiver operating characteristic estimation and threshold selection criteria in three-class classification problems for clustered data''. \emph{Statistical Methods in Medical Research}, \bold{7}, 31, 1325-1341.
 }
 \keyword{data}

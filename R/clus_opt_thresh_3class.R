@@ -337,7 +337,8 @@ clus_opt_thres3 <- function(method = c("GYI", "CtP", "MV"), out_clus_lme,
 #' @param colors  a string vector for the name(s) specifying color(s) to be used for drawing confidence regions. If specified, the dimension of the vector needs to be equal the number of considered points (each point corresponds to a set of values for the covariates).
 #' @param xlims,ylims numeric vectors of dimension 2, giving the limits for x and y axes in the plot.
 #' @param size_point,size_path  numeric values, indicating sizes for point(s) and line(s) in the plot.
-#' @param names_labels a optional character vector giving the label name for covariates.
+#' @param names_labels an optional character vector giving the label name for covariates.
+#' @param nrow_legend an optional number of rows in the legend.
 #' @param file_name File name to create on disk.
 #' @param ... further arguments used with \code{\link{ggexport}} function, for example, \code{width}, \code{height}.
 #'
@@ -350,7 +351,7 @@ clus_opt_thres3 <- function(method = c("GYI", "CtP", "MV"), out_clus_lme,
 #'@export
 plot.clus_opt_thres3 <- function(x, ci_level = 0.95, colors = NULL, xlims,
                                  ylims, size_point = 0.5, size_path = 0.5,
-                                 names_labels, file_name = NULL, ...) {
+                                 names_labels, nrow_legend = 1, file_name = NULL, ...) {
   if (isFALSE(inherits(x, "clus_opt_thres3"))) {
     stop("x was not from clus_opt_thres3()!")
   }
@@ -430,7 +431,8 @@ plot.clus_opt_thres3 <- function(x, ci_level = 0.95, colors = NULL, xlims,
   }
   pp <- pp +
     scale_color_manual(name = names_labels, breaks = as.character(1:n_x),
-                       values = colors, labels = point_labels)
+                       values = colors, labels = point_labels,
+                       guide = guide_legend(nrow = nrow_legend))
   if (!missing(xlims) && !missing(ylims)) {
     pp <- pp + xlim(xlims) + ylim(ylims)
   }

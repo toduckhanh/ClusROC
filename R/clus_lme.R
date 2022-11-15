@@ -428,7 +428,8 @@ print.clus_lme <- function(x, digits = max(3L, getOption("digits") - 3L),
     z <- (x$est_para[1:x$n_coef] - rep(0, x$n_coef)) / x$se_para[1:x$n_coef]
     p_val <- 2 * pnorm(abs(z), lower.tail = FALSE)
     infer_tab <- cbind(c(x$est_para, x$icc),
-                       c(x$se_para, rep(NA, 1)),
+                       c(x$se_para[1:(x$n_coef + 4)],
+                         rep(NA, length(x$est_para) - x$n_coef - 3)),
                        c(z, rep(NA, length(x$est_para) - x$n_coef + 1)),
                        c(p_val, rep(NA, length(x$est_para) - x$n_coef + 1)))
     rownames(infer_tab) <- c(names(x$est_para), "ICC")
