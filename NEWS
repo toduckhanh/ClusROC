@@ -1,4 +1,4 @@
-Version 1.0-2 (12th October 2022)
+Version 1.0-2 (15th November 2022)
 -------------
 * Correct the names of variables and functions according to the Tidyverse style.
 * Change the names of major functions, as listed below:
@@ -9,6 +9,8 @@ Version 1.0-2 (12th October 2022)
 ** optThres3() ---> clus_opt_thres3()
 * Adding the COYING file, which contains the terms of GPL-3 license.
 * Adding the test files.
+* Adding EnergyEthiopia data file.
+* Adding C/C++ code for supporting fast generate all combination.
 
 Version 1.0-1 (25th May 2022)
 -------------
