@@ -1,7 +1,7 @@
 Package: ClusROC
 Type: Package
 Title: ROC Analysis in Three-Class Classification Problems for Clustered Data
-Date: 2022-11-15
+Date: 2022-11-16
 Version: 1.0.2
 Author: Duc-Khanh To [aut, cre] (<https://orcid.org/0000-0002-4641-0764>), with contributions from Gianfranco Adimari and Monica Chiogna
 Maintainer: Duc-Khanh To <toduc@stat.unipd.it>
@@ -13,13 +13,14 @@ Description: Statistical methods for ROC surface analysis in three-class classif
   Methods considered in points (i), (ii) and (iv) are proposed and discussed in To et al. (2022) <doi:10.1177/09622802221089029>. Referring to point (iv), three  different selection criteria are implemented: Generalized Youden Index (GYI), Closest to Perfection (CtP) and Maximum Volume (MV). Methods considered in point (iii) are proposed and discussed in Xiong et al. (2018) <doi:10.1177/0962280217742539>. Visualization tools are also provided. We refer readers to the articles cited above for all details. 
 License: GPL-3
 Depends: R (>= 3.5.0), stats, utils, graphics, nlme, Rcpp (>= 0.12.3)
-Imports: rgl, car, numDeriv, ggplot2, ggpubr, snow, doSNOW, foreach
+Imports: rgl, ellipse, numDeriv, ggplot2, ggpubr, snow, doSNOW, foreach
 LinkingTo: Rcpp, RcppArmadillo
 Encoding: UTF-8
 LazyData: true
 LazyLoad: yes
 ByteCompile: yes
 RoxygenNote: 7.2.2
+NeedsCompilation: yes
 URL: https://github.com/toduckhanh/ClusROC
 BugReports: https://github.com/toduckhanh/ClusROC/issues
 Suggests: 

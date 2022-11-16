@@ -22,7 +22,7 @@ A data frame with 2088 observations from 1123 households (or clusters) in the ca
 data(EnergyEthiopia)
 }
 \description{
-A subset of energy choice data used in Alem et al. (2016). The authors are used the full dataset to investigate the determinants of household cooking fuel choice and energy transition in urban Ethiopia. A full data is publicly available at \url{https://doi.org/10.1016/j.eneco.2016.06.025}.
+A subset of energy choice data used in Alem et al. (2016). The authors are used the full dataset to investigate the determinants of household cooking fuel choice and energy transition in urban Ethiopia. A full data is publicly available at \doi{10.1016/j.eneco.2016.06.025}.
 }
 \references{
 Alem, Y., Beyene, A. D., Köhlin, G., & Mekonnen, A. (2016). "Modeling household cooking fuel choice: A panel multinomial logit approach". \emph{Energy Economics}, \bold{59}, 129-137.
