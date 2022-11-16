@@ -2,7 +2,7 @@
 #' @name EnergyEthiopia
 #' @docType data
 #'
-#' @description A subset of energy choice data used in Alem et al. (2016). The authors are used the full dataset to investigate the determinants of household cooking fuel choice and energy transition in urban Ethiopia. A full data is publicly available at \url{https://doi.org/10.1016/j.eneco.2016.06.025}.
+#' @description A subset of energy choice data used in Alem et al. (2016). The authors are used the full dataset to investigate the determinants of household cooking fuel choice and energy transition in urban Ethiopia. A full data is publicly available at \doi{10.1016/j.eneco.2016.06.025}.
 #'
 #' @usage data(EnergyEthiopia)
 #'

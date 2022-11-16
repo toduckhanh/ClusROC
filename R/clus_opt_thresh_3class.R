@@ -3,8 +3,9 @@
 ####========================================================================####
 
 #' @import grDevices
-#' @import car
+#' @import graphics
 #' @import ggplot2
+#' @importFrom ellipse ellipse
 #'
 clus_opt_thres3_core <- function(method, para, z, n_p, n_coef, boxcox, start,
                                  method_optim, maxit, lower, upper) {
@@ -351,7 +352,8 @@ clus_opt_thres3 <- function(method = c("GYI", "CtP", "MV"), out_clus_lme,
 #'@export
 plot.clus_opt_thres3 <- function(x, ci_level = 0.95, colors = NULL, xlims,
                                  ylims, size_point = 0.5, size_path = 0.5,
-                                 names_labels, nrow_legend = 1, file_name = NULL, ...) {
+                                 names_labels, nrow_legend = 1,
+                                 file_name = NULL, ...) {
   if (isFALSE(inherits(x, "clus_opt_thres3"))) {
     stop("x was not from clus_opt_thres3()!")
   }
@@ -372,20 +374,21 @@ plot.clus_opt_thres3 <- function(x, ci_level = 0.95, colors = NULL, xlims,
     theme_bw() +
     theme(legend.position = "bottom", strip.text.x = element_text(size = 9))
   if (!is.null(x$vcov_thres3)) {
-    c_alp <- sqrt(qchisq(ci_level, 2))
     dt_thres_list <- split(dt_thres, dt_thres$method)
     dt_ell_thres <- list()
     if ("GYI" %in% x$method) {
       dt_ell_thres_gyi <- data.frame()
       for (i in 1:n_x){
         uu <- ellipse(
-          center = as.numeric(dt_thres_list$`Generalized Youden Index`[i, 1:2]),
-          shape = x$vcov_thres3[[i]]$cov_gyi, radius = c_alp, draw = FALSE)
+          x = cov2cor(x$vcov_thres3[[i]]$cov_gyi)[1, 2],
+          scale = sqrt(diag(x$vcov_thres3[[i]]$cov_gyi)),
+          centre = as.numeric(dt_thres_list$`Generalized Youden Index`[i, 1:2]),
+          level = ci_level)
         dt_ell_thres_gyi <- rbind(dt_ell_thres_gyi,
                                   data.frame(uu, pts = as.factor(i)))
       }
       dt_ell_thres_gyi$method <- factor(rep(c("Generalized Youden Index"),
-                                            52 * n_x),
+                                            100 * n_x),
                                         levels = c("Generalized Youden Index"))
       dt_ell_thres$gyi <- dt_ell_thres_gyi
     }
@@ -393,13 +396,15 @@ plot.clus_opt_thres3 <- function(x, ci_level = 0.95, colors = NULL, xlims,
       dt_ell_thres_ctp <- data.frame()
       for (i in 1:n_x) {
         uu <- ellipse(
-          center = as.numeric(dt_thres_list$`Closest to Perfection`[i, 1:2]),
-          shape = x$vcov_thres3[[i]]$cov_ctp, radius = c_alp, draw = FALSE)
+          x = cov2cor(x$vcov_thres3[[i]]$cov_ctp)[1, 2],
+          scale = sqrt(diag(x$vcov_thres3[[i]]$cov_ctp)),
+          centre = as.numeric(dt_thres_list$`Closest to Perfection`[i, 1:2]),
+          level = ci_level)
         dt_ell_thres_ctp <- rbind(dt_ell_thres_ctp,
                                   data.frame(uu, pts = as.factor(i)))
       }
       dt_ell_thres_ctp$method <- factor(rep(c("Closest to Perfection"),
-                                            52 * n_x),
+                                            100 * n_x),
                                         levels = c("Closest to Perfection"))
       dt_ell_thres$ctp <- dt_ell_thres_ctp
     }
@@ -407,20 +412,22 @@ plot.clus_opt_thres3 <- function(x, ci_level = 0.95, colors = NULL, xlims,
       dt_ell_thres_mv <- data.frame()
       for (i in 1:n_x) {
         uu <- ellipse(
-          center = as.numeric(dt_thres_list$`Max Volume`[i, 1:2]),
-          shape = x$vcov_thres3[[i]]$cov_mv,
-          radius = c_alp, draw = FALSE)
+          x = cov2cor(x$vcov_thres3[[i]]$cov_mv)[1, 2],
+          scale = sqrt(diag(x$vcov_thres3[[i]]$cov_mv)),
+          centre = as.numeric(dt_thres_list$`Max Volume`[i, 1:2]),
+          level = ci_level)
         dt_ell_thres_mv <- rbind(dt_ell_thres_mv,
                                  data.frame(uu, pts = as.factor(i)))
       }
-      dt_ell_thres_mv$method <- factor(rep(c("Max Volume"), 52 * n_x),
+      dt_ell_thres_mv$method <- factor(rep(c("Max Volume"), 100 * n_x),
                                        levels = c("Max Volume"))
       dt_ell_thres$mv <- dt_ell_thres_mv
     }
     dt_ell_thres <- do.call(rbind, dt_ell_thres)
     pp <- pp +
       geom_path(data = dt_ell_thres,
-                aes_string(x = "x", y = "y", group = "pts"), size = size_path)
+                aes_string(x = "x", y = "y", group = "pts"),
+                linewidth = size_path)
   }
   if (is.null(colors)) {
     colors <- topo.colors(n_x)

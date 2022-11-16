@@ -1,10 +1,9 @@
 ####========================================================================####
-## This file consists of functions for estimating and ploting the ROC surface ##
+## This file consists of functions for plotting the ROC surface               ##
 ####========================================================================####
 
 #' @import rgl
 #' @import utils
-#' @import graphics
 
 shade_ellips <- function(orgi, sig, lev) {
   t1 <- sig[2, 2]
