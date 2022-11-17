@@ -107,14 +107,10 @@ clus_opt_thres3_control <- function(method_optim = c("L-BFGS-B", "BFGS",
                                     start = NULL, maxit = 200, lower = -Inf,
                                     upper = Inf, n_boot = 250, parallel = FALSE,
                                     ncpus = NULL) {
-  if (parallel && is.null(ncpus)) {
-    ncpus <- 2
-  }
   list(method_optim = match.arg(method_optim), start = start, maxit = maxit,
        lower = lower, upper = upper, n_boot = n_boot, parallel = parallel,
        ncpus = ncpus)
 }
-
 
 ### ---- Estimate the optimal pair of thresholds under normal assumption ----
 #' @title Estimation of the covariate-specific optimal pair of thresholds for clustered data.
@@ -225,7 +221,7 @@ clus_opt_thres3 <- function(method = c("GYI", "CtP", "MV"), out_clus_lme,
   }
   ## Check the ordering of means: mu_1 < mu_2 < mu_3
   par_model <- out_clus_lme$est_para
-  zz <- make_data(out_clus_lme, newdata, n_p)
+  zz <- make_data(out_clus_lme, newdata)
   res_check <- check_mu_order(zz, par_model, n_p)
   res_check_2 <- new_data_check(res_check)
   z <- res_check_2$z_new

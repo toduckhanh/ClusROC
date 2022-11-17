@@ -92,7 +92,7 @@ clus_roc_surface <- function(out_clus_lme, newdata, step_tcf = 0.01,
   beta_d <- par_model[1:(3 * n_p)]
   sigma_d <- sqrt(par_model[(3 * n_p + 2):(3 * n_p + 4)]^2 +
                     par_model[(3 * n_p + 1)]^2)
-  z <- make_data(out_clus_lme, newdata, n_p)
+  z <- make_data(out_clus_lme, newdata)
   mu_d <- z[[1]] %*% beta_d
   if ((mu_d[1] < mu_d[2]) * (mu_d[2] < mu_d[3]) == 0) {
     stop("The monotone ordering assumption DOES NOT hold for the value(s) of the covariate(s)")

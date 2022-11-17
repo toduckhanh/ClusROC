@@ -3,13 +3,14 @@
 ## the cluster-effect models under Box-Cox transformation                     ##
 ####========================================================================####
 
-#' @import snow
-#' @import doSNOW
 #' @import foreach
+#' @import iterators
+#' @import parallel
+#' @import doParallel
 
 boot_clus_lme <- function(out_clus_lme, z, n_boot = 250,
                           type = c("cluster", "stratified"), boxcox = TRUE,
-                          parallel = FALSE, ncpus = ifelse(parallel, 2, NULL)) {
+                          parallel = FALSE, ncpus = NULL) {
   levl_class <- as.character(attr(out_clus_lme$terms, "levl_class"))
   data <- out_clus_lme$data
   data[, out_clus_lme$name_class] <- factor(data[, out_clus_lme$name_class],
@@ -70,16 +71,16 @@ boot_clus_lme <- function(out_clus_lme, z, n_boot = 250,
                                 boxcox = boxcox, z = z)
     }
   } else {
-    cl <- makeCluster(rep("localhost", ncpus), type = "SOCK")
-    registerDoSNOW(cl)
+    if (is.null(ncpus)) ncpus <- 2
+    cl <- makeCluster(ncpus, type = "PSOCK")
+    registerDoParallel(cl)
     clusterEvalQ(cl, list(library(ClusROC)))
     name_class <- out_clus_lme$name_class
     name_clust <- out_clus_lme$name_clust
-    out_boot <- parSapply(cl, X = 1:n_boot, FUN = bts_func,
-                          data_list = data_list, fixed_formula = fixed_formula,
-                          name_class = name_class, name_clust = name_clust,
-                          levl_class = levl_class,
-                          type = type, boxcox = boxcox, z = z)
+    out_boot <- foreach(i = 1:n_boot, .combine = "cbind") %dopar%
+      bts_func(data_list = data_list, fixed_formula = fixed_formula,
+               name_class = name_class, name_clust = name_clust,
+               levl_class = levl_class, type = type, boxcox = boxcox, z = z)
     stopCluster(cl)
   }
   return(out_boot)

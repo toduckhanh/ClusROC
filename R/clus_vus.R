@@ -236,7 +236,7 @@ clus_vus <- function(out_clus_lme, newdata, ap_var = TRUE,
   }
   p_skk <- p_sks <- p_ssk
   par <- out_clus_lme$est_para[1:(out_clus_lme$n_coef + 4)]
-  z <- make_data(out_clus_lme, newdata, n_p)
+  z <- make_data(out_clus_lme, newdata)
   ## Check the ordering of means: mu_1 < mu_2 < mu_3
   res_check <- check_mu_order(z, par, n_p)
   if (all(res_check$status == 0)) {

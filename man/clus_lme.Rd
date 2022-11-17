@@ -78,17 +78,18 @@ This function fits a linear mixed-effect model for a continuous diagnostic test 
 ## Example 1:
 data(data_3class)
 head(data_3class)
-## A model with two covariate: X1 + X2
-out1 <- clus_lme(fixed_formula = Y ~ X1 + X2, name_class = "D", name_clust = "id_Clus",
-                 data = data_3class)
+## A model with two covariate
+out1 <- clus_lme(fixed_formula = Y ~ X1 + X2, name_class = "D",
+                 name_clust = "id_Clus", data = data_3class)
 print(out1)
 plot(out1)
 
 \donttest{
 ## Example 2: Box-Cox transformation
 data(data_3class_bcx)
-out2 <- clus_lme(fixed_formula = Y ~ X, name_class = "D", name_clust = "id_Clus",
-                 data = data_3class_bcx, boxcox = TRUE)
+out2 <- clus_lme(fixed_formula = Y ~ X, name_class = "D",
+                 name_clust = "id_Clus", data = data_3class_bcx,
+                 boxcox = TRUE)
 print(out2)
 plot(out2)
 }
