@@ -124,10 +124,8 @@ check_newdata_vus <- function(fixed_formula, newdata, n_p) {
     if (any(is.na(newdata))) {
       stop("NA value(s) are not allowed!")
     }
-    newdata <- model.frame(formula = delete.response(terms(fixed_formula)),
-                           newdata)
-    attr(newdata, "terms") <- NULL
-    newdata <- as.data.frame(newdata)
+    newdata <- get_all_vars(formula = delete.response(terms(fixed_formula)),
+                            newdata)
   }
   return(list(newdata = newdata))
 }
@@ -154,15 +152,13 @@ check_newdata_roc <- function(fixed_formula, newdata, n_p) {
     if (any(is.na(newdata))) {
       stop("NA value(s) not allowed!")
     }
-    newdata <- model.frame(formula = delete.response(terms(fixed_formula)),
-                           newdata)
-    attr(newdata, "terms") <- NULL
-    newdata <- as.data.frame(newdata)
+    newdata <- get_all_vars(formula = delete.response(terms(fixed_formula)),
+                            newdata)
   }
   return(list(newdata = newdata))
 }
 
-make_data <- function(out_clus_lme, newdata, n_p) {
+make_data <- function(out_clus_lme, newdata) {
   if (isFALSE(inherits(out_clus_lme, "clus_lme"))) {
     stop("out_clus_lme was not from clus_lme()!")
   }
@@ -173,7 +169,7 @@ make_data <- function(out_clus_lme, newdata, n_p) {
   id_coef <- c(seq(1, out_clus_lme$n_coef - 2, by = 3),
                seq(2, out_clus_lme$n_coef - 1, by = 3),
                seq(3, out_clus_lme$n_coef, by = 3))
-  if (n_p == 1) {
+  if (out_clus_lme$n_p == 1) {
     newdata <- data.frame(class_disease)
     names(newdata) <- as.character(attr(fm, "variable"))[2]
     dt <- model.matrix(fm, data = newdata)[, id_coef]
@@ -190,9 +186,9 @@ make_data <- function(out_clus_lme, newdata, n_p) {
     })
     res <- lapply(fm_list, function(x) {
       m <- model.frame(fm, x, xlev = attr(terms, "xlevels"))
-      x <- model.matrix(fm, m,
+      y <- model.matrix(fm, m,
                         contrasts.arg = attr(terms, "contrasts"))[, id_coef]
-      return(x)
+      return(y)
     })
   }
   return(res)

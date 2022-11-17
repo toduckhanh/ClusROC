@@ -32,7 +32,6 @@ test_that("clus_mle works with one covariate and levl_class", {
     class = "clus_lme")
 })
 
-
 test_that("clus_mle works with one covariate and boxcox transformation", {
   data(data_3class_bcx)
   expect_s3_class(
@@ -42,6 +41,21 @@ test_that("clus_mle works with one covariate and boxcox transformation", {
     class = "clus_lme")
 })
 
+test_that("clus_mle works with transformed covariate", {
+  data(data_3class)
+  expect_s3_class(
+    object = clus_lme(fixed_formula = Y ~ I(X1^2), name_class = "D",
+                      name_clust = "id_Clus", data = data_3class),
+    class = "clus_lme")
+})
+
+test_that("clus_mle works with transformed response", {
+  data(data_3class_bcx)
+  expect_s3_class(
+    object = clus_lme(fixed_formula = log(Y) ~ X, name_class = "D",
+                      name_clust = "id_Clus", data = data_3class_bcx),
+    class = "clus_lme")
+})
 
 test_that("clus_mle does not work without input fixed_formula", {
   data(data_3class)
@@ -99,7 +113,6 @@ test_that("clus_mle does not work if input wrong fixed_formula", {
     object = clus_lme(fixed_formula = Z ~ X1, name_class = "D",
                       name_clust = "id_Clus", data = data_3class))
 })
-
 
 test_that("clus_mle does not work if input missing name_class", {
   data(data_3class)
@@ -180,7 +193,6 @@ test_that("clus_mle does not work if input wrong levl_class", {
                       name_clust = "id_Clus", data = data_3class,
                       levl_class = c(1, 2, NA)))
 })
-
 
 test_that("clus_mle does not works for boxcox transformation in case of negative values", {
   data(data_3class)

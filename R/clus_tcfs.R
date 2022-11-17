@@ -137,7 +137,7 @@ clus_tcfs <- function(out_clus_lme, newdata, thresholds, ap_var = FALSE) {
   ## main
   par_model <- out_clus_lme$est_para
   ## Check the ordering of means: mu_1 < mu_2 < mu_3
-  z <- make_data(out_clus_lme, newdata, n_p)
+  z <- make_data(out_clus_lme, newdata)
   res_check <- check_mu_order(z, par_model, n_p)
   if (all(res_check$status == 0)) {
     stop("The assumption of montone ordering DOES NOT hold for all the value(s) of the covariate(s)")
